@@ -15,5 +15,6 @@ case class PetAlreadyExistsError(pet: Pet) extends Throwable
 
 trait PetValidationAlgebra[F[_]] {
 
+  /* Fails with a PetAlreadyExistsError */
   def doesNotExist(pet: Pet): F[Unit]
 }

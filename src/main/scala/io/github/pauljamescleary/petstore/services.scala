@@ -4,6 +4,14 @@ import fs2.util.Monad
 
 import scala.language.higherKinds
 
+/**
+  *
+  * @param ev$1
+  * @param repository where we get our data
+  * @param validation something that provides validations to the service
+  * @tparam F - this is the container for the things we work with, could be scala.concurrent.Future, Option, anything
+  *           as long as it is a Monad
+  */
 class PetService[F[_] : Monad](implicit repository: PetRepositoryAlgebra[F], validation: PetValidationAlgebra[F]) {
   import fs2.util.syntax._
 
