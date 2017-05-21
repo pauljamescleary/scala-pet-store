@@ -1,7 +1,9 @@
 package io.github.pauljamescleary.petstore
 
 import io.circe._
-import io.circe.generic.auto._
+import io.circe.generic.extras.semiauto.deriveEnumerationDecoder
+import io.circe.generic.extras.semiauto.deriveEnumerationEncoder
+import io.circe.generic.semiauto._
 import io.circe.syntax._
 import io.github.pauljamescleary.petstore.Model._
 import org.http4s._
@@ -10,33 +12,33 @@ import org.http4s.dsl._
 import org.http4s.HttpService
 import org.http4s.dsl.{->, /, Ok, POST, Root}
 
+import scala.util.Random
+
 object PetService {
 
   /* This is necessary as circe does not do auto derivation for ADTs */
-  implicit val encodePetType: Encoder[PetType] = {
-    case Dog => Json.fromString("Dog")
-    case Cat => Json.fromString("Cat")
-    case Hamster => Json.fromString("Hamster")
-    case HedgeHog => Json.fromString("HedgeHog")
-    case Chinchillas => Json.fromString("Chinchillas")
+  implicit private val decodePetType = deriveEnumerationDecoder[PetType]
+  implicit private val encodePetType = deriveEnumerationEncoder[PetType]
+
+  /* This is necessary as circe defaults options to null */
+  implicit private val encodePet = deriveEncoder[Pet].mapJsonObject {
+    _.filter {
+      case ("id", value) => !value.isNull
+      case _ => true
+    }
+  }
+  implicit private val decodePet = deriveDecoder[Pet].map {
+    case fix @ Pet(_, _, _, null) => fix.copy(id = None)
+    case ok => ok
   }
 
-  implicit val decodePetType: Decoder[PetType] = Decoder.instance {
-    hCursor =>
-      hCursor.as[String] map {
-        case "Dog" => Dog
-        case "Cat" => Cat
-        case "Hamster" => Hamster
-        case "HedgeHog" => HedgeHog
-        case "Chinchillas" => Chinchillas
-      }
-  }
+  private val random = new Random()
 
   val service = HttpService {
     case req @ POST -> Root / "pet" =>
       for {
         pet <- req.as(jsonOf[Pet])
-        resp <- Ok(pet.copy(id = Some(1)).asJson)
+        resp <- Ok(pet.copy(id=Some(random.nextLong)).asJson)
       } yield resp
   }
 }

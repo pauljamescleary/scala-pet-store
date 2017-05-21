@@ -26,4 +26,17 @@ interested in learning http4s, so the decision is rather self motivating.
 
 ## Getting Started
 
+Start up sbt:
+
+```
+> sbt
+```
+
+Once sbt has loaded, you can start up the application
+
+```
+> ~re-start
+```
+
+This uses revolver, which is a great way to develop and test the application.
 

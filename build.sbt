@@ -15,6 +15,7 @@ libraryDependencies ++= Seq(
  "io.circe" %% "circe-generic" % "0.8.0",
  // Optional for string interpolation to JSON model
  "io.circe" %% "circe-literal" % "0.8.0",
+ "io.circe" %% "circe-generic-extras_sjs0.6" % "0.8.0",
  "ch.qos.logback" %  "logback-classic"     % "1.2.1"
 )
 

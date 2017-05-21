@@ -9,6 +9,6 @@ object Model {
   case object HedgeHog extends PetType
   case object Chinchillas extends PetType
 
-  case class Pet(name: String, typ: PetType, image: Option[Array[Byte]], bio: String, id: Option[Long])
+  case class Pet(name: String, typ: PetType, bio: String, id: Option[Long])
 
 }
