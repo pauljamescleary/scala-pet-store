@@ -3,7 +3,9 @@ name := "scala-pet-store"
 version := "0.0.1-SNAPSHOT"
 scalaVersion := "2.12.2"
 
-val Http4sVersion = "0.15.11a"
+resolvers += Resolver.sonatypeRepo("snapshots")
+
+val Http4sVersion = "0.17.0-M2"
 
 libraryDependencies ++= Seq(
  "org.http4s"     %% "http4s-blaze-server" % Http4sVersion,
