@@ -13,3 +13,5 @@ libraryDependencies ++= Seq(
  "org.http4s"     %% "http4s-dsl"          % Http4sVersion,
  "ch.qos.logback" %  "logback-classic"     % "1.2.1"
 )
+
+enablePlugins(ScalafmtPlugin)
