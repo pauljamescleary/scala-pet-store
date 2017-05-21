@@ -9,7 +9,7 @@ object BlazeExample extends StreamApp {
   override def stream(args: List[String]): Stream[Task, Nothing] = {
     BlazeBuilder
       .bindHttp(8080, "localhost")
-      .mountService(HelloWorld.service, "/")
+      .mountService(PetService.service, "/")
       .serve
   }
 }
