@@ -20,4 +20,9 @@ object PetRepositoryTaskIntepreter extends PetRepositoryAlgebra[Task] {
     }
 
   def get(id: Long): Task[Option[Pet]] = Task.now(cache.get(id))
+
+  def findByNameAndType(name: String, typ: PetType): Task[Set[Pet]] =
+    Task.now {
+      cache.values.filter(p => p.name == name && p.typ == typ).toSet
+    }
 }
