@@ -26,3 +26,12 @@ object PetRepositoryTaskIntepreter extends PetRepositoryAlgebra[Task] {
       cache.values.filter(p => p.name == name && p.typ == typ).toSet
     }
 }
+
+class PetValidationTaskInterpreter(implicit repository: PetRepositoryAlgebra[Task]) extends PetValidationAlgebra[Task] {
+
+  def doesNotExist(pet: Pet): Task[Unit] = {
+    repository.findByNameAndType(pet.name, pet.typ).ensure(PetAlreadyExistsError(pet)) { matches =>
+      matches.forall(possibleMatch => possibleMatch.bio != pet.bio)
+    }.map(_ => ())
+  }
+}

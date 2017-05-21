@@ -10,3 +10,10 @@ trait PetRepositoryAlgebra[F[_]] {
 
   def findByNameAndType(name: String, typ: PetType): F[Set[Pet]]
 }
+
+case class PetAlreadyExistsError(pet: Pet) extends Throwable
+
+trait PetValidationAlgebra[F[_]] {
+
+  def doesNotExist(pet: Pet): F[Unit]
+}

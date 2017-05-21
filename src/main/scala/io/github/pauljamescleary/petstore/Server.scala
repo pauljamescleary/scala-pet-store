@@ -6,7 +6,9 @@ import org.http4s.util.StreamApp
 
 object Server extends StreamApp {
 
-  private val petService = new PetService[Task](PetRepositoryTaskIntepreter)
+  private implicit val petRepo = PetRepositoryTaskIntepreter
+  private implicit val petValidation = new PetValidationTaskInterpreter
+  private implicit val petService = new PetService[Task]
 
   override def stream(args: List[String]): Stream[Task, Nothing] = {
     BlazeBuilder
