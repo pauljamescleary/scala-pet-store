@@ -1,6 +1,9 @@
-package io.github.pauljamescleary.petstore
+package io.github.pauljamescleary.petstore.service
 
 import fs2.util.{Catchable, Monad}
+import io.github.pauljamescleary.petstore.model.Pet
+import io.github.pauljamescleary.petstore.repository.PetRepositoryAlgebra
+import io.github.pauljamescleary.petstore.validation.{PetNotFoundError, PetValidationAlgebra}
 
 import scala.language.higherKinds
 

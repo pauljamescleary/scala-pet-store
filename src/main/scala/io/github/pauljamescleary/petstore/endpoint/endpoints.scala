@@ -1,12 +1,15 @@
-package io.github.pauljamescleary.petstore
+package io.github.pauljamescleary.petstore.endpoint
 
 import fs2.Task
 import io.circe.generic.extras.semiauto.{deriveEnumerationDecoder, deriveEnumerationEncoder}
 import io.circe.generic.semiauto._
 import io.circe.syntax._
-import org.http4s.{HttpService, QueryParamDecoder}
+import io.github.pauljamescleary.petstore.model.{Pet, PetType}
+import io.github.pauljamescleary.petstore.service.PetService
+import io.github.pauljamescleary.petstore.validation.{PetAlreadyExistsError, PetNotFoundError}
 import org.http4s.circe._
 import org.http4s.dsl._
+import org.http4s.{HttpService, QueryParamDecoder}
 
 import scala.language.higherKinds
 

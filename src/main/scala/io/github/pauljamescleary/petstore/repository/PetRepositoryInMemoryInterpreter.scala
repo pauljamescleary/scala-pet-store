@@ -1,11 +1,12 @@
-package io.github.pauljamescleary.petstore
+package io.github.pauljamescleary.petstore.repository
 
 import fs2.Task
+import io.github.pauljamescleary.petstore.model.{Pet, PetType}
 
 import scala.collection.concurrent.TrieMap
 import scala.util.Random
 
-object PetRepositoryTaskIntepreter extends PetRepositoryAlgebra[Task] {
+object PetRepositoryInMemoryInterpreter extends PetRepositoryAlgebra[Task] {
 
   private val cache = new TrieMap[Long, Pet]
 
@@ -27,13 +28,4 @@ object PetRepositoryTaskIntepreter extends PetRepositoryAlgebra[Task] {
     Task.now {
       cache.values.filter(p => p.name == name && p.typ == typ).toSet
     }
-}
-
-class PetValidationTaskInterpreter(implicit repository: PetRepositoryAlgebra[Task]) extends PetValidationAlgebra[Task] {
-
-  def doesNotExist(pet: Pet): Task[Unit] = {
-    repository.findByNameAndType(pet.name, pet.typ).ensure(PetAlreadyExistsError(pet)) { matches =>
-      matches.forall(possibleMatch => possibleMatch.bio != pet.bio)
-    }.map(_ => ())
-  }
 }
