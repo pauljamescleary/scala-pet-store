@@ -12,6 +12,7 @@ trait PetRepositoryAlgebra[F[_]] {
 }
 
 case class PetAlreadyExistsError(pet: Pet) extends Throwable
+case class PetNotFoundError(id: Long) extends Throwable
 
 trait PetValidationAlgebra[F[_]] {
 

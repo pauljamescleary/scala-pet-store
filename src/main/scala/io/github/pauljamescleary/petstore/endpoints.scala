@@ -4,13 +4,20 @@ import fs2.Task
 import io.circe.generic.extras.semiauto.{deriveEnumerationDecoder, deriveEnumerationEncoder}
 import io.circe.generic.semiauto._
 import io.circe.syntax._
-import org.http4s.HttpService
+import org.http4s.{HttpService, QueryParamDecoder}
 import org.http4s.circe._
-import org.http4s.dsl.{->, /, Ok, POST, Root, _}
+import org.http4s.dsl._
 
 import scala.language.higherKinds
 
 object PetEndpoints {
+
+  /* Necessary for decoding query parameters */
+  import QueryParamDecoder._
+  import cats.implicits._
+
+  /* Parses out the id query param */
+  object IdMatcher extends QueryParamDecoderMatcher[Long]("id")
 
   /* This is necessary as circe does not do auto derivation for ADTs */
   implicit private val decodePetType = deriveEnumerationDecoder[PetType]
@@ -28,13 +35,33 @@ object PetEndpoints {
     case ok => ok
   }
 
-  // TODO: This is clunky, right now we must assert that our effect type is Task because that is what HTTP4s uses
-  def endpoints(petService: PetService[Task]) = HttpService {
+  private def handleErrors[A, B](task: => Task[A])(errorHandler: PartialFunction[Throwable, Task[B]]) =
+    task.handleWith(errorHandler)
+
+  private def createPetEndpoint(petService: PetService[Task]): HttpService = HttpService {
     case req @ POST -> Root / "pet" =>
-      for {
-        pet <- req.as(jsonOf[Pet])
-        saved <- petService.create(pet)
-        resp <- Ok(saved.asJson)
-      } yield resp
+      {
+        for {
+          pet <- req.as(jsonOf[Pet])
+          saved <- petService.create(pet)
+          resp <- Ok(saved.asJson)
+        } yield resp
+      }.handleWith {
+        case PetAlreadyExistsError(pet) => Conflict(s"The pet ${pet.name} of type ${pet.typ} already exists")
+      }
   }
+
+  private def getPetEndpoint(petService: PetService[Task]): HttpService = HttpService {
+    case GET -> Root / "pet" :? IdMatcher(id) =>
+      {
+        for {
+          retrieved <- petService.get(id)
+          resp <- Ok(retrieved.asJson)
+        } yield resp
+      }.handleWith {
+        case PetNotFoundError(notFound) => NotFound(s"The pet with id $notFound was not found")
+      }
+  }
+
+  def endpoints(petService: PetService[Task]): HttpService = createPetEndpoint(petService) |+| getPetEndpoint(petService)
 }

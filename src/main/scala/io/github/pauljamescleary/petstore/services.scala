@@ -1,6 +1,6 @@
 package io.github.pauljamescleary.petstore
 
-import fs2.util.Monad
+import fs2.util.{Catchable, Monad}
 
 import scala.language.higherKinds
 
@@ -22,5 +22,10 @@ class PetService[F[_] : Monad](implicit repository: PetRepositoryAlgebra[F], val
     } yield saved
   }
 
-  def get(id: Long): F[Option[Pet]] = repository.get(id)
+  def get(id: Long)(implicit C: Catchable[F], M: Monad[F]): F[Pet] = {
+    repository.get(id).flatMap {
+      case None => C.fail(PetNotFoundError(id))
+      case Some(found) => M.pure(found)
+    }
+  }
 }
