@@ -19,7 +19,8 @@ libraryDependencies ++= Seq(
  "ch.qos.logback" %  "logback-classic"     % "1.2.1",
  "org.tpolecat" %% "doobie-core-cats" % "0.4.1",
  "org.tpolecat" %% "doobie-h2-cats" % "0.4.1",
- "org.tpolecat" %% "doobie-scalatest-cats" % "0.4.1"
+ "org.tpolecat" %% "doobie-scalatest-cats" % "0.4.1",
+ "com.h2database"            %  "h2"                             % "1.4.195"
 )
 
 enablePlugins(ScalafmtPlugin)
