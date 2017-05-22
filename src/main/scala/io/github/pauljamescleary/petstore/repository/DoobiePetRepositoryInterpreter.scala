@@ -30,9 +30,8 @@ class DoobiePetRepositoryInterpreter(val xa: Transactor[Task]) extends PetReposi
   def put(pet: Pet): Task[Pet] = {
     val insert: ConnectionIO[Pet] =
       for {
-        id <- sql"insert into pet (name, typ, bio) values (${pet.name}, ${pet.typ}, ${pet.bio})".update.withUniqueGeneratedKeys[Long]("id")
-        p <- sql"select name, typ, bio, id from pet where id =$id".query[Pet].unique
-      } yield p
+        id <- sql"replace into pet (name, typ, bio) values (${pet.name}, ${pet.typ}, ${pet.bio})".update.withUniqueGeneratedKeys[Long]("id")
+      } yield pet.copy(id = Some(id))
     insert.transact(xa)
   }
 
@@ -58,7 +57,7 @@ object DoobiePetRepositoryInterpreter {
 
   /* Hardcoded to H2 for the time being */
   def apply(): DoobiePetRepositoryInterpreter = {
-    val xa = DriverManagerTransactor[Task]("org.h2.Driver", "jdbc:h2:mem:test;DB_CLOSE_DELAY=-1", "sa", "")
+    val xa = DriverManagerTransactor[Task]("org.h2.Driver", "jdbc:h2:mem:test;MODE=MySQL;DB_CLOSE_DELAY=-1", "sa", "")
     new DoobiePetRepositoryInterpreter(xa)
   }
 }
