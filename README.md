@@ -2,6 +2,9 @@
 An implementation of the java pet store using FP techniques in scala.
 
 # Status
+** Currently, this is under active development until the relevant bits fall out.  Feel free to contribute thoughts, ideas
+   or code.  Will socialize more widely once enough folks have reviewed and more parts are built out **
+
 This is very early on, there are lots of bits that I want to fall in here:
 
 - Scalacheck + Scalatest for unit testing
@@ -47,5 +50,42 @@ Once sbt has loaded, you can start up the application
 > ~re-start
 ```
 
-This uses revolver, which is a great way to develop and test the application.
+This uses revolver, which is a great way to develop and test the application.  Doing things this way the application
+will be automatically rebuilt when you make code changes
+
+To stop the app in sbt, hit the `Enter` key and then type:
+
+```
+> re-stop
+```
+
+## Testing
+Still need to do some more comprehensive testing.  For the time being, you can test as follows:
+
+First, make sure you start up the app using the directions above.
+
+Then, create a pet in a separate terminal
+
+```
+> ./post-pet.sh
+...
+{"name":"Harry","typ":"Cat","bio":"I am fuzzy","id":5297756703253440921}
+```
+
+You will see the output, you will have to remember the id.
+
+Next, you can `GET` the pet (replace your id with whatever id was generated above)...
+
+```
+> curl http://localhost:8080/pet?id=5297756703253440921
+```
+
+Finally, you can delete the bet, just have to use the delete verb.  Again, use your id...
+
+```
+> curl -X DELETE http://localhost:8080/pet?id=5297756703253440921
+```
+
+You can verify the pet has been deleted by doing a get again.  You will see a NotFound response.
+
 
