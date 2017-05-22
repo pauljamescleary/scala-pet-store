@@ -14,6 +14,8 @@ object PetEndpoints {
 
   /* Necessary for decoding query parameters */
   import QueryParamDecoder._
+
+  /* Needed for service composition via |+| */
   import cats.implicits._
 
   /* Parses out the id query param */
@@ -34,9 +36,6 @@ object PetEndpoints {
     case fix @ Pet(_, _, _, null) => fix.copy(id = None)
     case ok => ok
   }
-
-  private def handleErrors[A, B](task: => Task[A])(errorHandler: PartialFunction[Throwable, Task[B]]) =
-    task.handleWith(errorHandler)
 
   private def createPetEndpoint(petService: PetService[Task]): HttpService = HttpService {
     case req @ POST -> Root / "pet" =>
