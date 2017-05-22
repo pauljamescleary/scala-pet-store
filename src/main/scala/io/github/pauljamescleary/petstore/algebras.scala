@@ -8,6 +8,8 @@ trait PetRepositoryAlgebra[F[_]] {
 
   def get(id: Long): F[Option[Pet]]
 
+  def delete(id: Long): F[Option[Pet]]
+
   def findByNameAndType(name: String, typ: PetType): F[Set[Pet]]
 }
 
