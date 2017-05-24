@@ -13,4 +13,6 @@ trait PetRepositoryAlgebra[F[_]] {
   def delete(id: Long): F[Option[Pet]]
 
   def findByNameAndType(name: String, typ: PetType): F[Set[Pet]]
+
+  def list(pageSize: Int, offset: Int): F[Seq[Pet]]
 }

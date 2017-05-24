@@ -33,4 +33,6 @@ class PetService[F[_] : Monad](implicit repository: PetRepositoryAlgebra[F], val
 
   /* In some circumstances we may care if we actually delete the pet; here we are idempotent and do not care */
   def delete(id: Long): F[Unit] = repository.delete(id).map(_ => ())
+
+  def list(pageSize: Int, offset: Int): F[Seq[Pet]] = repository.list(pageSize, offset)
 }

@@ -28,4 +28,9 @@ object PetRepositoryInMemoryInterpreter extends PetRepositoryAlgebra[Task] {
     Task.now {
       cache.values.filter(p => p.name == name && p.typ == typ).toSet
     }
+
+  def list(pageSize: Int, offset: Int): Task[Seq[Pet]] =
+    Task.now {
+      cache.values.toSeq.sortBy(_.name).slice(offset, offset + pageSize)
+    }
 }

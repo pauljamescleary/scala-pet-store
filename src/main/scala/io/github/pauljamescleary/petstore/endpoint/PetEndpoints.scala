@@ -24,6 +24,10 @@ object PetEndpoints {
   /* Parses out the id query param */
   object IdMatcher extends QueryParamDecoderMatcher[Long]("id")
 
+  /* Parses out the offset and page size params */
+  object PageSizeMatcher extends QueryParamDecoderMatcher[Int]("pageSize")
+  object OffsetMatcher extends QueryParamDecoderMatcher[Int]("offset")
+
   /* This is necessary as circe does not do auto derivation for ADTs */
   implicit private val decodePetType = deriveEnumerationDecoder[PetType]
   implicit private val encodePetType = deriveEnumerationEncoder[PetType]
@@ -41,7 +45,7 @@ object PetEndpoints {
   }
 
   private def createPetEndpoint(petService: PetService[Task]): HttpService = HttpService {
-    case req@POST -> Root / "pet" => {
+    case req@POST -> Root / "pets" => {
       for {
         pet <- req.as(jsonOf[Pet])
         saved <- petService.create(pet)
@@ -53,7 +57,7 @@ object PetEndpoints {
   }
 
   private def getPetEndpoint(petService: PetService[Task]): HttpService = HttpService {
-    case GET -> Root / "pet" :? IdMatcher(id) => {
+    case GET -> Root / "pets" :? IdMatcher(id) => {
       for {
         retrieved <- petService.get(id)
         resp <- Ok(retrieved.asJson)
@@ -64,13 +68,21 @@ object PetEndpoints {
   }
 
   private def deletePetEndpoint(petService: PetService[Task]): HttpService = HttpService {
-    case DELETE -> Root / "pet" :? IdMatcher(id) =>
+    case DELETE -> Root / "pets" :? IdMatcher(id) =>
       for {
         _ <- petService.delete(id)
         resp <- Ok()
       } yield resp
   }
 
+  private def listPetsEndpoint(petService: PetService[Task]): HttpService = HttpService {
+    case GET -> Root / "pets" :? PageSizeMatcher(pageSize) :? OffsetMatcher(offset) =>
+      for {
+        retrieved <- petService.list(pageSize, offset)
+        resp <- Ok(retrieved.asJson)
+      } yield resp
+  }
+
   def endpoints(petService: PetService[Task]): HttpService =
-    createPetEndpoint(petService) |+| getPetEndpoint(petService) |+| deletePetEndpoint(petService)
+    createPetEndpoint(petService) |+| getPetEndpoint(petService) |+| deletePetEndpoint(petService) |+| listPetsEndpoint(petService)
 }

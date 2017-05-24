@@ -10,7 +10,7 @@ import fs2.interop.cats._
 
 class DoobiePetRepositoryInterpreter(val xa: Transactor[Task]) extends PetRepositoryAlgebra[Task] {
 
-  // This will clear the database on start
+  // This will clear the database on start.  Note, this would typically be done via something like FLYWAY (TODO)
   sql"""
     DROP TABLE IF EXISTS pet
   """.update.run.transact(xa).unsafeRun
@@ -50,6 +50,10 @@ class DoobiePetRepositoryInterpreter(val xa: Transactor[Task]) extends PetReposi
 
   def findByNameAndType(name: String, typ: PetType): Task[Set[Pet]] = {
     sql"select name, typ, bio, id from pet where name = $name and typ = $typ".query[Pet].list.transact(xa).map(_.toSet)
+  }
+
+  def list(pageSize: Int, offset: Int): Task[Seq[Pet]] = {
+    sql"select name, typ, bio, id from pet order by name limit $offset,$pageSize".query[Pet].list.transact(xa)
   }
 }
 
