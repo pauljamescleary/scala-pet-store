@@ -5,3 +5,4 @@ target
 project/target
 .virtualenv
 __pycache__
+*.pyc
