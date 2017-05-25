@@ -3,3 +3,5 @@
 .idea
 target
 project/target
+.virtualenv
+__pycache__

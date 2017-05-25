@@ -18,7 +18,7 @@ The goal for this project is to demonstrate how to build an application using FP
 When starting out in Scala coming from a Java background, it was extremely difficult to piece together all of the little
 bits in order to make a cohesive whole application.
 
-## How are you build it?
+## How are you building it?
 As the goal of the project is to help Java / Spring folks understand how to build an application in Scala, I will
 not be looking to employ the more esoteric features in Scala like Type Classes and Category Theory.  Those things will
 be present, but I hope to obscure them in parts the purpose of allowing the reader to understand what is going on in the code.
@@ -60,32 +60,25 @@ To stop the app in sbt, hit the `Enter` key and then type:
 ```
 
 ## Testing
-Still need to do some more comprehensive testing.  For the time being, you can test as follows:
+Building out a test suite using Python.  The reason is that typically we want to run tests against a live environment
+when we deploy our code in order to make sure that everything is running properly in the target environment.
 
-First, make sure you start up the app using the directions above.
+Python 2.7 tends to run on almost all machines, so that is why I chose python.  Plus, python is really easy to read
+and follow along with.
 
-Then, create a pet in a separate terminal
+In order to run the functional tests, your machine will need to have Python 2.7 and pip, and virtualenv.
 
-```
-> ./post-pet.sh
-...
-{"name":"Harry","typ":"Cat","bio":"I am fuzzy","id":5297756703253440921}
-```
+1. To install pip on a Mac, run `sudo easy_install pip`
+2. Then install virutalenv `sudo pip install virtualenv`
 
-You will see the output, you will have to remember the id.
+To test out the app, first start it up following the directions above and doing `re-start`
 
-Next, you can `GET` the pet (replace your id with whatever id was generated above)...
-
-```
-> curl http://localhost:8080/pet?id=5297756703253440921
-```
-
-Finally, you can delete the bet, just have to use the delete verb.  Again, use your id...
+Then, in a separate terminal, run the test suite:
 
 ```
-> curl -X DELETE http://localhost:8080/pet?id=5297756703253440921
+> cd functional_test
+> ./run.py live_tests -v
 ```
 
-You can verify the pet has been deleted by doing a get again.  You will see a NotFound response.
 
 
