@@ -1,10 +1,9 @@
 package io.github.pauljamescleary.petstore.endpoint
 
 import fs2.Task
-import io.circe.generic.extras.semiauto.{deriveEnumerationDecoder, deriveEnumerationEncoder}
-import io.circe.generic.semiauto._
+import io.circe._
 import io.circe.syntax._
-import io.github.pauljamescleary.petstore.model.{Pet, PetType}
+import io.github.pauljamescleary.petstore.model.{Available, Pet, Status}
 import io.github.pauljamescleary.petstore.service.PetService
 import io.github.pauljamescleary.petstore.validation.{PetAlreadyExistsError, PetNotFoundError}
 import org.http4s.circe._
@@ -28,20 +27,38 @@ object PetEndpoints {
   object PageSizeMatcher extends QueryParamDecoderMatcher[Int]("pageSize")
   object OffsetMatcher extends QueryParamDecoderMatcher[Int]("offset")
 
-  /* This is necessary as circe does not do auto derivation for ADTs */
-  implicit private val decodePetType = deriveEnumerationDecoder[PetType]
-  implicit private val encodePetType = deriveEnumerationEncoder[PetType]
+  implicit val longOptionEncoder = Encoder.encodeOption[Long]
 
-  /* This is necessary as circe defaults options to null */
-  implicit private val encodePet = deriveEncoder[Pet].mapJsonObject {
-    _.filter {
-      case ("id", value) => !value.isNull
-      case _ => true
-    }
+  implicit val encodePet: Encoder[Pet] = new Encoder[Pet] {
+    final def apply(a: Pet): Json = Json.obj(
+      ("name", Json.fromString(a.name)),
+      ("category", Json.fromString(a.category)),
+      ("bio", Json.fromString(a.bio)),
+      ("status", Json.fromString(Status.nameOf(a.status))),
+      ("tags", Json.fromValues(a.tags.map(Json.fromString))),
+      ("photoUrls", Json.fromValues(a.photoUrls.map(Json.fromString))),
+      ("id", a.id.map(Json.fromLong).getOrElse(Json.Null))
+    )
   }
-  implicit private val decodePet = deriveDecoder[Pet].map {
-    case fix@Pet(_, _, _, null) => fix.copy(id = None)
-    case ok => ok
+
+  implicit val setStringOptionDecoder: Decoder[Set[String]] = Decoder.decodeOption[Set[String]].map {
+    case Some(ss) => ss
+    case None => Set.empty[String]
+  }
+
+  implicit val decodePet: Decoder[Pet] = new Decoder[Pet] {
+    final def apply(c: HCursor): Decoder.Result[Pet] =
+      for {
+        name <- c.get[String]("name")
+        category <- c.get[String]("category")
+        bio <- c.get[String]("bio")
+        status <- c.get[Option[String]]("status").map { case Some(s) => Status.apply(s); case None => Available }
+        tags <- c.get[Set[String]]("tags")
+        photoUrls <- c.get[Set[String]]("photoUrls")
+        id <- c.get[Option[Long]]("id")
+      } yield {
+        Pet(name, category, bio, status, tags, photoUrls, id)
+      }
   }
 
   private def createPetEndpoint(petService: PetService[Task]): HttpService = HttpService {
@@ -52,7 +69,7 @@ object PetEndpoints {
         resp <- Ok(saved.asJson)
       } yield resp
     }.handleWith {
-      case PetAlreadyExistsError(pet) => Conflict(s"The pet ${pet.name} of type ${pet.typ} already exists")
+      case PetAlreadyExistsError(pet) => Conflict(s"The pet ${pet.name} of category ${pet.category} already exists")
     }
   }
 

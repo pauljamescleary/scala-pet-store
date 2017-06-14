@@ -1,7 +1,7 @@
 package io.github.pauljamescleary.petstore.repository
 
 import fs2.Task
-import io.github.pauljamescleary.petstore.model.{Pet, PetType}
+import io.github.pauljamescleary.petstore.model.{Category, Pet}
 
 import scala.collection.concurrent.TrieMap
 import scala.util.Random
@@ -24,9 +24,9 @@ object PetRepositoryInMemoryInterpreter extends PetRepositoryAlgebra[Task] {
 
   def delete(id: Long): Task[Option[Pet]] = Task.now(cache.remove(id))
 
-  def findByNameAndType(name: String, typ: PetType): Task[Set[Pet]] =
+  def findByNameAndCategory(name: String, category: String): Task[Set[Pet]] =
     Task.now {
-      cache.values.filter(p => p.name == name && p.typ == typ).toSet
+      cache.values.filter(p => p.name == name && p.category == category).toSet
     }
 
   def list(pageSize: Int, offset: Int): Task[Seq[Pet]] =
