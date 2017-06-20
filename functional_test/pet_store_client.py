@@ -61,4 +61,13 @@ class PetStoreClient(object):
 
         return self.session.request('DELETE', url, self.headers)
 
+    def place_order(self, order):
+        """
+        Places an order for a pet
+        """
+        url = urljoin(self.index_url, '/orders')
+
+        return self.session.request('POST', url, self.headers, json.dumps(order))
+
+
 
