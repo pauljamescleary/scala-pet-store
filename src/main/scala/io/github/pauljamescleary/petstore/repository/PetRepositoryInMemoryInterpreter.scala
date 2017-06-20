@@ -1,7 +1,7 @@
 package io.github.pauljamescleary.petstore.repository
 
 import fs2.Task
-import io.github.pauljamescleary.petstore.model.{Category, Pet}
+import io.github.pauljamescleary.petstore.model.Pet
 
 import scala.collection.concurrent.TrieMap
 import scala.util.Random
