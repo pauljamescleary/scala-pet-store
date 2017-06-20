@@ -31,7 +31,7 @@ class DoobiePetRepositoryInterpreter(val xa: Transactor[Task]) extends PetReposi
     )
   """.update.run.transact(xa).unsafeRun
 
-  /* We require tye StatusMeta to handle our ADT Status */
+  /* We require type StatusMeta to handle our ADT Status */
   private implicit val StatusMeta: Meta[Status] = Meta[String].nxmap(Status.apply, Status.nameOf)
 
   /* This is used to marshal our sets of strings */

@@ -1,6 +1,6 @@
 package io.github.pauljamescleary.petstore.repository
 
-import io.github.pauljamescleary.petstore.model.{Category, Pet}
+import io.github.pauljamescleary.petstore.model.Pet
 
 import scala.language.higherKinds
 

@@ -19,7 +19,8 @@ libraryDependencies ++= Seq(
  "org.tpolecat" %% "doobie-core-cats" % "0.4.1",
  "org.tpolecat" %% "doobie-h2-cats" % "0.4.1",
  "org.tpolecat" %% "doobie-scalatest-cats" % "0.4.1",
- "com.h2database"            %  "h2"                             % "1.4.195"
+ "com.h2database"            %  "h2"                             % "1.4.195",
+ "joda-time" % "joda-time" % "2.9.9"
 )
 
 enablePlugins(ScalafmtPlugin)
