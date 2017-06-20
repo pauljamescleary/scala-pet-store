@@ -13,7 +13,10 @@ def pet_context(request, pet_store_client):
     pet = {
         "name": "Harry",
         "category": "Cat",
-        "bio": "I am fuzzy"
+        "bio": "I am fuzzy",
+        "status": "Available",
+        "tags": [],
+        "photoUrls": []
     }
 
     saved_pet = pet_store_client.create_pet(pet).json()
