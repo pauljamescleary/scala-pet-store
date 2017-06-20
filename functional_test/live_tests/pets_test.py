@@ -12,7 +12,7 @@ def pet_store_client(request):
 def pet_context(request, pet_store_client):
     pet = {
         "name": "Harry",
-        "typ": "Cat",
+        "category": "Cat",
         "bio": "I am fuzzy"
     }
 
@@ -31,7 +31,7 @@ def test_get_pet(pet_context, pet_store_client):
 
     pet = response.json()
     assert_that(pet['name'], is_('Harry'))
-    assert_that(pet['typ'], is_('Cat'))
+    assert_that(pet['category'], is_('Cat'))
     assert_that(pet['bio'], is_('I am fuzzy'))
     assert_that(pet['id'], is_(pet_context['id']))
 
