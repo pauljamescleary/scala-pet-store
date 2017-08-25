@@ -2,15 +2,12 @@
 An implementation of the java pet store using FP techniques in scala.
 
 # Status
-** Currently, this is under active development until the relevant bits fall out.  Feel free to contribute thoughts, ideas
-   or code.  Will socialize more widely once enough folks have reviewed and more parts are built out **
+I have stood up a few endpoints, with tagless final services and repositories.  Repositories developed in Doobie.
 
-This is very early on, there are lots of bits that I want to fall in here:
+Updated to the latest of all of the things as we abstract away the effect type from as much of the system as possible.
 
-- Scalacheck + Scalatest for unit testing
-- ??? for integration testing.  Figure could use H2
-- ??? some kind of user interface, we have been working with react, so that is where we might wind up
-- Authentication
+# Want to help out?
+I could use some help with Scalacheck and a UI if people feel compelled to jump in.
 
 
 ## Why you doing this?
@@ -30,11 +27,11 @@ enough barrier to entry to pick up quickly.
 I am going to work with the TypeLevel stack initially and see how far I can go with it.  I believe that framing the
 concepts in code in an easy to understand way should be possible with Typelevel.
 
-- HTTP4S as the web server.  I could have gone with finch, twitter server, or akka-http here as well, but I have been
+- [HTTP4S](http://http4s.org/) as the web server.  I could have gone with finch, twitter server, or akka-http here as well, but I have been
 interested in learning http4s.
-- Circe for json serialization.
+- [Circe](https://circe.github.io/circe/) for json serialization.
 - Tagless Final for my core domain.
-- DB access is unknown, I will try doobie, but may fall back to scalikejdbc if I cannot have it align with the goals for the project
+- [Doobie](https://github.com/tpolecat/doobie) for database access
 
 ## Getting Started
 
