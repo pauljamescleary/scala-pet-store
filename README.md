@@ -2,12 +2,18 @@
 An implementation of the java pet store using FP techniques in scala.
 
 # Status
-I have stood up a few endpoints, with tagless final services and repositories.  Repositories developed in Doobie.
+I have stood up a few endpoints, with something like tagless final services and repositories.  Repositories developed in Doobie.
 
-Updated to the latest of all of the things as we abstract away the effect type from as much of the system as possible.
+Updated to the latest of all of the things as I begin to abstract away the effect type.
+
+I am still exploring tagless final and how to fit all of the pieces together.  Hoping to get into a more complete
+functional example, as well as a UI and some business rules / validations.
 
 # Want to help out?
 I could use some help with Scalacheck and a UI if people feel compelled to jump in.
+
+Also, if you have general feedback on how things could be better, feel free to post an issue / gist or
+open a PR!
 
 
 ## Why you doing this?
@@ -58,10 +64,8 @@ To stop the app in sbt, hit the `Enter` key and then type:
 
 ## Testing
 Building out a test suite using Python.  The reason is that typically we want to run tests against a live environment
-when we deploy our code in order to make sure that everything is running properly in the target environment.
-
-Python 2.7 tends to run on almost all machines, so that is why I chose python.  Plus, python is really easy to read
-and follow along with.
+when we deploy our code in order to make sure that everything is running properly in the target environment.  It
+is reassuring to know that your code works across clients.
 
 In order to run the functional tests, your machine will need to have Python 2.7 and pip, and virtualenv.
 
