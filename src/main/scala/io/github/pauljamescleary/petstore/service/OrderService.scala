@@ -1,6 +1,6 @@
 package io.github.pauljamescleary.petstore.service
 
-import fs2.util.Monad
+import cats.Monad
 import io.github.pauljamescleary.petstore.model.Order
 import io.github.pauljamescleary.petstore.repository.OrderRepositoryAlgebra
 

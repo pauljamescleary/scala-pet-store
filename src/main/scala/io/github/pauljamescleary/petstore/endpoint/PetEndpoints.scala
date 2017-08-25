@@ -1,11 +1,11 @@
 package io.github.pauljamescleary.petstore.endpoint
 
-import fs2.Task
+import cats.effect._
 import io.circe._
-import io.circe.syntax._
 import io.circe.generic.auto._
 import io.circe.generic.extras.semiauto._
-import io.github.pauljamescleary.petstore.model.{Available, Pet, Status}
+import io.circe.syntax._
+import io.github.pauljamescleary.petstore.model.{Pet, Status}
 import io.github.pauljamescleary.petstore.service.PetService
 import io.github.pauljamescleary.petstore.validation.{PetAlreadyExistsError, PetNotFoundError}
 import org.http4s.circe._
@@ -33,30 +33,30 @@ object PetEndpoints {
   implicit val statusDecoder = deriveEnumerationDecoder[Status]
   implicit val statusEncoder = deriveEnumerationEncoder[Status]
 
-  private def createPetEndpoint(petService: PetService[Task]): HttpService = HttpService {
+  private def createPetEndpoint(petService: PetService[IO]): HttpService[IO] = HttpService[IO] {
     case req@POST -> Root / "pets" => {
       for {
-        pet <- req.as(jsonOf[Pet])
+        pet <- req.as(implicitly, jsonOf[IO, Pet]) // <-- TODO: Make this cleaner in HTTP4S
         saved <- petService.create(pet)
         resp <- Ok(saved.asJson)
       } yield resp
-    }.handleWith {
+    }.handleErrorWith {
       case PetAlreadyExistsError(pet) => Conflict(s"The pet ${pet.name} of category ${pet.category} already exists")
     }
   }
 
-  private def getPetEndpoint(petService: PetService[Task]): HttpService = HttpService {
+  private def getPetEndpoint(petService: PetService[IO]): HttpService[IO] = HttpService[IO] {
     case GET -> Root / "pets" :? IdMatcher(id) => {
       for {
         retrieved <- petService.get(id)
         resp <- Ok(retrieved.asJson)
       } yield resp
-    }.handleWith {
+    }.handleErrorWith {
       case PetNotFoundError(notFound) => NotFound(s"The pet with id $notFound was not found")
     }
   }
 
-  private def deletePetEndpoint(petService: PetService[Task]): HttpService = HttpService {
+  private def deletePetEndpoint(petService: PetService[IO]): HttpService[IO] = HttpService[IO] {
     case DELETE -> Root / "pets" :? IdMatcher(id) =>
       for {
         _ <- petService.delete(id)
@@ -64,7 +64,7 @@ object PetEndpoints {
       } yield resp
   }
 
-  private def listPetsEndpoint(petService: PetService[Task]): HttpService = HttpService {
+  private def listPetsEndpoint(petService: PetService[IO]): HttpService[IO] = HttpService[IO] {
     case GET -> Root / "pets" :? PageSizeMatcher(pageSize) :? OffsetMatcher(offset) =>
       for {
         retrieved <- petService.list(pageSize, offset)
@@ -72,6 +72,6 @@ object PetEndpoints {
       } yield resp
   }
 
-  def endpoints(petService: PetService[Task]): HttpService =
+  def endpoints(petService: PetService[IO]): HttpService[IO] =
     createPetEndpoint(petService) |+| getPetEndpoint(petService) |+| deletePetEndpoint(petService) |+| listPetsEndpoint(petService)
 }
