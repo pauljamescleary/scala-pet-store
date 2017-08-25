@@ -25,7 +25,6 @@ class PetService[F[_]](implicit repository: PetRepositoryAlgebra[F], validation:
   }
 
   def get(id: Long)(implicit E: MonadError[F, Throwable]): F[Pet] = {
-
     repository.get(id).flatMap {
       case None => E.raiseError(PetNotFoundError(id))
       case Some(found) => E.pure(found)
