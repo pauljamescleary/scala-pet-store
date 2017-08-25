@@ -5,20 +5,22 @@ scalaVersion := "2.12.2"
 
 resolvers += Resolver.sonatypeRepo("snapshots")
 
-val Http4sVersion = "0.17.0-M2"
+val Http4sVersion = "0.18.0-M1"
+val DoobieVersion = "0.5.0-M6"
+val CirceVersion = "0.9.0-M1"
 
 libraryDependencies ++= Seq(
  "org.http4s"     %% "http4s-blaze-server" % Http4sVersion,
  "org.http4s"     %% "http4s-circe"        % Http4sVersion,
  "org.http4s"     %% "http4s-dsl"          % Http4sVersion,
- "io.circe" %% "circe-generic" % "0.8.0",
- "io.circe" %% "circe-literal" % "0.8.0",
- "io.circe" %% "circe-generic-extras_sjs0.6" % "0.8.0",
- "io.circe" %% "circe-optics" % "0.8.0",
+ "io.circe" %% "circe-generic" % CirceVersion,
+ "io.circe" %% "circe-literal" % CirceVersion,
+ "io.circe" %% "circe-generic-extras_sjs0.6" % CirceVersion,
+ "io.circe" %% "circe-optics" % CirceVersion,
  "ch.qos.logback" %  "logback-classic"     % "1.2.1",
- "org.tpolecat" %% "doobie-core-cats" % "0.4.1",
- "org.tpolecat" %% "doobie-h2-cats" % "0.4.1",
- "org.tpolecat" %% "doobie-scalatest-cats" % "0.4.1",
+ "org.tpolecat" %% "doobie-core" % DoobieVersion,
+ "org.tpolecat" %% "doobie-h2" % DoobieVersion,
+ "org.tpolecat" %% "doobie-scalatest" % DoobieVersion,
  "com.h2database"            %  "h2"                             % "1.4.195",
  "joda-time" % "joda-time" % "2.9.9"
 )
