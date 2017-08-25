@@ -25,8 +25,6 @@ object OrderEndpoints {
   implicit val statusDecoder = deriveEnumerationDecoder[OrderStatus]
   implicit val statusEncoder = deriveEnumerationEncoder[OrderStatus]
 
-  implicit val orderDecoder = Decoder[Order]
-
   def placeOrderEndpoint(orderService: OrderService[IO]): HttpService[IO] = HttpService[IO] {
     case req@POST -> Root / "orders" => {
       for {
