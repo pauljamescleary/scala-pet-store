@@ -12,16 +12,3 @@ jobs:
 
       script:
         - sbt ++$TRAVIS_SCALA_VERSION test
-
-    - stage: func-test
-      before_script:
-        - |
-          sbt run &
-          SERVER_PID=$!
-
-      script: cd functional_test && ./run.py live_tests -v
-
-      after_script:
-        - echo "SERVER WAS $SERVER_PID"
-        - kill $SERVER_PID
-   
