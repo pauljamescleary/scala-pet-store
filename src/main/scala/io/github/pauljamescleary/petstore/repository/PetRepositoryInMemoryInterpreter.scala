@@ -1,7 +1,8 @@
 package io.github.pauljamescleary.petstore.repository
 
+import cats.data.NonEmptyList
 import cats.effect.IO
-import io.github.pauljamescleary.petstore.model.Pet
+import io.github.pauljamescleary.petstore.model.{Pet, Status}
 
 import scala.collection.concurrent.TrieMap
 import scala.util.Random
@@ -32,5 +33,10 @@ object PetRepositoryInMemoryInterpreter extends PetRepositoryAlgebra[IO] {
   def list(pageSize: Int, offset: Int): IO[Seq[Pet]] =
     IO.pure {
       cache.values.toSeq.sortBy(_.name).slice(offset, offset + pageSize)
+    }
+
+  override def findByStatus(statuses: NonEmptyList[Status]): IO[Seq[Pet]] =
+    IO.pure {
+      cache.values.filter(p => statuses.exists(_ == p.status)).toSeq
     }
 }

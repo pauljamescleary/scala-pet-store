@@ -1,11 +1,10 @@
 package io.github.pauljamescleary.petstore.repository
 
+import cats.data.NonEmptyList
 import doobie.util.transactor.Transactor
 import io.github.pauljamescleary.petstore.model._
-import doobie._
-import doobie.implicits._
-import cats.effect.IO
-import cats.implicits._
+import doobie._, doobie.implicits._
+import cats._, cats.data._, cats.effect.IO, cats.implicits._
 import cats.syntax.all._
 import doobie.h2.H2Transactor
 
@@ -71,6 +70,14 @@ class DoobiePetRepositoryInterpreter(val xa: Transactor[IO]) extends PetReposito
     sql"""SELECT NAME, CATEGORY, BIO, STATUS, TAGS, PHOTO_URLS, ID
             FROM PET
             ORDER BY NAME LIMIT $offset,$pageSize""".query[Pet].list.transact(xa)
+  }
+
+  override def findByStatus(statuses: NonEmptyList[Status]): IO[Seq[Pet]] = {
+    val q = sql"""SELECT NAME, CATEGORY, BIO, STATUS, TAGS, PHOTO_URLS, ID
+            FROM PET
+           WHERE """ ++ Fragments.in(fr"STATUS", statuses)
+
+    q.query[Pet].list.transact(xa)
   }
 }
 

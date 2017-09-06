@@ -1,6 +1,7 @@
 package io.github.pauljamescleary.petstore.repository
 
-import io.github.pauljamescleary.petstore.model.Pet
+import cats.data.NonEmptyList
+import io.github.pauljamescleary.petstore.model.{Pet, Status}
 
 import scala.language.higherKinds
 
@@ -15,4 +16,6 @@ trait PetRepositoryAlgebra[F[_]] {
   def findByNameAndCategory(name: String, category: String): F[Set[Pet]]
 
   def list(pageSize: Int, offset: Int): F[Seq[Pet]]
+
+  def findByStatus(status: NonEmptyList[Status]): F[Seq[Pet]]
 }

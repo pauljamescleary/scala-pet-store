@@ -1,5 +1,6 @@
 import json
 import requests
+import urllib
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
@@ -50,6 +51,17 @@ class PetStoreClient(object):
         """
         url = urljoin(self.index_url, "/pets?pageSize={0}&offset={1}".format(page_size, offset))
 
+        return self.session.request('GET', url, self.headers)
+
+    def find_pets_by_status(self, statuses):
+        """
+        Returns a list of pets that match the statuses provided
+        :param statuses: A list of valid Pet statuses
+        :return:
+        """
+        status_kv_pairs = map(lambda x: "status={0}".format(x), statuses)
+        params =  "&".join(status_kv_pairs)
+        url = urljoin(self.index_url, "/pets/findByStatus?{0}".format(params))
         return self.session.request('GET', url, self.headers)
 
     def delete_pet(self, pet_id):
