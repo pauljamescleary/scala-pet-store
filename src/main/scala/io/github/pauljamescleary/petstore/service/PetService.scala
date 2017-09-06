@@ -1,7 +1,7 @@
 package io.github.pauljamescleary.petstore.service
 
-import cats.{Monad, MonadError}
-import io.github.pauljamescleary.petstore.model.Pet
+import cats._, cats.data._, cats.effect.IO, cats.implicits._
+import io.github.pauljamescleary.petstore.model.{Pet, Status}
 import io.github.pauljamescleary.petstore.repository.PetRepositoryAlgebra
 import io.github.pauljamescleary.petstore.validation.{PetNotFoundError, PetValidationAlgebra}
 
@@ -35,4 +35,6 @@ class PetService[F[_]](implicit repository: PetRepositoryAlgebra[F], validation:
   def delete(id: Long)(implicit M: Monad[F]): F[Unit] = repository.delete(id).map(_ => ())
 
   def list(pageSize: Int, offset: Int): F[Seq[Pet]] = repository.list(pageSize, offset)
+
+  def findByStatus(statuses: NonEmptyList[Status]): F[Seq[Pet]] = repository.findByStatus(statuses)
 }

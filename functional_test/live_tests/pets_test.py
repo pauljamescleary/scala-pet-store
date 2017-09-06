@@ -19,3 +19,12 @@ def test_list_pets(pet_context, pet_store_client):
     assert_that(pets, has_length(1))
 
     assert_that(pets[0]['name'], is_('Harry'))
+
+
+def test_find_pets_by_status(pet_context, pet_store_client):
+    response = pet_store_client.find_pets_by_status(['Available', 'Pending'])
+
+    pets = response.json()
+    assert_that(pets, has_length(1))
+
+    assert_that(pets[0]['name'], is_('Harry'))

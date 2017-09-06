@@ -1,6 +1,7 @@
 package io.github.pauljamescleary.petstore.endpoint
 
-import cats.effect._
+import cats.data.Validated.Valid
+import cats._, cats.data._, cats.effect.IO, cats.implicits._
 import io.circe._
 import io.circe.generic.auto._
 import io.circe.generic.extras.semiauto._
@@ -28,6 +29,13 @@ object PetEndpoints {
   /* Parses out the offset and page size params */
   object PageSizeMatcher extends QueryParamDecoderMatcher[Int]("pageSize")
   object OffsetMatcher extends QueryParamDecoderMatcher[Int]("offset")
+
+  /* Parses out status query param which could be multi param */
+  implicit val statusQueryParamDecoder: QueryParamDecoder[Status] =
+    QueryParamDecoder[String].map(Status.apply)
+
+  /* Relies on the statusQueryParamDecoder implicit, will parse out a possible multi-value query parameter */
+  object StatusMatcher extends OptionalMultiQueryParamDecoderMatcher[Status]("status")
 
   /* We need to define an enum encoder and decoder since these do not come out of the box with generic derivation */
   implicit val statusDecoder = deriveEnumerationDecoder[Status]
@@ -72,6 +80,23 @@ object PetEndpoints {
       } yield resp
   }
 
+  private def findPetsByStatusEndpoint(petService: PetService[IO]): HttpService[IO] = HttpService[IO] {
+    case GET -> Root / "pets" / "findByStatus" :? StatusMatcher(Valid(Nil)) =>
+      // User did not specify any statuses
+      BadRequest("status parameter not specified")
+
+    case GET -> Root / "pets" / "findByStatus" :? StatusMatcher(Valid(statuses)) =>
+      // We have a list of valid statuses, find them and return
+      for {
+        retrieved <- petService.findByStatus(NonEmptyList.fromListUnsafe(statuses))
+        resp <- Ok(retrieved.asJson)
+      } yield resp
+  }
+
   def endpoints(petService: PetService[IO]): HttpService[IO] =
-    createPetEndpoint(petService) |+| getPetEndpoint(petService) |+| deletePetEndpoint(petService) |+| listPetsEndpoint(petService)
+    createPetEndpoint(petService) |+|
+      getPetEndpoint(petService) |+|
+      deletePetEndpoint(petService) |+|
+      listPetsEndpoint(petService) |+|
+      findPetsByStatusEndpoint(petService)
 }
