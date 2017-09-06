@@ -1,0 +1,13 @@
+language: scala
+
+scala:
+   - 2.12.3
+   
+python:
+  - "2.7"
+   
+script:
+   - sbt ++$TRAVIS_SCALA_VERSION test
+   - cd functional_test
+   - ./run.py live_tests -v
+   
