@@ -5,9 +5,23 @@ scala:
    
 python:
   - "2.7"
-   
-script:
-   - sbt ++$TRAVIS_SCALA_VERSION test
-   - cd functional_test
-   - ./run.py live_tests -v
+
+jobs:
+  include:
+    - stage: verify
+
+      script:
+        - sbt ++$TRAVIS_SCALA_VERSION test
+
+    - stage: func-test
+      before_script:
+        - |
+          sbt run &
+          SERVER_PID=$!
+
+      script: cd functional_test && ./run.py live_tests -v
+
+      after_script:
+        - echo "SERVER WAS $SERVER_PID"
+        - kill $SERVER_PID
    
