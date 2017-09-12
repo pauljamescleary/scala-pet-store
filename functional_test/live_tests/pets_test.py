@@ -54,3 +54,17 @@ def test_update_pet(pet_store_client):
     finally:
         if saved_pet:
             pet_store_client.delete_pet(saved_pet['id'])
+
+
+def test_update_pet_not_found(pet_store_client):
+    pet = {
+        "id": 99999999,
+        "name": "NotFound",
+        "category": "Cat",
+        "bio": "I am fuzzy",
+        "status": "Available",
+        "tags": [],
+        "photoUrls": []
+    }
+    response = pet_store_client.update_pet(pet)
+    assert_that(response.status_code, is_(404))
