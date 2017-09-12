@@ -24,6 +24,14 @@ class PetService[F[_]](implicit repository: PetRepositoryAlgebra[F], validation:
     } yield saved
   }
 
+  /* Could argue that we could make this idempotent on put and not check if the pet exists */
+  def update(pet: Pet)(implicit M: Monad[F]): F[Pet] = {
+    for {
+      _ <- validation.exists(pet.id)
+      saved <- repository.put(pet)
+    } yield saved
+  }
+
   def get(id: Long)(implicit E: MonadError[F, Throwable]): F[Pet] = {
     repository.get(id).flatMap {
       case None => E.raiseError(PetNotFoundError(id))

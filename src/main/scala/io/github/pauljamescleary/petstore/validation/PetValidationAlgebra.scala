@@ -11,4 +11,7 @@ trait PetValidationAlgebra[F[_]] {
 
   /* Fails with a PetAlreadyExistsError */
   def doesNotExist(pet: Pet): F[Unit]
+
+  /* Fails with a PetNotFoundError if the pet id does not exist or if it is none */
+  def exists(petId: Option[Long]): F[Unit]
 }

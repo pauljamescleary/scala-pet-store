@@ -28,3 +28,29 @@ def test_find_pets_by_status(pet_context, pet_store_client):
     assert_that(pets, has_length(1))
 
     assert_that(pets[0]['name'], is_('Harry'))
+
+
+def test_update_pet(pet_store_client):
+    pet = {
+        "name": "JohnnyUpdate",
+        "category": "Cat",
+        "bio": "I am fuzzy",
+        "status": "Available",
+        "tags": [],
+        "photoUrls": []
+    }
+
+    saved_pet = None
+
+    try:
+        response = pet_store_client.create_pet(pet)
+        saved_pet = response.json()
+        saved_pet['bio'] = "Not so fuzzy"
+
+        response = pet_store_client.update_pet(saved_pet)
+        updated_pet = response.json()
+
+        assert_that(updated_pet['bio'], is_('Not so fuzzy'))
+    finally:
+        if saved_pet:
+            pet_store_client.delete_pet(saved_pet['id'])

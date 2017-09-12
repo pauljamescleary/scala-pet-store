@@ -53,6 +53,18 @@ object PetEndpoints {
     }
   }
 
+  private def updatePetEndpoint(petService: PetService[IO]): HttpService[IO] = HttpService[IO] {
+    case req@PUT -> Root / "pets" => {
+      for {
+        pet <- req.as(implicitly, jsonOf[IO, Pet]) // <-- TODO: Make this cleaner in HTTP4S
+        saved <- petService.update(pet)
+        resp <- Ok(saved.asJson)
+      } yield resp
+    }.handleErrorWith {
+      case PetNotFoundError(petId) => NotFound(s"The pet with id $petId was not found")
+    }
+  }
+
   private def getPetEndpoint(petService: PetService[IO]): HttpService[IO] = HttpService[IO] {
     case GET -> Root / "pets" :? IdMatcher(id) => {
       for {
@@ -98,5 +110,6 @@ object PetEndpoints {
       getPetEndpoint(petService) |+|
       deletePetEndpoint(petService) |+|
       listPetsEndpoint(petService) |+|
-      findPetsByStatusEndpoint(petService)
+      findPetsByStatusEndpoint(petService) |+|
+      updatePetEndpoint(petService)
 }
