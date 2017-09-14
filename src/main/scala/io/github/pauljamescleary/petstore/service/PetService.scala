@@ -1,9 +1,14 @@
 package io.github.pauljamescleary.petstore.service
 
-import cats._, cats.data._, cats.effect.IO, cats.implicits._
+import cats._
+import cats.data._
+import cats.effect.IO
+import cats.implicits._
+import cats.instances._
+import cats.syntax._
 import io.github.pauljamescleary.petstore.model.{Pet, Status}
 import io.github.pauljamescleary.petstore.repository.PetRepositoryAlgebra
-import io.github.pauljamescleary.petstore.validation.{PetNotFoundError, PetValidationAlgebra}
+import io.github.pauljamescleary.petstore.validation.{PetNotFoundError, PetValidationAlgebra, ValidationError}
 
 import scala.language.higherKinds
 
@@ -17,25 +22,29 @@ import scala.language.higherKinds
 class PetService[F[_]](implicit repository: PetRepositoryAlgebra[F], validation: PetValidationAlgebra[F]) {
   import cats.syntax.all._
 
-  def create(pet: Pet)(implicit M: Monad[F]): F[Pet] = {
+  private implicit class FImprovements[A](f: F[A]) {
+    def liftT(implicit M: Monad[F]): EitherT[F, ValidationError, A] = EitherT.liftT(f)
+  }
+
+  def create(pet: Pet)(implicit M: Monad[F]): EitherT[F, ValidationError, Pet] = {
     for {
       _ <- validation.doesNotExist(pet)
-      saved <- repository.put(pet)
+      saved <- repository.put(pet).liftT
     } yield saved
   }
 
   /* Could argue that we could make this idempotent on put and not check if the pet exists */
-  def update(pet: Pet)(implicit M: Monad[F]): F[Pet] = {
+  def update(pet: Pet)(implicit M: Monad[F]): EitherT[F, ValidationError, Pet] = {
     for {
       _ <- validation.exists(pet.id)
-      saved <- repository.put(pet)
+      saved <- repository.put(pet).liftT
     } yield saved
   }
 
-  def get(id: Long)(implicit E: MonadError[F, Throwable]): F[Pet] = {
-    repository.get(id).flatMap {
-      case None => E.raiseError(PetNotFoundError(id))
-      case Some(found) => E.pure(found)
+  def get(id: Long)(implicit M: Monad[F]): EitherT[F, ValidationError, Pet] = EitherT {
+    repository.get(id).map {
+      case None => Left(PetNotFoundError)
+      case Some(found) => Right(found)
     }
   }
 
