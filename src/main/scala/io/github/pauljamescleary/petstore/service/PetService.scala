@@ -2,10 +2,6 @@ package io.github.pauljamescleary.petstore.service
 
 import cats._
 import cats.data._
-import cats.effect.IO
-import cats.implicits._
-import cats.instances._
-import cats.syntax._
 import io.github.pauljamescleary.petstore.model.{Pet, Status}
 import io.github.pauljamescleary.petstore.repository.PetRepositoryAlgebra
 import io.github.pauljamescleary.petstore.validation.{PetNotFoundError, PetValidationAlgebra, ValidationError}

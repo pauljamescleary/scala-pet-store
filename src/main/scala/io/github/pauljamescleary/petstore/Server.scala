@@ -1,16 +1,13 @@
 package io.github.pauljamescleary.petstore
 
-import cats.data.EitherT
-import fs2.Stream
 import cats.effect.IO
-import cats.effect._
-import cats.~>
+import fs2.Stream
+import io.github.pauljamescleary.petstore.endpoint.{OrderEndpoints, PetEndpoints}
+import io.github.pauljamescleary.petstore.repository.{DoobieOrderRepositoryInterpreter, DoobiePetRepositoryInterpreter}
+import io.github.pauljamescleary.petstore.service.{OrderService, PetService}
+import io.github.pauljamescleary.petstore.validation.PetValidationInterpreter
 import org.http4s.server.blaze.BlazeBuilder
 import org.http4s.util.StreamApp
-import io.github.pauljamescleary.petstore.repository.{DoobieOrderRepositoryInterpreter, DoobiePetRepositoryInterpreter, PetRepositoryInMemoryInterpreter}
-import io.github.pauljamescleary.petstore.validation.PetValidationInterpreter
-import io.github.pauljamescleary.petstore.service.{OrderService, PetService}
-import io.github.pauljamescleary.petstore.endpoint.{OrderEndpoints, PetEndpoints}
 
 object Server extends StreamApp[IO] {
 

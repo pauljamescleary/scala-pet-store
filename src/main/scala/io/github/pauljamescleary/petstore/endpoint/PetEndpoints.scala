@@ -1,8 +1,8 @@
 package io.github.pauljamescleary.petstore.endpoint
 
 import cats.data.Validated.Valid
-import cats._, cats.syntax._, cats.instances._, cats.data._, cats.effect.IO, cats.implicits._
-import io.circe._
+import cats.data._
+import cats.effect.IO
 import io.circe.generic.auto._
 import io.circe.generic.extras.semiauto._
 import io.circe.syntax._
