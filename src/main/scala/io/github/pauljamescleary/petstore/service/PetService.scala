@@ -15,7 +15,7 @@ import scala.language.higherKinds
   * @tparam F - this is the container for the things we work with, could be scala.concurrent.Future, Option, anything
   *           as long as it is a Monad
   */
-class PetService[F[_]](implicit repository: PetRepositoryAlgebra[F], validation: PetValidationAlgebra[F]) {
+class PetService[F[_]](repository: PetRepositoryAlgebra[F], validation: PetValidationAlgebra[F]) {
   import cats.syntax.all._
 
   def create(pet: Pet)(implicit M: Monad[F]): EitherT[F, ValidationError, Pet] = {
