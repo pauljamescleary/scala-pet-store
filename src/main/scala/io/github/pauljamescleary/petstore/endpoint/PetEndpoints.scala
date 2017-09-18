@@ -1,8 +1,8 @@
 package io.github.pauljamescleary.petstore.endpoint
 
 import cats.data.Validated.Valid
-import cats._, cats.data._, cats.effect.IO, cats.implicits._
-import io.circe._
+import cats.data._
+import cats.effect.IO
 import io.circe.generic.auto._
 import io.circe.generic.extras.semiauto._
 import io.circe.syntax._
@@ -42,26 +42,39 @@ object PetEndpoints {
   implicit val statusEncoder = deriveEnumerationEncoder[Status]
 
   private def createPetEndpoint(petService: PetService[IO]): HttpService[IO] = HttpService[IO] {
-    case req@POST -> Root / "pets" => {
-      for {
+    case req@POST -> Root / "pets" =>
+      val action = for {
         pet <- req.as(implicitly, jsonOf[IO, Pet]) // <-- TODO: Make this cleaner in HTTP4S
-        saved <- petService.create(pet)
-        resp <- Ok(saved.asJson)
-      } yield resp
-    }.handleErrorWith {
-      case PetAlreadyExistsError(pet) => Conflict(s"The pet ${pet.name} of category ${pet.category} already exists")
-    }
+        result <- petService.create(pet).value
+      } yield result
+
+      action.flatMap {
+        case Right(saved) =>
+          Ok(saved.asJson)
+        case Left(PetAlreadyExistsError(existing)) =>
+          Conflict(s"The pet ${existing.name} of category ${existing.category} already exists")
+      }
+  }
+
+  private def updatePetEndpoint(petService: PetService[IO]): HttpService[IO] = HttpService[IO] {
+    case req@PUT -> Root / "pets" =>
+      val action = for {
+        pet <- req.as(implicitly, jsonOf[IO, Pet]) // <-- TODO: Make this cleaner in HTTP4S
+        result <- petService.update(pet).value
+      } yield result
+
+      action.flatMap {
+        case Right(saved) => Ok(saved.asJson)
+        case Left(PetNotFoundError) => NotFound("The pet was not found")
+      }
   }
 
   private def getPetEndpoint(petService: PetService[IO]): HttpService[IO] = HttpService[IO] {
-    case GET -> Root / "pets" :? IdMatcher(id) => {
-      for {
-        retrieved <- petService.get(id)
-        resp <- Ok(retrieved.asJson)
-      } yield resp
-    }.handleErrorWith {
-      case PetNotFoundError(notFound) => NotFound(s"The pet with id $notFound was not found")
-    }
+    case GET -> Root / "pets" :? IdMatcher(id) =>
+      petService.get(id).value.flatMap {
+        case Right(found) => Ok(found.asJson)
+        case Left(PetNotFoundError) => NotFound("The pet was not found")
+      }
   }
 
   private def deletePetEndpoint(petService: PetService[IO]): HttpService[IO] = HttpService[IO] {
@@ -98,5 +111,6 @@ object PetEndpoints {
       getPetEndpoint(petService) |+|
       deletePetEndpoint(petService) |+|
       listPetsEndpoint(petService) |+|
-      findPetsByStatusEndpoint(petService)
+      findPetsByStatusEndpoint(petService) |+|
+      updatePetEndpoint(petService)
 }

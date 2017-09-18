@@ -34,6 +34,16 @@ class PetStoreClient(object):
 
         return self.session.request('POST', url, self.headers, json.dumps(pet))
 
+    def update_pet(self, pet):
+        """
+        Updates a pet, returning the updated pet response
+        :param pet:
+        :return:
+        """
+        url = urljoin(self.index_url, '/pets')
+
+        return self.session.request('PUT', url, self.headers, json.dumps(pet))    
+
     def get_pet(self, pet_id):
         """
         Returns the pet for the given id

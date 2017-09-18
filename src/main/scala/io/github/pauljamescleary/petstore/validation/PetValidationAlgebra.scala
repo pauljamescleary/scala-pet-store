@@ -1,14 +1,19 @@
 package io.github.pauljamescleary.petstore.validation
 
+import cats.data.EitherT
 import io.github.pauljamescleary.petstore.model.Pet
 
 import scala.language.higherKinds
 
-case class PetAlreadyExistsError(pet: Pet) extends Throwable
-case class PetNotFoundError(id: Long) extends Throwable
+sealed trait ValidationError
+final case class PetAlreadyExistsError(pet: Pet) extends ValidationError
+final case object PetNotFoundError extends ValidationError
 
 trait PetValidationAlgebra[F[_]] {
 
   /* Fails with a PetAlreadyExistsError */
-  def doesNotExist(pet: Pet): F[Unit]
+  def doesNotExist(pet: Pet): EitherT[F, ValidationError, Unit]
+
+  /* Fails with a PetNotFoundError if the pet id does not exist or if it is none */
+  def exists(petId: Option[Long]): EitherT[F, ValidationError, Unit]
 }
