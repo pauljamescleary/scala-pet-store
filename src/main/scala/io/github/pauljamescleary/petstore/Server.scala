@@ -11,11 +11,11 @@ import org.http4s.util.StreamApp
 
 object Server extends StreamApp[IO] {
 
-  private implicit val petRepo = DoobiePetRepositoryInterpreter()
-  private implicit val petValidation = new PetValidationInterpreter
-  private implicit val petService = new PetService[IO]
-  private implicit val orderRepo = DoobieOrderRepositoryInterpreter()
-  private implicit val orderService = new OrderService[IO]
+  private val petRepo = DoobiePetRepositoryInterpreter()
+  private val petValidation = new PetValidationInterpreter(petRepo)
+  private val petService = new PetService[IO](petRepo, petValidation)
+  private val orderRepo = DoobieOrderRepositoryInterpreter()
+  private val orderService = new OrderService[IO](orderRepo)
 
   override def stream(args: List[String], shutdown: IO[Unit]): Stream[IO, Nothing] = {
     BlazeBuilder[IO]

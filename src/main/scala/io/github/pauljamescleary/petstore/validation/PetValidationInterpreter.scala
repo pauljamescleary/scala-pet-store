@@ -5,7 +5,7 @@ import cats.effect.IO
 import io.github.pauljamescleary.petstore.model.Pet
 import io.github.pauljamescleary.petstore.repository.PetRepositoryAlgebra
 
-class PetValidationInterpreter(implicit repository: PetRepositoryAlgebra[IO]) extends PetValidationAlgebra[IO] {
+class PetValidationInterpreter(repository: PetRepositoryAlgebra[IO]) extends PetValidationAlgebra[IO] {
 
   def doesNotExist(pet: Pet): EitherT[IO, ValidationError, Unit] = EitherT {
     repository.findByNameAndCategory(pet.name, pet.category).map { matches =>
