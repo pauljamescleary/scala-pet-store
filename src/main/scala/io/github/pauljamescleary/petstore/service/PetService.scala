@@ -9,7 +9,7 @@ import io.github.pauljamescleary.petstore.validation.{PetNotFoundError, PetValid
 import scala.language.higherKinds
 
 /**
-  *
+  * The entry point to our domain, works with repositories and validations to implement behavior
   * @param repository where we get our data
   * @param validation something that provides validations to the service
   * @tparam F - this is the container for the things we work with, could be scala.concurrent.Future, Option, anything
@@ -18,14 +18,10 @@ import scala.language.higherKinds
 class PetService[F[_]](implicit repository: PetRepositoryAlgebra[F], validation: PetValidationAlgebra[F]) {
   import cats.syntax.all._
 
-  private implicit class FImprovements[A](f: F[A]) {
-    def liftT(implicit M: Monad[F]): EitherT[F, ValidationError, A] = EitherT.liftT(f)
-  }
-
   def create(pet: Pet)(implicit M: Monad[F]): EitherT[F, ValidationError, Pet] = {
     for {
       _ <- validation.doesNotExist(pet)
-      saved <- repository.put(pet).liftT
+      saved <- EitherT.liftT(repository.put(pet))
     } yield saved
   }
 
@@ -33,7 +29,7 @@ class PetService[F[_]](implicit repository: PetRepositoryAlgebra[F], validation:
   def update(pet: Pet)(implicit M: Monad[F]): EitherT[F, ValidationError, Pet] = {
     for {
       _ <- validation.exists(pet.id)
-      saved <- repository.put(pet).liftT
+      saved <- EitherT.liftT(repository.put(pet))
     } yield saved
   }
 
