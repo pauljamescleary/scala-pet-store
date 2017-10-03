@@ -1,23 +1,19 @@
 package io.github.pauljamescleary.petstore.repository
 
-import cats.data.NonEmptyList
-import doobie.util.transactor.Transactor
 import io.github.pauljamescleary.petstore.model._
 import doobie._, doobie.implicits._
-import cats._, cats.data._, cats.effect.IO, cats.implicits._
-import cats.syntax.all._
-import doobie.h2.H2Transactor
+import cats._, cats.data._, cats.implicits._
 
-class DoobiePetRepositoryInterpreter(val xa: Transactor[IO])
-    extends PetRepositoryAlgebra[IO] {
+class DoobiePetRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
+    extends PetRepositoryAlgebra[F] {
 
-  // This will clear the database on start.  Note, this would typically be done via something like FLYWAY (TODO)
-  sql"""
+  // This will clear the database.  Note, this would typically be done via something like FLYWAY (TODO)
+  private val dropPetTable = sql"""
     DROP TABLE IF EXISTS PET
-  """.update.run.transact(xa).unsafeRunSync()
+  """.update.run.transact(xa)
 
   // The tags column is controversial, could be a lookup table.  For our purposes, indexing on tags to allow searching is fine
-  sql"""
+  private val createPetTable = sql"""
     CREATE TABLE PET (
       ID   SERIAL,
       NAME VARCHAR NOT NULL,
@@ -27,7 +23,7 @@ class DoobiePetRepositoryInterpreter(val xa: Transactor[IO])
       PHOTO_URLS VARCHAR NOT NULL,
       TAGS VARCHAR NOT NULL
     )
-  """.update.run.transact(xa).unsafeRunSync()
+  """.update.run.transact(xa)
 
   /* We require type StatusMeta to handle our ADT Status */
   private implicit val StatusMeta: Meta[Status] =
@@ -37,7 +33,11 @@ class DoobiePetRepositoryInterpreter(val xa: Transactor[IO])
   private implicit val SetStringMeta: Meta[Set[String]] = Meta[String]
     .xmap(str => str.split(',').toSet, strSet => strSet.mkString(","))
 
-  def put(pet: Pet): IO[Pet] = {
+  def migrate: F[Int] = {
+    dropPetTable >> createPetTable
+  }
+
+  def put(pet: Pet): F[Pet] = {
     val insert: ConnectionIO[Pet] =
       for {
         id <- sql"REPLACE INTO PET (NAME, CATEGORY, BIO, STATUS, TAGS, PHOTO_URLS) values (${pet.name}, ${pet.category}, ${pet.bio}, ${pet.status}, ${pet.photoUrls}, ${pet.tags})".update
@@ -46,7 +46,7 @@ class DoobiePetRepositoryInterpreter(val xa: Transactor[IO])
     insert.transact(xa)
   }
 
-  def get(id: Long): IO[Option[Pet]] = {
+  def get(id: Long): F[Option[Pet]] = {
     sql"""
       SELECT NAME, CATEGORY, BIO, STATUS, TAGS, PHOTO_URLS, ID
         FROM PET
@@ -54,25 +54,25 @@ class DoobiePetRepositoryInterpreter(val xa: Transactor[IO])
      """.query[Pet].option.transact(xa)
   }
 
-  def delete(id: Long): IO[Option[Pet]] = {
+  def delete(id: Long): F[Option[Pet]] = {
     get(id).flatMap {
       case Some(pet) =>
         sql"DELETE FROM PET WHERE ID = $id".update.run
           .transact(xa)
           .map(_ => Some(pet))
       case None =>
-        IO.pure(None)
+        none[Pet].pure[F]
     }
   }
 
-  def findByNameAndCategory(name: String, category: String): IO[Set[Pet]] = {
+  def findByNameAndCategory(name: String, category: String): F[Set[Pet]] = {
     sql"""SELECT NAME, CATEGORY, BIO, STATUS, TAGS, PHOTO_URLS, ID
             FROM PET
            WHERE NAME = $name AND CATEGORY = $category
            """.query[Pet].list.transact(xa).map(_.toSet)
   }
 
-  def list(pageSize: Int, offset: Int): IO[Seq[Pet]] = {
+  def list(pageSize: Int, offset: Int): F[List[Pet]] = {
     sql"""SELECT NAME, CATEGORY, BIO, STATUS, TAGS, PHOTO_URLS, ID
             FROM PET
             ORDER BY NAME LIMIT $offset,$pageSize"""
@@ -81,7 +81,7 @@ class DoobiePetRepositoryInterpreter(val xa: Transactor[IO])
       .transact(xa)
   }
 
-  override def findByStatus(statuses: NonEmptyList[Status]): IO[Seq[Pet]] = {
+  override def findByStatus(statuses: NonEmptyList[Status]): F[List[Pet]] = {
     val q = sql"""SELECT NAME, CATEGORY, BIO, STATUS, TAGS, PHOTO_URLS, ID
             FROM PET
            WHERE """ ++ Fragments.in(fr"STATUS", statuses)
@@ -91,12 +91,8 @@ class DoobiePetRepositoryInterpreter(val xa: Transactor[IO])
 }
 
 object DoobiePetRepositoryInterpreter {
-
-  /* Hardcoded to H2 for the time being */
-  def apply(): DoobiePetRepositoryInterpreter = {
-    val xa = H2Transactor[IO]("jdbc:h2:mem:test;MODE=MySQL;DB_CLOSE_DELAY=-1",
-                              "sa",
-                              "").unsafeRunSync()
+  def apply[F[_]: Monad](
+      xa: Transactor[F]): DoobiePetRepositoryInterpreter[F] = {
     new DoobiePetRepositoryInterpreter(xa)
   }
 }

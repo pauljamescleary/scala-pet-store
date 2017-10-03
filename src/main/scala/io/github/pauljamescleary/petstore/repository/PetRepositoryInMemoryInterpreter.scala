@@ -1,43 +1,46 @@
 package io.github.pauljamescleary.petstore.repository
 
+import cats._
+import cats.implicits._
 import cats.data.NonEmptyList
-import cats.effect.IO
 import io.github.pauljamescleary.petstore.model.{Pet, Status}
 
 import scala.collection.concurrent.TrieMap
 import scala.util.Random
 
-object PetRepositoryInMemoryInterpreter extends PetRepositoryAlgebra[IO] {
+class PetRepositoryInMemoryInterpreter[F[_]: Applicative]
+    extends PetRepositoryAlgebra[F] {
 
   private val cache = new TrieMap[Long, Pet]
 
   private val random = new Random
 
-  def put(pet: Pet): IO[Pet] =
-    IO.pure {
-      val toSave =
-        if (pet.id.isDefined) pet else pet.copy(id = Some(random.nextLong))
+  def put(pet: Pet): F[Pet] = {
+    val toSave =
+      if (pet.id.isDefined) pet else pet.copy(id = Some(random.nextLong))
 
-      toSave.id.foreach { cache.put(_, toSave) }
-      toSave
-    }
+    toSave.id.foreach { cache.put(_, toSave) }
+    toSave.pure[F]
+  }
 
-  def get(id: Long): IO[Option[Pet]] = IO.pure(cache.get(id))
+  def get(id: Long): F[Option[Pet]] = cache.get(id).pure[F]
 
-  def delete(id: Long): IO[Option[Pet]] = IO.pure(cache.remove(id))
+  def delete(id: Long): F[Option[Pet]] = cache.remove(id).pure[F]
 
-  def findByNameAndCategory(name: String, category: String): IO[Set[Pet]] =
-    IO.pure {
-      cache.values.filter(p => p.name == name && p.category == category).toSet
-    }
+  def findByNameAndCategory(name: String, category: String): F[Set[Pet]] =
+    cache.values
+      .filter(p => p.name == name && p.category == category)
+      .toSet
+      .pure[F]
 
-  def list(pageSize: Int, offset: Int): IO[Seq[Pet]] =
-    IO.pure {
-      cache.values.toSeq.sortBy(_.name).slice(offset, offset + pageSize)
-    }
+  def list(pageSize: Int, offset: Int): F[List[Pet]] =
+    cache.values.toList.sortBy(_.name).slice(offset, offset + pageSize).pure[F]
 
-  override def findByStatus(statuses: NonEmptyList[Status]): IO[Seq[Pet]] =
-    IO.pure {
-      cache.values.filter(p => statuses.exists(_ == p.status)).toSeq
-    }
+  override def findByStatus(statuses: NonEmptyList[Status]): F[List[Pet]] =
+    cache.values.filter(p => statuses.exists(_ == p.status)).toList.pure[F]
+
+}
+
+object PetRepositoryInMemoryInterpreter {
+  def apply[F[_]: Applicative]() = new PetRepositoryInMemoryInterpreter[F]()
 }

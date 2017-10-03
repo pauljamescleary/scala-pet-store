@@ -52,9 +52,15 @@ class PetService[F[_]](repository: PetRepositoryAlgebra[F],
   def delete(id: Long)(implicit M: Monad[F]): F[Unit] =
     repository.delete(id).map(_ => ())
 
-  def list(pageSize: Int, offset: Int): F[Seq[Pet]] =
+  def list(pageSize: Int, offset: Int): F[List[Pet]] =
     repository.list(pageSize, offset)
 
-  def findByStatus(statuses: NonEmptyList[Status]): F[Seq[Pet]] =
+  def findByStatus(statuses: NonEmptyList[Status]): F[List[Pet]] =
     repository.findByStatus(statuses)
+}
+
+object PetService {
+  def apply[F[_]: Monad](repository: PetRepositoryAlgebra[F],
+                         validation: PetValidationAlgebra[F]) =
+    new PetService[F](repository, validation)
 }
