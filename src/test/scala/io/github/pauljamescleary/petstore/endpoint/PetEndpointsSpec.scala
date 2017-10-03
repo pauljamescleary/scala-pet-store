@@ -1,7 +1,6 @@
 package io.github.pauljamescleary.petstore
 package endpoint
 
-import cats.implicits._
 import cats.effect._
 import io.circe._
 import io.circe.syntax._
@@ -39,9 +38,11 @@ class PetEndpointsSpec
       (for {
         request <- Request[IO](Method.POST, Uri.uri("/pets"))
           .withBody(pet.asJson)
-        response <- petHttpService.run(request)
+        response <- petHttpService
+          .run(request)
+          .getOrElse(fail(s"Request was not handled: $request"))
       } yield {
-        response.orNotFound.status shouldEqual Ok
+        response.status shouldEqual Ok
       }).unsafeRunSync
     }
 
@@ -57,18 +58,20 @@ class PetEndpointsSpec
     implicit val petDecoder = jsonOf[IO, Pet]
 
     forAll { (pet: Pet) =>
-      val badPet = Pet("", "", "")
-
       (for {
         createRequest <- Request[IO](Method.POST, Uri.uri("/pets"))
           .withBody(pet.asJson)
-        createResponse <- petHttpService.run(createRequest)
-        createdPet <- createResponse.cata(_.as[Pet], badPet.pure[IO])
+        createResponse <- petHttpService
+          .run(createRequest)
+          .getOrElse(fail(s"Request was not handled: $createRequest"))
+        createdPet <- createResponse.as[Pet]
         petToUpdate = createdPet.copy(name = createdPet.name.reverse)
         updateRequest <- Request[IO](Method.PUT, Uri.uri("/pets"))
           .withBody(petToUpdate.asJson)
-        updateResponse <- petHttpService.run(updateRequest)
-        updatedPet <- updateResponse.cata(_.as[Pet], badPet.pure[IO])
+        updateResponse <- petHttpService
+          .run(updateRequest)
+          .getOrElse(fail(s"Request was not handled: $updateRequest"))
+        updatedPet <- updateResponse.as[Pet]
       } yield {
         updatedPet.name shouldEqual pet.name.reverse
       }).unsafeRunSync

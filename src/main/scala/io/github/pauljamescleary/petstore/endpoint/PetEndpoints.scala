@@ -3,6 +3,7 @@ package io.github.pauljamescleary.petstore.endpoint
 import cats.data.Validated.Valid
 import cats.data._
 import cats.effect.Sync
+import cats.implicits._
 import io.circe._
 import io.circe.generic.auto._
 import io.circe.generic.extras.semiauto._
@@ -15,6 +16,7 @@ import io.github.pauljamescleary.petstore.validation.{
 }
 import org.http4s.circe._
 import org.http4s.dsl.Http4sDsl
+import org.http4s.implicits._
 import org.http4s.{HttpService, QueryParamDecoder}
 
 import scala.language.higherKinds
@@ -23,9 +25,6 @@ class PetEndpoints[F[_]: Sync] extends Http4sDsl[F] {
 
   /* Necessary for decoding query parameters */
   import QueryParamDecoder._
-
-  /* Needed for service composition via |+| */
-  import cats.implicits._
 
   /* Parses out the id query param */
   object IdMatcher extends QueryParamDecoderMatcher[Long]("id")
@@ -129,13 +128,15 @@ class PetEndpoints[F[_]: Sync] extends Http4sDsl[F] {
         } yield resp
     }
 
-  def endpoints(petService: PetService[F]): HttpService[F] =
-    createPetEndpoint(petService) |+|
-      getPetEndpoint(petService) |+|
-      deletePetEndpoint(petService) |+|
-      listPetsEndpoint(petService) |+|
-      findPetsByStatusEndpoint(petService) |+|
+  def endpoints(petService: PetService[F]): HttpService[F] = {
+    createPetEndpoint(petService) <+>
+      getPetEndpoint(petService) <+>
+      deletePetEndpoint(petService) <+>
+      listPetsEndpoint(petService) <+>
+      findPetsByStatusEndpoint(petService) <+>
       updatePetEndpoint(petService)
+  }
+
 }
 
 object PetEndpoints {

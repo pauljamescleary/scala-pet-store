@@ -39,9 +39,11 @@ class OrderEndpointsSpec
 
       (for {
         request <- placeOrderReq
-        response <- orderHttpService.run(request)
+        response <- orderHttpService
+          .run(request)
+          .getOrElse(fail(s"Request was not handled: $request"))
       } yield {
-        response.orNotFound.status shouldEqual Ok
+        response.status shouldEqual Ok
       }).unsafeRunSync
     }
 
