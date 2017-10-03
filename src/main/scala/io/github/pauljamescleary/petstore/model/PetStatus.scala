@@ -1,6 +1,6 @@
 package io.github.pauljamescleary.petstore.model
 
-sealed trait PetStatus
+sealed trait PetStatus extends Product with Serializable
 case object Available extends PetStatus
 case object Pending extends PetStatus
 case object Adopted extends PetStatus
