@@ -26,8 +26,8 @@ class DoobiePetRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
   """.update.run.transact(xa)
 
   /* We require type StatusMeta to handle our ADT Status */
-  private implicit val StatusMeta: Meta[Status] =
-    Meta[String].xmap(Status.apply, Status.nameOf)
+  private implicit val StatusMeta: Meta[PetStatus] =
+    Meta[String].xmap(PetStatus.apply, PetStatus.nameOf)
 
   /* This is used to marshal our sets of strings */
   private implicit val SetStringMeta: Meta[Set[String]] = Meta[String]
@@ -81,7 +81,7 @@ class DoobiePetRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
       .transact(xa)
   }
 
-  override def findByStatus(statuses: NonEmptyList[Status]): F[List[Pet]] = {
+  override def findByStatus(statuses: NonEmptyList[PetStatus]): F[List[Pet]] = {
     val q = sql"""SELECT NAME, CATEGORY, BIO, STATUS, TAGS, PHOTO_URLS, ID
             FROM PET
            WHERE """ ++ Fragments.in(fr"STATUS", statuses)

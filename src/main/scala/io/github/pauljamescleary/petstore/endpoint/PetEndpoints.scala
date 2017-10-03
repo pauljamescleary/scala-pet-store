@@ -7,7 +7,7 @@ import io.circe._
 import io.circe.generic.auto._
 import io.circe.generic.extras.semiauto._
 import io.circe.syntax._
-import io.github.pauljamescleary.petstore.model.{Pet, Status}
+import io.github.pauljamescleary.petstore.model.{Pet, PetStatus}
 import io.github.pauljamescleary.petstore.service.PetService
 import io.github.pauljamescleary.petstore.validation.{
   PetAlreadyExistsError,
@@ -35,16 +35,16 @@ class PetEndpoints[F[_]: Sync] extends Http4sDsl[F] {
   object OffsetMatcher extends QueryParamDecoderMatcher[Int]("offset")
 
   /* Parses out status query param which could be multi param */
-  implicit val statusQueryParamDecoder: QueryParamDecoder[Status] =
-    QueryParamDecoder[String].map(Status.apply)
+  implicit val statusQueryParamDecoder: QueryParamDecoder[PetStatus] =
+    QueryParamDecoder[String].map(PetStatus.apply)
 
   /* Relies on the statusQueryParamDecoder implicit, will parse out a possible multi-value query parameter */
   object StatusMatcher
-      extends OptionalMultiQueryParamDecoderMatcher[Status]("status")
+      extends OptionalMultiQueryParamDecoderMatcher[PetStatus]("status")
 
   /* We need to define an enum encoder and decoder since these do not come out of the box with generic derivation */
-  implicit val statusDecoder: Decoder[Status] = deriveEnumerationDecoder
-  implicit val statusEncoder: Encoder[Status] = deriveEnumerationEncoder
+  implicit val statusDecoder: Decoder[PetStatus] = deriveEnumerationDecoder
+  implicit val statusEncoder: Encoder[PetStatus] = deriveEnumerationEncoder
 
   private def createPetEndpoint(petService: PetService[F]): HttpService[F] =
     HttpService[F] {

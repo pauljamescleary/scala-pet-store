@@ -2,7 +2,7 @@ package io.github.pauljamescleary.petstore.service
 
 import cats._
 import cats.data._
-import io.github.pauljamescleary.petstore.model.{Pet, Status}
+import io.github.pauljamescleary.petstore.model.{Pet, PetStatus}
 import io.github.pauljamescleary.petstore.repository.PetRepositoryAlgebra
 import io.github.pauljamescleary.petstore.validation.{
   PetNotFoundError,
@@ -55,7 +55,7 @@ class PetService[F[_]](repository: PetRepositoryAlgebra[F],
   def list(pageSize: Int, offset: Int): F[List[Pet]] =
     repository.list(pageSize, offset)
 
-  def findByStatus(statuses: NonEmptyList[Status]): F[List[Pet]] =
+  def findByStatus(statuses: NonEmptyList[PetStatus]): F[List[Pet]] =
     repository.findByStatus(statuses)
 }
 
