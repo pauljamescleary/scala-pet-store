@@ -8,7 +8,8 @@ import cats._, cats.data._, cats.effect.IO, cats.implicits._
 import cats.syntax.all._
 import doobie.h2.H2Transactor
 
-class DoobiePetRepositoryInterpreter(val xa: Transactor[IO]) extends PetRepositoryAlgebra[IO] {
+class DoobiePetRepositoryInterpreter(val xa: Transactor[IO])
+    extends PetRepositoryAlgebra[IO] {
 
   // This will clear the database on start.  Note, this would typically be done via something like FLYWAY (TODO)
   sql"""
@@ -29,15 +30,18 @@ class DoobiePetRepositoryInterpreter(val xa: Transactor[IO]) extends PetReposito
   """.update.run.transact(xa).unsafeRunSync()
 
   /* We require type StatusMeta to handle our ADT Status */
-  private implicit val StatusMeta: Meta[Status] = Meta[String].xmap(Status.apply, Status.nameOf)
+  private implicit val StatusMeta: Meta[Status] =
+    Meta[String].xmap(Status.apply, Status.nameOf)
 
   /* This is used to marshal our sets of strings */
-  private implicit val SetStringMeta: Meta[Set[String]] = Meta[String].xmap(str => str.split(',').toSet, strSet => strSet.mkString(","))
+  private implicit val SetStringMeta: Meta[Set[String]] = Meta[String]
+    .xmap(str => str.split(',').toSet, strSet => strSet.mkString(","))
 
   def put(pet: Pet): IO[Pet] = {
     val insert: ConnectionIO[Pet] =
       for {
-        id <- sql"REPLACE INTO PET (NAME, CATEGORY, BIO, STATUS, TAGS, PHOTO_URLS) values (${pet.name}, ${pet.category}, ${pet.bio}, ${pet.status}, ${pet.photoUrls}, ${pet.tags})".update.withUniqueGeneratedKeys[Long]("ID")
+        id <- sql"REPLACE INTO PET (NAME, CATEGORY, BIO, STATUS, TAGS, PHOTO_URLS) values (${pet.name}, ${pet.category}, ${pet.bio}, ${pet.status}, ${pet.photoUrls}, ${pet.tags})".update
+          .withUniqueGeneratedKeys[Long]("ID")
       } yield pet.copy(id = Some(id))
     insert.transact(xa)
   }
@@ -53,7 +57,9 @@ class DoobiePetRepositoryInterpreter(val xa: Transactor[IO]) extends PetReposito
   def delete(id: Long): IO[Option[Pet]] = {
     get(id).flatMap {
       case Some(pet) =>
-        sql"DELETE FROM PET WHERE ID = $id".update.run.transact(xa).map(_ => Some(pet))
+        sql"DELETE FROM PET WHERE ID = $id".update.run
+          .transact(xa)
+          .map(_ => Some(pet))
       case None =>
         IO.pure(None)
     }
@@ -69,7 +75,10 @@ class DoobiePetRepositoryInterpreter(val xa: Transactor[IO]) extends PetReposito
   def list(pageSize: Int, offset: Int): IO[Seq[Pet]] = {
     sql"""SELECT NAME, CATEGORY, BIO, STATUS, TAGS, PHOTO_URLS, ID
             FROM PET
-            ORDER BY NAME LIMIT $offset,$pageSize""".query[Pet].list.transact(xa)
+            ORDER BY NAME LIMIT $offset,$pageSize"""
+      .query[Pet]
+      .list
+      .transact(xa)
   }
 
   override def findByStatus(statuses: NonEmptyList[Status]): IO[Seq[Pet]] = {
@@ -85,7 +94,9 @@ object DoobiePetRepositoryInterpreter {
 
   /* Hardcoded to H2 for the time being */
   def apply(): DoobiePetRepositoryInterpreter = {
-    val xa = H2Transactor[IO]("jdbc:h2:mem:test;MODE=MySQL;DB_CLOSE_DELAY=-1", "sa", "").unsafeRunSync()
+    val xa = H2Transactor[IO]("jdbc:h2:mem:test;MODE=MySQL;DB_CLOSE_DELAY=-1",
+                              "sa",
+                              "").unsafeRunSync()
     new DoobiePetRepositoryInterpreter(xa)
   }
 }

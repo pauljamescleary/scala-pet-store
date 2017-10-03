@@ -15,7 +15,8 @@ object PetRepositoryInMemoryInterpreter extends PetRepositoryAlgebra[IO] {
 
   def put(pet: Pet): IO[Pet] =
     IO.pure {
-      val toSave = if (pet.id.isDefined) pet else pet.copy(id = Some(random.nextLong))
+      val toSave =
+        if (pet.id.isDefined) pet else pet.copy(id = Some(random.nextLong))
 
       toSave.id.foreach { cache.put(_, toSave) }
       toSave

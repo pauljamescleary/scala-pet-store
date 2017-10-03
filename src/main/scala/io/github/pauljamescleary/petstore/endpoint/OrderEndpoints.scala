@@ -25,15 +25,16 @@ object OrderEndpoints {
   implicit val statusDecoder = deriveEnumerationDecoder[OrderStatus]
   implicit val statusEncoder = deriveEnumerationEncoder[OrderStatus]
 
-  def placeOrderEndpoint(orderService: OrderService[IO]): HttpService[IO] = HttpService[IO] {
-    case req@POST -> Root / "orders" => {
-      for {
-        order <- req.as(implicitly, jsonOf[IO, Order]) // <-- TODO: Make this cleaner in HTTP4S
-        saved <- orderService.placeOrder(order)
-        resp <- Ok(saved.asJson)
-      } yield resp
+  def placeOrderEndpoint(orderService: OrderService[IO]): HttpService[IO] =
+    HttpService[IO] {
+      case req @ POST -> Root / "orders" => {
+        for {
+          order <- req.as(implicitly, jsonOf[IO, Order]) // <-- TODO: Make this cleaner in HTTP4S
+          saved <- orderService.placeOrder(order)
+          resp <- Ok(saved.asJson)
+        } yield resp
+      }
     }
-  }
 
   def endpoints(orderService: OrderService[IO]): HttpService[IO] =
     placeOrderEndpoint(orderService)

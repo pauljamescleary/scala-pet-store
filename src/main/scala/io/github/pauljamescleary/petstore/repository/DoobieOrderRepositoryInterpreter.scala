@@ -10,7 +10,8 @@ import doobie.h2.H2Transactor
 import io.github.pauljamescleary.petstore.model.{Order, OrderStatus}
 import org.joda.time.DateTime
 
-class DoobieOrderRepositoryInterpreter(val xa: Transactor[IO]) extends OrderRepositoryAlgebra[IO] {
+class DoobieOrderRepositoryInterpreter(val xa: Transactor[IO])
+    extends OrderRepositoryAlgebra[IO] {
 
   // This will clear the database on start.  Note, this would typically be done via something like FLYWAY (TODO)
   sql"""
@@ -29,18 +30,21 @@ class DoobieOrderRepositoryInterpreter(val xa: Transactor[IO]) extends OrderRepo
   """.update.run.transact(xa).unsafeRunSync()
 
   /* We require type StatusMeta to handle our ADT Status */
-  private implicit val StatusMeta: Meta[OrderStatus] = Meta[String].xmap(OrderStatus.apply, OrderStatus.nameOf)
+  private implicit val StatusMeta: Meta[OrderStatus] =
+    Meta[String].xmap(OrderStatus.apply, OrderStatus.nameOf)
 
   /* We require conversion for date time */
-  private implicit val DateTimeMeta: Meta[DateTime] = Meta[java.sql.Timestamp].xmap(
-    ts => new DateTime(ts.getTime),
-    dt => new java.sql.Timestamp(dt.getMillis)
-  )
+  private implicit val DateTimeMeta: Meta[DateTime] =
+    Meta[java.sql.Timestamp].xmap(
+      ts => new DateTime(ts.getTime),
+      dt => new java.sql.Timestamp(dt.getMillis)
+    )
 
   def put(order: Order): IO[Order] = {
     val insert: ConnectionIO[Order] =
       for {
-        id <- sql"REPLACE INTO ORDERS (PET_ID, SHIP_DATE, STATUS, COMPLETE) values (${order.petId}, ${order.shipDate}, ${order.status}, ${order.complete})".update.withUniqueGeneratedKeys[Long]("ID")
+        id <- sql"REPLACE INTO ORDERS (PET_ID, SHIP_DATE, STATUS, COMPLETE) values (${order.petId}, ${order.shipDate}, ${order.status}, ${order.complete})".update
+          .withUniqueGeneratedKeys[Long]("ID")
       } yield order.copy(id = Some(id))
     insert.transact(xa)
   }
@@ -56,7 +60,9 @@ class DoobieOrderRepositoryInterpreter(val xa: Transactor[IO]) extends OrderRepo
   def delete(orderId: Long): IO[Option[Order]] = {
     get(orderId).flatMap {
       case Some(order) =>
-        sql"DELETE FROM ORDERS WHERE ID = $orderId".update.run.transact(xa).map(_ => Some(order))
+        sql"DELETE FROM ORDERS WHERE ID = $orderId".update.run
+          .transact(xa)
+          .map(_ => Some(order))
       case None =>
         IO.pure(None)
     }
@@ -65,7 +71,9 @@ class DoobieOrderRepositoryInterpreter(val xa: Transactor[IO]) extends OrderRepo
 
 object DoobieOrderRepositoryInterpreter {
   def apply(): DoobieOrderRepositoryInterpreter = {
-    val xa = H2Transactor[IO]("jdbc:h2:mem:test;MODE=MySQL;DB_CLOSE_DELAY=-1", "sa", "").unsafeRunSync()
+    val xa = H2Transactor[IO]("jdbc:h2:mem:test;MODE=MySQL;DB_CLOSE_DELAY=-1",
+                              "sa",
+                              "").unsafeRunSync()
     new DoobieOrderRepositoryInterpreter(xa)
   }
 }
