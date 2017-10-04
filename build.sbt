@@ -36,6 +36,7 @@ libraryDependencies ++= Seq(
   "org.scalatest"  %% "scalatest"            % ScalaTestVersion  % Test
 )
 
+
 scalacOptions ++= Seq(
   // format: off
   "-deprecation",                      // Emit warning and location for usages of deprecated APIs.
@@ -86,4 +87,4 @@ scalacOptions ++= Seq(
   // format: on
 )
 
-enablePlugins(ScalafmtPlugin)
+enablePlugins(ScalafmtPlugin, JavaAppPackaging)
