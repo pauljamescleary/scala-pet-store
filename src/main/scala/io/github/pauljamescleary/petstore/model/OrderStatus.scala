@@ -1,6 +1,6 @@
 package io.github.pauljamescleary.petstore.model
 
-sealed trait OrderStatus
+sealed trait OrderStatus extends Product with Serializable
 case object Approved extends OrderStatus
 case object Delivered extends OrderStatus
 case object Placed extends OrderStatus
