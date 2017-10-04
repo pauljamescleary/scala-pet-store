@@ -4,7 +4,10 @@ sbt test
 
 echo "Running func tests"
 echo "Starting server"
-sbt run &
+
+trap 'kill -TERM $SERVER_PID' TERM INT
+./target/universal/stage/bin/scala-pet-store &
+
 SERVER_PID=$!
 PARENT_PID=$$
 
@@ -38,6 +41,11 @@ cd functional_test
 FUNC_TEST_RESULT=$!
 
 echo "Functional tests completed with satus $FUNC_TEST_RESULT, stopping server with PID $SERVER_PID, PPID $PARENT_PID"
+
+kill $SERVER_PID
+wait $SERVER_PID
+trap - TERM INT
+wait $SERVER_PID
 # kill -9 $PARENT_PID
 
 echo "DONE!"

@@ -25,4 +25,4 @@ libraryDependencies ++= Seq(
  "joda-time" % "joda-time" % "2.9.9"
 )
 
-enablePlugins(ScalafmtPlugin)
+enablePlugins(ScalafmtPlugin, JavaAppPackaging)
