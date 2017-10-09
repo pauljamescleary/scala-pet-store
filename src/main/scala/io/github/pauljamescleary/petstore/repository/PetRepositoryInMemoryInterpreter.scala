@@ -8,8 +8,7 @@ import io.github.pauljamescleary.petstore.model.{Pet, PetStatus}
 import scala.collection.concurrent.TrieMap
 import scala.util.Random
 
-class PetRepositoryInMemoryInterpreter[F[_]: Applicative]
-    extends PetRepositoryAlgebra[F] {
+class PetRepositoryInMemoryInterpreter[F[_]: Applicative] extends PetRepositoryAlgebra[F] {
 
   private val cache = new TrieMap[Long, Pet]
 

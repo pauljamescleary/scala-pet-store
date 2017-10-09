@@ -37,9 +37,8 @@ class DoobieOrderRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
       dt => new java.sql.Timestamp(dt.getMillis)
     )
 
-  def migrate: F[Int] = {
+  def migrate: F[Int] =
     dropOrdersTable >> createOrdersTable
-  }
 
   def put(order: Order): F[Order] = {
     val insert: ConnectionIO[Order] =
@@ -50,15 +49,14 @@ class DoobieOrderRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
     insert.transact(xa)
   }
 
-  def get(orderId: Long): F[Option[Order]] = {
+  def get(orderId: Long): F[Option[Order]] =
     sql"""
       SELECT PET_ID, SHIP_DATE, STATUS, COMPLETE
         FROM ORDERS
        WHERE ID = $orderId
      """.query[Order].option.transact(xa)
-  }
 
-  def delete(orderId: Long): F[Option[Order]] = {
+  def delete(orderId: Long): F[Option[Order]] =
     get(orderId).flatMap {
       case Some(order) =>
         sql"DELETE FROM ORDERS WHERE ID = $orderId".update.run
@@ -67,12 +65,9 @@ class DoobieOrderRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
       case None =>
         none[Order].pure[F]
     }
-  }
 }
 
 object DoobieOrderRepositoryInterpreter {
-  def apply[F[_]: Monad](
-      xa: Transactor[F]): DoobieOrderRepositoryInterpreter[F] = {
+  def apply[F[_]: Monad](xa: Transactor[F]): DoobieOrderRepositoryInterpreter[F] =
     new DoobieOrderRepositoryInterpreter(xa)
-  }
 }

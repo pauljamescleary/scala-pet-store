@@ -6,8 +6,7 @@ import cats.data.EitherT
 import io.github.pauljamescleary.petstore.model.Pet
 import io.github.pauljamescleary.petstore.repository.PetRepositoryAlgebra
 
-class PetValidationInterpreter[F[_]: Monad](
-    repository: PetRepositoryAlgebra[F])
+class PetValidationInterpreter[F[_]: Monad](repository: PetRepositoryAlgebra[F])
     extends PetValidationAlgebra[F] {
 
   def doesNotExist(pet: Pet): EitherT[F, ValidationError, Unit] = EitherT {

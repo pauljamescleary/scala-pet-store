@@ -42,7 +42,8 @@ trait PetStoreArbitraries {
       tags <- Gen.listOfN(numTags, Gen.alphaStr).map(_.toSet)
       photoUrls <- Gen
         .listOfN(numTags, Gen.alphaStr)
-        .map(_.map(x => s"http://${x}.com")) map (_.toSet)
+        .map(_.map(x => s"http://${x}.com"))
+        .map(_.toSet)
       id <- Gen.option(Gen.posNum[Long])
     } yield Pet(name, category, bio, status, tags, photoUrls, id)
   }

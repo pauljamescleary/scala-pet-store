@@ -25,7 +25,7 @@ class OrderEndpoints[F[_]: Sync] extends Http4sDsl[F] {
   implicit val statusDecoder: Decoder[OrderStatus] = deriveEnumerationDecoder
   implicit val statusEncoder: Encoder[OrderStatus] = deriveEnumerationEncoder
 
-  def placeOrderEndpoint(orderService: OrderService[F]): HttpService[F] = {
+  def placeOrderEndpoint(orderService: OrderService[F]): HttpService[F] =
     HttpService[F] {
       case req @ POST -> Root / "orders" => {
         for {
@@ -35,14 +35,12 @@ class OrderEndpoints[F[_]: Sync] extends Http4sDsl[F] {
         } yield resp
       }
     }
-  }
 
   def endpoints(orderService: OrderService[F]): HttpService[F] =
     placeOrderEndpoint(orderService)
 }
 
 object OrderEndpoints {
-  def endpoints[F[_]: Sync](orderService: OrderService[F]): HttpService[F] = {
+  def endpoints[F[_]: Sync](orderService: OrderService[F]): HttpService[F] =
     new OrderEndpoints[F].endpoints(orderService)
-  }
 }

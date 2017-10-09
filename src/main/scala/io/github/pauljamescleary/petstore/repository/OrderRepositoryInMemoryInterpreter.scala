@@ -7,8 +7,7 @@ import io.github.pauljamescleary.petstore.model.Order
 import scala.collection.concurrent.TrieMap
 import scala.util.Random
 
-class OrderRepositoryInMemoryInterpreter[F[_]: Applicative]
-    extends OrderRepositoryAlgebra[F] {
+class OrderRepositoryInMemoryInterpreter[F[_]: Applicative] extends OrderRepositoryAlgebra[F] {
 
   private val cache = new TrieMap[Long, Order]
 
