@@ -33,9 +33,8 @@ class DoobiePetRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
   private implicit val SetStringMeta: Meta[Set[String]] = Meta[String]
     .xmap(str => str.split(',').toSet, strSet => strSet.mkString(","))
 
-  def migrate: F[Int] = {
+  def migrate: F[Int] =
     dropPetTable >> createPetTable
-  }
 
   def put(pet: Pet): F[Pet] = {
     val insert: ConnectionIO[Pet] =
@@ -46,15 +45,14 @@ class DoobiePetRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
     insert.transact(xa)
   }
 
-  def get(id: Long): F[Option[Pet]] = {
+  def get(id: Long): F[Option[Pet]] =
     sql"""
       SELECT NAME, CATEGORY, BIO, STATUS, TAGS, PHOTO_URLS, ID
         FROM PET
        WHERE ID = $id
      """.query[Pet].option.transact(xa)
-  }
 
-  def delete(id: Long): F[Option[Pet]] = {
+  def delete(id: Long): F[Option[Pet]] =
     get(id).flatMap {
       case Some(pet) =>
         sql"DELETE FROM PET WHERE ID = $id".update.run
@@ -63,23 +61,20 @@ class DoobiePetRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
       case None =>
         none[Pet].pure[F]
     }
-  }
 
-  def findByNameAndCategory(name: String, category: String): F[Set[Pet]] = {
+  def findByNameAndCategory(name: String, category: String): F[Set[Pet]] =
     sql"""SELECT NAME, CATEGORY, BIO, STATUS, TAGS, PHOTO_URLS, ID
             FROM PET
            WHERE NAME = $name AND CATEGORY = $category
            """.query[Pet].list.transact(xa).map(_.toSet)
-  }
 
-  def list(pageSize: Int, offset: Int): F[List[Pet]] = {
+  def list(pageSize: Int, offset: Int): F[List[Pet]] =
     sql"""SELECT NAME, CATEGORY, BIO, STATUS, TAGS, PHOTO_URLS, ID
             FROM PET
             ORDER BY NAME LIMIT $offset,$pageSize"""
       .query[Pet]
       .list
       .transact(xa)
-  }
 
   override def findByStatus(statuses: NonEmptyList[PetStatus]): F[List[Pet]] = {
     val q = sql"""SELECT NAME, CATEGORY, BIO, STATUS, TAGS, PHOTO_URLS, ID
@@ -91,8 +86,6 @@ class DoobiePetRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
 }
 
 object DoobiePetRepositoryInterpreter {
-  def apply[F[_]: Monad](
-      xa: Transactor[F]): DoobiePetRepositoryInterpreter[F] = {
+  def apply[F[_]: Monad](xa: Transactor[F]): DoobiePetRepositoryInterpreter[F] =
     new DoobiePetRepositoryInterpreter(xa)
-  }
 }

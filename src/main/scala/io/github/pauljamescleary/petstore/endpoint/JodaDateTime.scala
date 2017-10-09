@@ -12,9 +12,8 @@ object JodaDateTime {
     }
   }
 
-  implicit val encodeDateTime: Encoder[DateTime] = Encoder.instance {
-    dateTime: DateTime =>
-      Json.fromString(this.toString(dateTime))
+  implicit val encodeDateTime: Encoder[DateTime] = Encoder.instance { dateTime: DateTime =>
+    Json.fromString(this.toString(dateTime))
   }
 
   def toString(dateTime: DateTime): String = dateTime.toString(dateFormat)

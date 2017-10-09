@@ -19,26 +19,21 @@ import scala.language.higherKinds
   * @tparam F - this is the container for the things we work with, could be scala.concurrent.Future, Option, anything
   *           as long as it is a Monad
   */
-class PetService[F[_]](repository: PetRepositoryAlgebra[F],
-                       validation: PetValidationAlgebra[F]) {
+class PetService[F[_]](repository: PetRepositoryAlgebra[F], validation: PetValidationAlgebra[F]) {
   import cats.syntax.all._
 
-  def create(pet: Pet)(
-      implicit M: Monad[F]): EitherT[F, ValidationError, Pet] = {
+  def create(pet: Pet)(implicit M: Monad[F]): EitherT[F, ValidationError, Pet] =
     for {
       _ <- validation.doesNotExist(pet)
       saved <- EitherT.liftT(repository.put(pet))
     } yield saved
-  }
 
   /* Could argue that we could make this idempotent on put and not check if the pet exists */
-  def update(pet: Pet)(
-      implicit M: Monad[F]): EitherT[F, ValidationError, Pet] = {
+  def update(pet: Pet)(implicit M: Monad[F]): EitherT[F, ValidationError, Pet] =
     for {
       _ <- validation.exists(pet.id)
       saved <- EitherT.liftT(repository.put(pet))
     } yield saved
-  }
 
   def get(id: Long)(implicit M: Monad[F]): EitherT[F, ValidationError, Pet] =
     EitherT {
@@ -60,7 +55,6 @@ class PetService[F[_]](repository: PetRepositoryAlgebra[F],
 }
 
 object PetService {
-  def apply[F[_]: Monad](repository: PetRepositoryAlgebra[F],
-                         validation: PetValidationAlgebra[F]) =
+  def apply[F[_]: Monad](repository: PetRepositoryAlgebra[F], validation: PetValidationAlgebra[F]) =
     new PetService[F](repository, validation)
 }

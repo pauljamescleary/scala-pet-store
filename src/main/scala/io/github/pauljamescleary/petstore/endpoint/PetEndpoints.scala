@@ -10,10 +10,7 @@ import io.circe.generic.extras.semiauto._
 import io.circe.syntax._
 import io.github.pauljamescleary.petstore.model.{Pet, PetStatus}
 import io.github.pauljamescleary.petstore.service.PetService
-import io.github.pauljamescleary.petstore.validation.{
-  PetAlreadyExistsError,
-  PetNotFoundError
-}
+import io.github.pauljamescleary.petstore.validation.{PetAlreadyExistsError, PetNotFoundError}
 import org.http4s.circe._
 import org.http4s.dsl.Http4sDsl
 import org.http4s.implicits._
@@ -38,8 +35,7 @@ class PetEndpoints[F[_]: Sync] extends Http4sDsl[F] {
     QueryParamDecoder[String].map(PetStatus.apply)
 
   /* Relies on the statusQueryParamDecoder implicit, will parse out a possible multi-value query parameter */
-  object StatusMatcher
-      extends OptionalMultiQueryParamDecoderMatcher[PetStatus]("status")
+  object StatusMatcher extends OptionalMultiQueryParamDecoderMatcher[PetStatus]("status")
 
   /* We need to define an enum encoder and decoder since these do not come out of the box with generic derivation */
   implicit val statusDecoder: Decoder[PetStatus] = deriveEnumerationDecoder
@@ -57,8 +53,7 @@ class PetEndpoints[F[_]: Sync] extends Http4sDsl[F] {
           case Right(saved) =>
             Ok(saved.asJson)
           case Left(PetAlreadyExistsError(existing)) =>
-            Conflict(
-              s"The pet ${existing.name} of category ${existing.category} already exists")
+            Conflict(s"The pet ${existing.name} of category ${existing.category} already exists")
           case Left(unexpected) =>
             InternalServerError(s"Unexpected error: $unexpected")
         }
@@ -102,45 +97,38 @@ class PetEndpoints[F[_]: Sync] extends Http4sDsl[F] {
 
   private def listPetsEndpoint(petService: PetService[F]): HttpService[F] =
     HttpService[F] {
-      case GET -> Root / "pets" :? PageSizeMatcher(pageSize) :? OffsetMatcher(
-            offset) =>
+      case GET -> Root / "pets" :? PageSizeMatcher(pageSize) :? OffsetMatcher(offset) =>
         for {
           retrieved <- petService.list(pageSize, offset)
           resp <- Ok(retrieved.asJson)
         } yield resp
     }
 
-  private def findPetsByStatusEndpoint(
-      petService: PetService[F]): HttpService[F] =
+  private def findPetsByStatusEndpoint(petService: PetService[F]): HttpService[F] =
     HttpService[F] {
-      case GET -> Root / "pets" / "findByStatus" :? StatusMatcher(
-            Valid(Nil)) =>
+      case GET -> Root / "pets" / "findByStatus" :? StatusMatcher(Valid(Nil)) =>
         // User did not specify any statuses
         BadRequest("status parameter not specified")
 
-      case GET -> Root / "pets" / "findByStatus" :? StatusMatcher(
-            Valid(statuses)) =>
+      case GET -> Root / "pets" / "findByStatus" :? StatusMatcher(Valid(statuses)) =>
         // We have a list of valid statuses, find them and return
         for {
-          retrieved <- petService.findByStatus(
-            NonEmptyList.fromListUnsafe(statuses))
+          retrieved <- petService.findByStatus(NonEmptyList.fromListUnsafe(statuses))
           resp <- Ok(retrieved.asJson)
         } yield resp
     }
 
-  def endpoints(petService: PetService[F]): HttpService[F] = {
+  def endpoints(petService: PetService[F]): HttpService[F] =
     createPetEndpoint(petService) <+>
       getPetEndpoint(petService) <+>
       deletePetEndpoint(petService) <+>
       listPetsEndpoint(petService) <+>
       findPetsByStatusEndpoint(petService) <+>
       updatePetEndpoint(petService)
-  }
 
 }
 
 object PetEndpoints {
-  def endpoints[F[_]: Sync](petService: PetService[F]): HttpService[F] = {
+  def endpoints[F[_]: Sync](petService: PetService[F]): HttpService[F] =
     new PetEndpoints[F].endpoints(petService)
-  }
 }
