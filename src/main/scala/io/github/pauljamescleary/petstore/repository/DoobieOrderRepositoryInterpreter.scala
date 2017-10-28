@@ -27,8 +27,18 @@ class DoobieOrderRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
   """.update.run.transact(xa)
 
   /* We require type StatusMeta to handle our ADT Status */
-  private implicit val StatusMeta: Meta[OrderStatus] =
-    Meta[String].xmap(OrderStatus.apply, OrderStatus.nameOf)
+  private implicit val StatusMeta: Meta[OrderStatus] = Meta[String].xmap(
+    s => OrderStatus(s) match {
+           case Left(msg) =>
+             //actually, you should not throw but find what is the correct business logic
+             //to deal with such an incorrect data. Most likelly the DB was corrupted,
+             //perhaps some app upgrade not correctly done. So, assign "bad order, human check needed status" ?)
+             //at least it can be caught with attempt in doobie or higher in the IO stack
+             throw new IllegalArgumentException(s"Invalid data found in database: $msg")
+           case Right(x)  => x
+         },
+    OrderStatus.nameOf
+  )
 
   /* We require conversion for date time */
   private implicit val DateTimeMeta: Meta[DateTime] =

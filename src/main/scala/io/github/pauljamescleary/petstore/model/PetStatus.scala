@@ -1,11 +1,18 @@
 package io.github.pauljamescleary.petstore.model
 
+
 sealed trait PetStatus extends Product with Serializable
-case object Available extends PetStatus
-case object Pending extends PetStatus
-case object Adopted extends PetStatus
+
+
 
 object PetStatus {
+
+  case object Available extends PetStatus
+  case object Pending extends PetStatus
+  case object Adopted extends PetStatus
+
+  //def allValues = ca.mrvisser.sealerate.values[Status]
+
   def apply(name: String): PetStatus = name match {
     case "Available" => Available
     case "Pending" => Pending
@@ -17,4 +24,5 @@ object PetStatus {
     case Pending => "Pending"
     case Adopted => "Adopted"
   }
+
 }

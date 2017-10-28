@@ -1,7 +1,7 @@
 organization    := "io.github.pauljamescleary"
 name            := "scala-pet-store"
 version         := "0.0.1-SNAPSHOT"
-scalaVersion    := "2.12.3"
+scalaVersion    := "2.12.4"
 
 resolvers += Resolver.sonatypeRepo("snapshots")
 
@@ -15,6 +15,7 @@ val JodaTimeVersion   = "2.9.9"
 val LogbackVersion    = "1.2.3"
 val ScalaCheckVersion = "1.13.5"
 val ScalaTestVersion  = "3.0.4"
+val SealerateVersion  = "0.0.5"
 
 libraryDependencies ++= Seq(
   "org.typelevel"  %% "cats-core"            % CatsVersion,
@@ -32,6 +33,7 @@ libraryDependencies ++= Seq(
   "org.http4s"     %% "http4s-dsl"           % Http4sVersion,
   "ch.qos.logback" %  "logback-classic"      % LogbackVersion,
   "joda-time"      %  "joda-time"            % JodaTimeVersion,
+  "ca.mrvisser"    %% "sealerate"            % SealerateVersion,
   "org.scalacheck" %% "scalacheck"           % ScalaCheckVersion % Test,
   "org.scalatest"  %% "scalatest"            % ScalaTestVersion  % Test
 )

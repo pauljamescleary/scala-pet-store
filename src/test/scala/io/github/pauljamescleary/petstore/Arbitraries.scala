@@ -5,6 +5,8 @@ import org.scalacheck._
 import org.scalacheck.Arbitrary.arbitrary
 
 import io.github.pauljamescleary.petstore.model._
+import io.github.pauljamescleary.petstore.model.OrderStatus._
+import io.github.pauljamescleary.petstore.model.PetStatus._
 
 trait PetStoreArbitraries {
 
