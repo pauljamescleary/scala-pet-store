@@ -1,11 +1,12 @@
 package io.github.pauljamescleary.petstore.repository
 
+import java.time.Instant
+
 import doobie._
 import doobie.implicits._
 import cats._
 import cats.implicits._
 import io.github.pauljamescleary.petstore.model.{Order, OrderStatus}
-import org.joda.time.DateTime
 
 class DoobieOrderRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
     extends OrderRepositoryAlgebra[F] {
@@ -31,10 +32,10 @@ class DoobieOrderRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
     Meta[String].xmap(OrderStatus.apply, OrderStatus.nameOf)
 
   /* We require conversion for date time */
-  private implicit val DateTimeMeta: Meta[DateTime] =
+  private implicit val DateTimeMeta: Meta[Instant] =
     Meta[java.sql.Timestamp].xmap(
-      ts => new DateTime(ts.getTime),
-      dt => new java.sql.Timestamp(dt.getMillis)
+      ts => ts.toInstant,
+      dt => java.sql.Timestamp.from(dt)
     )
 
   def migrate: F[Int] =

@@ -1,10 +1,10 @@
 package io.github.pauljamescleary.petstore.model
 
-import org.joda.time.DateTime
+import java.time.Instant
 
 case class Order(
     petId: Long,
-    shipDate: Option[DateTime] = None,
+    shipDate: Option[Instant] = None,
     status: OrderStatus = Placed,
     complete: Boolean = false,
     id: Option[Long] = None

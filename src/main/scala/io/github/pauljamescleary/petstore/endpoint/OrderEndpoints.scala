@@ -15,8 +15,8 @@ import scala.language.higherKinds
 
 class OrderEndpoints[F[_]: Sync] extends Http4sDsl[F] {
 
-  /* Need Joda DateTime Json Encoding */
-  import JodaDateTime._
+  /* Need Instant Json Encoding */
+  import io.circe.java8.time._
 
   /* Needed for service composition via |+| */
   import cats.implicits._

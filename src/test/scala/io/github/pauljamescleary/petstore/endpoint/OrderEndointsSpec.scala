@@ -5,6 +5,7 @@ import cats.effect._
 import io.circe._
 import io.circe.generic.auto._
 import io.circe.generic.extras.semiauto._
+import io.circe.java8.time._
 import io.circe.syntax._
 import org.http4s._
 import org.http4s.dsl._
@@ -22,8 +23,6 @@ class OrderEndpointsSpec
     with PropertyChecks
     with PetStoreArbitraries
     with Http4sDsl[IO] {
-
-  import JodaDateTime._
 
   implicit val statusDecoder: Decoder[OrderStatus] = deriveEnumerationDecoder
   implicit val statusEncoder: Encoder[OrderStatus] = deriveEnumerationEncoder

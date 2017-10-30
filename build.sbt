@@ -23,6 +23,7 @@ libraryDependencies ++= Seq(
   "io.circe"       %% "circe-generic-extras" % CirceVersion,
   "io.circe"       %% "circe-optics"         % CirceVersion,
   "io.circe"       %% "circe-parser"         % CirceVersion,
+  "io.circe"       %% "circe-java8"          % CirceVersion,
   "org.tpolecat"   %% "doobie-core"          % DoobieVersion,
   "org.tpolecat"   %% "doobie-h2"            % DoobieVersion,
   "org.tpolecat"   %% "doobie-scalatest"     % DoobieVersion,
@@ -31,7 +32,6 @@ libraryDependencies ++= Seq(
   "org.http4s"     %% "http4s-circe"         % Http4sVersion,
   "org.http4s"     %% "http4s-dsl"           % Http4sVersion,
   "ch.qos.logback" %  "logback-classic"      % LogbackVersion,
-  "joda-time"      %  "joda-time"            % JodaTimeVersion,
   "org.scalacheck" %% "scalacheck"           % ScalaCheckVersion % Test,
   "org.scalatest"  %% "scalatest"            % ScalaTestVersion  % Test
 )
