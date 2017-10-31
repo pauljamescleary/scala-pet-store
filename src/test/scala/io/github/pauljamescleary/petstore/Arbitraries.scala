@@ -1,17 +1,17 @@
 package io.github.pauljamescleary.petstore
 
-import org.joda.time.DateTime
+import java.time.Instant
+
 import org.scalacheck._
 import org.scalacheck.Arbitrary.arbitrary
-
 import io.github.pauljamescleary.petstore.model._
 
 trait PetStoreArbitraries {
 
-  implicit val dateTime = Arbitrary[DateTime] {
+  implicit val instant = Arbitrary[Instant] {
     for {
       millis <- Gen.posNum[Long]
-    } yield new DateTime(millis)
+    } yield Instant.ofEpochMilli(millis)
   }
 
   implicit val orderStatus = Arbitrary[OrderStatus] {
@@ -21,7 +21,7 @@ trait PetStoreArbitraries {
   implicit val order = Arbitrary[Order] {
     for {
       petId <- Gen.posNum[Long]
-      shipDate <- Gen.option(dateTime.arbitrary)
+      shipDate <- Gen.option(instant.arbitrary)
       status <- arbitrary[OrderStatus]
       complete <- arbitrary[Boolean]
       id <- Gen.option(Gen.posNum[Long])
