@@ -39,7 +39,7 @@ class DoobiePetRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
   def put(pet: Pet): F[Pet] = {
     val insert: ConnectionIO[Pet] =
       for {
-        id <- sql"REPLACE INTO PET (NAME, CATEGORY, BIO, STATUS, TAGS, PHOTO_URLS) values (${pet.name}, ${pet.category}, ${pet.bio}, ${pet.status}, ${pet.photoUrls}, ${pet.tags})".update
+        id <- sql"REPLACE INTO PET (NAME, CATEGORY, BIO, STATUS, TAGS, PHOTO_URLS) values (${pet.name}, ${pet.category}, ${pet.bio}, ${pet.status}, ${pet.tags}, ${pet.photoUrls})".update
           .withUniqueGeneratedKeys[Long]("ID")
       } yield pet.copy(id = Some(id))
     insert.transact(xa)
@@ -76,12 +76,26 @@ class DoobiePetRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
       .list
       .transact(xa)
 
-  override def findByStatus(statuses: NonEmptyList[PetStatus]): F[List[Pet]] = {
-    val q = sql"""SELECT NAME, CATEGORY, BIO, STATUS, TAGS, PHOTO_URLS, ID
+  def findByStatus(statuses: NonEmptyList[PetStatus]): F[List[Pet]] =
+    (sql"""SELECT NAME, CATEGORY, BIO, STATUS, TAGS, PHOTO_URLS, ID
             FROM PET
-           WHERE """ ++ Fragments.in(fr"STATUS", statuses)
+           WHERE """ ++ Fragments.in(fr"STATUS", statuses))
+      .query[Pet]
+      .list
+      .transact(xa)
 
-    q.query[Pet].list.transact(xa)
+  def findByTag(tags: NonEmptyList[String]): F[List[Pet]] = {
+    /* Handle dynamic construction of query based on multiple parameters */
+
+    /* To piggyback off of comment of above reference about tags implementation, findByTag uses LIKE for partial matching
+    since tags is (currently) implemented as a comma-delimited string */
+    val tagLikeString: String = tags.toList mkString ("TAGS LIKE '%","%' OR TAGS LIKE '%","%'")
+    (sql"""SELECT NAME, CATEGORY, BIO, STATUS, TAGS, PHOTO_URLS, ID
+         FROM PET
+         WHERE """ ++ Fragment.const(tagLikeString))
+      .query[Pet]
+      .list
+      .transact(xa)
   }
 }
 

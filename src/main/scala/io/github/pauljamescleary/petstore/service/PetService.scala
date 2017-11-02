@@ -52,6 +52,9 @@ class PetService[F[_]](repository: PetRepositoryAlgebra[F], validation: PetValid
 
   def findByStatus(statuses: NonEmptyList[PetStatus]): F[List[Pet]] =
     repository.findByStatus(statuses)
+
+  def findByTag(tags: NonEmptyList[String]): F[List[Pet]] =
+    repository.findByTag(tags)
 }
 
 object PetService {

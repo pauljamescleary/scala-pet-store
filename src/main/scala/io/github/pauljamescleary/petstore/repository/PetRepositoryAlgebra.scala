@@ -18,4 +18,6 @@ trait PetRepositoryAlgebra[F[_]] {
   def list(pageSize: Int, offset: Int): F[List[Pet]]
 
   def findByStatus(status: NonEmptyList[PetStatus]): F[List[Pet]]
+
+  def findByTag(tags: NonEmptyList[String]): F[List[Pet]]
 }
