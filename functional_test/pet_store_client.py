@@ -42,7 +42,7 @@ class PetStoreClient(object):
         """
         url = urljoin(self.index_url, '/pets')
 
-        return self.session.request('PUT', url, self.headers, json.dumps(pet))    
+        return self.session.request('PUT', url, self.headers, json.dumps(pet))
 
     def get_pet(self, pet_id):
         """
@@ -72,6 +72,23 @@ class PetStoreClient(object):
         status_kv_pairs = map(lambda x: "status={0}".format(x), statuses)
         params =  "&".join(status_kv_pairs)
         url = urljoin(self.index_url, "/pets/findByStatus?{0}".format(params))
+        return self.session.request('GET', url, self.headers)
+
+    def find_pets_by_tag(self, tags):
+        """
+        Returns a list of pets which match the tags provided.
+
+        Note: The current implementation of Pet stores the tags in a comma-delimited string. An inherent
+        shortcoming of how tags are stored means that: 1. the most accurate method of finding matches is through using
+        the LIKE operator, and 2. an unintended result is that an input containing substrings and commas can pass, despite
+        not being a full tag itself. (eg. given tags "foo" and "bar" to create tag string "foo,bar", "o,b" would pass)
+
+        :param tags: A list of valid tags.
+        :return:
+        """
+        tags_kv_pairs = map(lambda x: "tags={0}".format(x), tags)
+        params = "&".join(tags_kv_pairs)
+        url = urljoin(self.index_url, "/pets/findByTags?{0}".format(params))
         return self.session.request('GET', url, self.headers)
 
     def delete_pet(self, pet_id):

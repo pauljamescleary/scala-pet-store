@@ -37,6 +37,9 @@ class PetEndpoints[F[_]: Sync] extends Http4sDsl[F] {
   /* Relies on the statusQueryParamDecoder implicit, will parse out a possible multi-value query parameter */
   object StatusMatcher extends OptionalMultiQueryParamDecoderMatcher[PetStatus]("status")
 
+  /* Parses out tag query param, which could be multi-value */
+  object TagMatcher extends OptionalMultiQueryParamDecoderMatcher[String]("tags")
+
   /* We need to define an enum encoder and decoder since these do not come out of the box with generic derivation */
   implicit val statusDecoder: Decoder[PetStatus] = deriveEnumerationDecoder
   implicit val statusEncoder: Encoder[PetStatus] = deriveEnumerationEncoder
@@ -118,14 +121,27 @@ class PetEndpoints[F[_]: Sync] extends Http4sDsl[F] {
         } yield resp
     }
 
+  private def findPetsByTagEndpoint(petService: PetService[F]): HttpService[F] =
+    HttpService[F] {
+      case GET -> Root / "pets" / "findByTags" :? TagMatcher(Valid(Nil)) =>
+        BadRequest("tag parameter not specified")
+
+      case GET -> Root / "pets" / "findByTags" :? TagMatcher(Valid(tags)) =>
+        for {
+          retrieved <- petService.findByTag(NonEmptyList.fromListUnsafe(tags))
+          resp <- Ok(retrieved.asJson)
+        } yield resp
+
+    }
+
   def endpoints(petService: PetService[F]): HttpService[F] =
     createPetEndpoint(petService) <+>
       getPetEndpoint(petService) <+>
       deletePetEndpoint(petService) <+>
       listPetsEndpoint(petService) <+>
       findPetsByStatusEndpoint(petService) <+>
-      updatePetEndpoint(petService)
-
+      updatePetEndpoint(petService) <+>
+      findPetsByTagEndpoint(petService)
 }
 
 object PetEndpoints {

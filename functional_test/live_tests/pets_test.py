@@ -29,6 +29,34 @@ def test_find_pets_by_status(pet_context, pet_store_client):
 
     assert_that(pets[0]['name'], is_('Harry'))
 
+def test_find_pets_by_tags(pet_context, pet_store_client):
+    # No Pets with "Amphibian" tags exist yet
+    response = pet_store_client.find_pets_by_tag(['Amphibian'])
+    pets = response.json()
+    assert_that(pets, has_length(0))
+
+    # Add a pet
+    pet = {
+        "name": "Nancy",
+        "category": "Frog",
+        "bio": "R-r-ribbit!",
+        "status": "Pending",
+        "tags": ["Green", "Amphibian", "Croaker"],
+        "photoUrls": []
+    }
+    pet_store_client.create_pet(pet)
+
+    # Grab all pets
+    response = pet_store_client.find_pets_by_tag([''])
+    pets = response.json()
+    assert_that(pets, has_length(2))
+    assert_that(pets[0]['name'], is_('Harry'))
+
+    # Retry "Amphibian" tag - there should be exactly one now
+    response = pet_store_client.find_pets_by_tag(['Amphibian'])
+    pets = response.json()
+    assert_that(pets, has_length(1))
+    assert_that(pets[0]['name'],is_('Nancy'))
 
 def test_update_pet(pet_store_client):
     pet = {
@@ -36,7 +64,7 @@ def test_update_pet(pet_store_client):
         "category": "Cat",
         "bio": "I am fuzzy",
         "status": "Available",
-        "tags": [],
+        "tags": ["Cat","Fuzzy","Fur ball"],
         "photoUrls": []
     }
 
