@@ -1,5 +1,8 @@
 {
-  "name": "Harry",
-  "typ": "Cat",
-  "bio": "I am fuzzy"
+    "category": "Cat",
+    "bio": "I am fuzzy",
+    "name": "Harry",
+    "tags": [],
+    "photoUrls": [],
+    "status": "Available"
 }
