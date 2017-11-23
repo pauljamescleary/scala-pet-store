@@ -7,24 +7,6 @@ import cats._, cats.data._, cats.implicits._
 class DoobiePetRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
     extends PetRepositoryAlgebra[F] {
 
-  // This will clear the database.  Note, this would typically be done via something like FLYWAY (TODO)
-  private val dropPetTable = sql"""
-    DROP TABLE IF EXISTS PET
-  """.update.run.transact(xa)
-
-  // The tags column is controversial, could be a lookup table.  For our purposes, indexing on tags to allow searching is fine
-  private val createPetTable = sql"""
-    CREATE TABLE PET (
-      ID   SERIAL,
-      NAME VARCHAR NOT NULL,
-      CATEGORY VARCHAR NOT NULL,
-      BIO  VARCHAR NOT NULL,
-      STATUS VARCHAR NOT NULL,
-      PHOTO_URLS VARCHAR NOT NULL,
-      TAGS VARCHAR NOT NULL
-    )
-  """.update.run.transact(xa)
-
   /* We require type StatusMeta to handle our ADT Status */
   private implicit val StatusMeta: Meta[PetStatus] =
     Meta[String].xmap(PetStatus.apply, PetStatus.nameOf)
@@ -32,9 +14,6 @@ class DoobiePetRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
   /* This is used to marshal our sets of strings */
   private implicit val SetStringMeta: Meta[Set[String]] = Meta[String]
     .xmap(str => str.split(',').toSet, strSet => strSet.mkString(","))
-
-  def migrate: F[Int] =
-    dropPetTable >> createPetTable
 
   def put(pet: Pet): F[Pet] = {
     val insert: ConnectionIO[Pet] =
@@ -89,7 +68,7 @@ class DoobiePetRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
 
     /* To piggyback off of comment of above reference about tags implementation, findByTag uses LIKE for partial matching
     since tags is (currently) implemented as a comma-delimited string */
-    val tagLikeString: String = tags.toList mkString ("TAGS LIKE '%","%' OR TAGS LIKE '%","%'")
+    val tagLikeString: String = tags.toList.mkString("TAGS LIKE '%", "%' OR TAGS LIKE '%", "%'")
     (sql"""SELECT NAME, CATEGORY, BIO, STATUS, TAGS, PHOTO_URLS, ID
          FROM PET
          WHERE """ ++ Fragment.const(tagLikeString))

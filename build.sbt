@@ -15,25 +15,30 @@ val JodaTimeVersion   = "2.9.9"
 val LogbackVersion    = "1.2.3"
 val ScalaCheckVersion = "1.13.5"
 val ScalaTestVersion  = "3.0.4"
+val FlywayVersion     = "4.2.0"
+val PureConfigVersion = "0.8.0"
 
 libraryDependencies ++= Seq(
-  "org.typelevel"  %% "cats-core"            % CatsVersion,
-  "io.circe"       %% "circe-generic"        % CirceVersion,
-  "io.circe"       %% "circe-literal"        % CirceVersion,
-  "io.circe"       %% "circe-generic-extras" % CirceVersion,
-  "io.circe"       %% "circe-optics"         % CirceVersion,
-  "io.circe"       %% "circe-parser"         % CirceVersion,
-  "io.circe"       %% "circe-java8"          % CirceVersion,
-  "org.tpolecat"   %% "doobie-core"          % DoobieVersion,
-  "org.tpolecat"   %% "doobie-h2"            % DoobieVersion,
-  "org.tpolecat"   %% "doobie-scalatest"     % DoobieVersion,
-  "com.h2database" %  "h2"                   % H2Version,
-  "org.http4s"     %% "http4s-blaze-server"  % Http4sVersion,
-  "org.http4s"     %% "http4s-circe"         % Http4sVersion,
-  "org.http4s"     %% "http4s-dsl"           % Http4sVersion,
-  "ch.qos.logback" %  "logback-classic"      % LogbackVersion,
-  "org.scalacheck" %% "scalacheck"           % ScalaCheckVersion % Test,
-  "org.scalatest"  %% "scalatest"            % ScalaTestVersion  % Test
+  "org.typelevel"         %% "cats-core"            % CatsVersion,
+  "io.circe"              %% "circe-generic"        % CirceVersion,
+  "io.circe"              %% "circe-literal"        % CirceVersion,
+  "io.circe"              %% "circe-generic-extras" % CirceVersion,
+  "io.circe"              %% "circe-optics"         % CirceVersion,
+  "io.circe"              %% "circe-parser"         % CirceVersion,
+  "io.circe"              %% "circe-java8"          % CirceVersion,
+  "org.tpolecat"          %% "doobie-core"          % DoobieVersion,
+  "org.tpolecat"          %% "doobie-h2"            % DoobieVersion,
+  "org.tpolecat"          %% "doobie-scalatest"     % DoobieVersion,
+  "org.tpolecat"          %% "doobie-hikari"        % DoobieVersion,
+  "com.h2database"        %  "h2"                   % H2Version,
+  "org.http4s"            %% "http4s-blaze-server"  % Http4sVersion,
+  "org.http4s"            %% "http4s-circe"         % Http4sVersion,
+  "org.http4s"            %% "http4s-dsl"           % Http4sVersion,
+  "ch.qos.logback"        %  "logback-classic"      % LogbackVersion,
+  "org.flywaydb"          %  "flyway-core"          % FlywayVersion,
+  "com.github.pureconfig" %% "pureconfig"           % PureConfigVersion,
+  "org.scalacheck"        %% "scalacheck"           % ScalaCheckVersion % Test,
+  "org.scalatest"         %% "scalatest"            % ScalaTestVersion  % Test
 )
 
 
