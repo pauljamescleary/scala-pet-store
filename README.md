@@ -2,15 +2,18 @@
 An implementation of the java pet store using FP techniques in scala.
 
 # Status
-** Currently, this is under active development until the relevant bits fall out.  Feel free to contribute thoughts, ideas
-   or code.  Will socialize more widely once enough folks have reviewed and more parts are built out **
+I have stood up a few endpoints, with something like tagless final services and repositories.  Repositories developed in Doobie.
 
-This is very early on, there are lots of bits that I want to fall in here:
+Updated to the latest of all of the things as I begin to abstract away the effect type.
 
-- Scalacheck + Scalatest for unit testing
-- ??? for integration testing.  Figure could use H2
-- ??? some kind of user interface, we have been working with react, so that is where we might wind up
-- Authentication
+I am still exploring tagless final and how to fit all of the pieces together.  Hoping to get into a more complete
+functional example, as well as a UI and some business rules / validations.
+
+# Want to help out?
+I could use some help with Scalacheck and a UI if people feel compelled to jump in.
+
+Also, if you have general feedback on how things could be better, feel free to post an issue / gist or
+open a PR!
 
 
 ## Why you doing this?
@@ -30,11 +33,11 @@ enough barrier to entry to pick up quickly.
 I am going to work with the TypeLevel stack initially and see how far I can go with it.  I believe that framing the
 concepts in code in an easy to understand way should be possible with Typelevel.
 
-- HTTP4S as the web server.  I could have gone with finch, twitter server, or akka-http here as well, but I have been
+- [HTTP4S](http://http4s.org/) as the web server.  I could have gone with finch, twitter server, or akka-http here as well, but I have been
 interested in learning http4s.
-- Circe for json serialization.
+- [Circe](https://circe.github.io/circe/) for json serialization.
 - Tagless Final for my core domain.
-- DB access is unknown, I will try doobie, but may fall back to scalikejdbc if I cannot have it align with the goals for the project
+- [Doobie](https://github.com/tpolecat/doobie) for database access
 
 ## Getting Started
 
@@ -47,7 +50,7 @@ Start up sbt:
 Once sbt has loaded, you can start up the application
 
 ```
-> ~re-start
+> ~reStart
 ```
 
 This uses revolver, which is a great way to develop and test the application.  Doing things this way the application
@@ -56,15 +59,13 @@ will be automatically rebuilt when you make code changes
 To stop the app in sbt, hit the `Enter` key and then type:
 
 ```
-> re-stop
+> reStop
 ```
 
 ## Testing
 Building out a test suite using Python.  The reason is that typically we want to run tests against a live environment
-when we deploy our code in order to make sure that everything is running properly in the target environment.
-
-Python 2.7 tends to run on almost all machines, so that is why I chose python.  Plus, python is really easy to read
-and follow along with.
+when we deploy our code in order to make sure that everything is running properly in the target environment.  It
+is reassuring to know that your code works across clients.
 
 In order to run the functional tests, your machine will need to have Python 2.7 and pip, and virtualenv.
 

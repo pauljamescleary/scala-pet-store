@@ -17,7 +17,8 @@ def pet_context(request, pet_store_client):
         "photoUrls": []
     }
 
-    saved_pet = pet_store_client.create_pet(pet).json()
+    response = pet_store_client.create_pet(pet)
+    saved_pet = response.json()
 
     def fin():
         pet_store_client.delete_pet(saved_pet['id'])
