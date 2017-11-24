@@ -2,10 +2,13 @@ package io.github.pauljamescleary.petstore
 
 import cats.effect._
 import cats.implicits._
-import doobie.h2.H2Transactor
 import fs2.Stream
+import io.github.pauljamescleary.petstore.config.{DatabaseConfig, PetStoreConfig}
 import io.github.pauljamescleary.petstore.endpoint.{OrderEndpoints, PetEndpoints}
-import io.github.pauljamescleary.petstore.repository.{DoobieOrderRepositoryInterpreter, DoobiePetRepositoryInterpreter}
+import io.github.pauljamescleary.petstore.repository.{
+  DoobieOrderRepositoryInterpreter,
+  DoobiePetRepositoryInterpreter
+}
 import io.github.pauljamescleary.petstore.service.{OrderService, PetService}
 import io.github.pauljamescleary.petstore.validation.PetValidationInterpreter
 import org.http4s.server.blaze.BlazeBuilder
@@ -20,11 +23,11 @@ object Server extends StreamApp[IO] {
   def createStream[F[_]](args: List[String], shutdown: F[Unit])(
       implicit E: Effect[F]): F[Stream[F, ExitCode]] =
     for {
-      xa <- H2Transactor[F]("jdbc:h2:mem:test;MODE=MySQL;DB_CLOSE_DELAY=-1", "sa", "")
+      conf <- PetStoreConfig.load[F]
+      xa <- DatabaseConfig.dbTransactor(conf.db)
+      _ <- DatabaseConfig.initializeDb(conf.db, xa)
       petRepo = DoobiePetRepositoryInterpreter[F](xa)
       orderRepo = DoobieOrderRepositoryInterpreter[F](xa)
-      _ <- petRepo.migrate
-      _ <- orderRepo.migrate
     } yield {
 
       val petValidation = PetValidationInterpreter[F](petRepo)
@@ -37,5 +40,4 @@ object Server extends StreamApp[IO] {
         .mountService(OrderEndpoints.endpoints[F](orderService), "/")
         .serve
     }
-
 }

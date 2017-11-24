@@ -11,22 +11,6 @@ import io.github.pauljamescleary.petstore.model.{Order, OrderStatus}
 class DoobieOrderRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
     extends OrderRepositoryAlgebra[F] {
 
-  // This will clear the database.  Note, this would typically be done via something like FLYWAY (TODO)
-  private val dropOrdersTable = sql"""
-    DROP TABLE IF EXISTS ORDERS
-  """.update.run.transact(xa)
-
-  // The tags column is controversial, could be a lookup table.  For our purposes, indexing on tags to allow searching is fine
-  private val createOrdersTable = sql"""
-    CREATE TABLE ORDERS (
-      ID   SERIAL,
-      PET_ID INT8 NOT NULL,
-      SHIP_DATE TIMESTAMP NULL,
-      STATUS VARCHAR NOT NULL,
-      COMPLETE BOOLEAN NOT NULL
-    )
-  """.update.run.transact(xa)
-
   /* We require type StatusMeta to handle our ADT Status */
   private implicit val StatusMeta: Meta[OrderStatus] =
     Meta[String].xmap(OrderStatus.apply, OrderStatus.nameOf)
@@ -37,9 +21,6 @@ class DoobieOrderRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
       ts => ts.toInstant,
       dt => java.sql.Timestamp.from(dt)
     )
-
-  def migrate: F[Int] =
-    dropOrdersTable >> createOrdersTable
 
   def put(order: Order): F[Order] = {
     val insert: ConnectionIO[Order] =
