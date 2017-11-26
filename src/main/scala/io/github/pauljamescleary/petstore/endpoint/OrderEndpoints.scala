@@ -1,6 +1,6 @@
 package io.github.pauljamescleary.petstore.endpoint
 
-import cats.effect.Sync
+import cats.effect.{Effect, Sync}
 import io.circe._
 import io.circe.generic.auto._
 import io.circe.generic.extras.semiauto._
@@ -13,7 +13,7 @@ import org.http4s.dsl.Http4sDsl
 
 import scala.language.higherKinds
 
-class OrderEndpoints[F[_]: Sync] extends Http4sDsl[F] {
+class OrderEndpoints[F[_]: Effect] extends Http4sDsl[F] {
 
   /* Need Instant Json Encoding */
   import io.circe.java8.time._
@@ -25,11 +25,14 @@ class OrderEndpoints[F[_]: Sync] extends Http4sDsl[F] {
   implicit val statusDecoder: Decoder[OrderStatus] = deriveEnumerationDecoder
   implicit val statusEncoder: Encoder[OrderStatus] = deriveEnumerationEncoder
 
+  /* Needed to decode entities */
+  implicit val orderDecoder = jsonOf[F, Order]
+
   def placeOrderEndpoint(orderService: OrderService[F]): HttpService[F] =
     HttpService[F] {
       case req @ POST -> Root / "orders" => {
         for {
-          order <- req.decodeJson[Order]
+          order <- req.as[Order]
           saved <- orderService.placeOrder(order)
           resp <- Ok(saved.asJson)
         } yield resp
@@ -41,6 +44,6 @@ class OrderEndpoints[F[_]: Sync] extends Http4sDsl[F] {
 }
 
 object OrderEndpoints {
-  def endpoints[F[_]: Sync](orderService: OrderService[F]): HttpService[F] =
+  def endpoints[F[_]: Sync](orderService: OrderService[F])(implicit M: Effect[F]): HttpService[F] =
     new OrderEndpoints[F].endpoints(orderService)
 }
