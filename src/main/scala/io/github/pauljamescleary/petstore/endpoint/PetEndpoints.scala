@@ -2,7 +2,7 @@ package io.github.pauljamescleary.petstore.endpoint
 
 import cats.data.Validated.Valid
 import cats.data._
-import cats.effect.Sync
+import cats.effect.{Effect, Sync}
 import cats.implicits._
 import io.circe._
 import io.circe.generic.auto._
@@ -13,12 +13,11 @@ import io.github.pauljamescleary.petstore.service.PetService
 import io.github.pauljamescleary.petstore.validation.{PetAlreadyExistsError, PetNotFoundError}
 import org.http4s.circe._
 import org.http4s.dsl.Http4sDsl
-import org.http4s.implicits._
-import org.http4s.{HttpService, QueryParamDecoder}
+import org.http4s.{EntityDecoder, HttpService, QueryParamDecoder}
 
 import scala.language.higherKinds
 
-class PetEndpoints[F[_]: Sync] extends Http4sDsl[F] {
+class PetEndpoints[F[_]: Effect] extends Http4sDsl[F] {
 
   /* Necessary for decoding query parameters */
   import QueryParamDecoder._
@@ -43,12 +42,13 @@ class PetEndpoints[F[_]: Sync] extends Http4sDsl[F] {
   /* We need to define an enum encoder and decoder since these do not come out of the box with generic derivation */
   implicit val statusDecoder: Decoder[PetStatus] = deriveEnumerationDecoder
   implicit val statusEncoder: Encoder[PetStatus] = deriveEnumerationEncoder
+  implicit val petDecoder: EntityDecoder[F, Pet] = jsonOf[F, Pet]
 
   private def createPetEndpoint(petService: PetService[F]): HttpService[F] =
     HttpService[F] {
       case req @ POST -> Root / "pets" =>
         val action = for {
-          pet <- req.decodeJson[Pet]
+          pet <- req.as[Pet]
           result <- petService.create(pet).value
         } yield result
 
@@ -66,7 +66,7 @@ class PetEndpoints[F[_]: Sync] extends Http4sDsl[F] {
     HttpService[F] {
       case req @ PUT -> Root / "pets" =>
         val action = for {
-          pet <- req.decodeJson[Pet]
+          pet <- req.as[Pet]
           result <- petService.update(pet).value
         } yield result
 
@@ -145,6 +145,6 @@ class PetEndpoints[F[_]: Sync] extends Http4sDsl[F] {
 }
 
 object PetEndpoints {
-  def endpoints[F[_]: Sync](petService: PetService[F]): HttpService[F] =
+  def endpoints[F[_]: Sync](petService: PetService[F])(implicit M: Effect[F]): HttpService[F] =
     new PetEndpoints[F].endpoints(petService)
 }

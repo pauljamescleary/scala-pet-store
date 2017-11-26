@@ -5,13 +5,11 @@ scalaVersion    := "2.12.3"
 
 resolvers += Resolver.sonatypeRepo("snapshots")
 
-val CatsVersion       = "1.0.0-MF"
-val CatsMtlVersion    = "0.0.2"
-val CirceVersion      = "0.9.0-M1"
-val DoobieVersion     = "0.5.0-M8"
+val CatsVersion       = "1.0.0-RC1"
+val CirceVersion      = "0.9.0-M2"
+val DoobieVersion     = "0.5.0-M9"
 val H2Version         = "1.4.196"
-val Http4sVersion     = "0.18.0-M4"
-val JodaTimeVersion   = "2.9.9"
+val Http4sVersion     = "0.18.0-M5"
 val LogbackVersion    = "1.2.3"
 val ScalaCheckVersion = "1.13.5"
 val ScalaTestVersion  = "3.0.4"

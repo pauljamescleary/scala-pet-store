@@ -13,7 +13,7 @@ import io.github.pauljamescleary.petstore.service.{OrderService, PetService}
 import io.github.pauljamescleary.petstore.validation.PetValidationInterpreter
 import org.http4s.server.blaze.BlazeBuilder
 import org.http4s.util.StreamApp
-import org.http4s.util.StreamApp.ExitCode
+import org.http4s.util.ExitCode
 
 object Server extends StreamApp[IO] {
 
