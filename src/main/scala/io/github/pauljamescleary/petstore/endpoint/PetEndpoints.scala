@@ -2,7 +2,7 @@ package io.github.pauljamescleary.petstore.endpoint
 
 import cats.data.Validated.Valid
 import cats.data._
-import cats.effect.{Effect, Sync}
+import cats.effect.Effect
 import cats.implicits._
 import io.circe._
 import io.circe.generic.auto._
@@ -145,6 +145,6 @@ class PetEndpoints[F[_]: Effect] extends Http4sDsl[F] {
 }
 
 object PetEndpoints {
-  def endpoints[F[_]: Sync](petService: PetService[F])(implicit M: Effect[F]): HttpService[F] =
+  def endpoints[F[_]: Effect](petService: PetService[F]): HttpService[F] =
     new PetEndpoints[F].endpoints(petService)
 }

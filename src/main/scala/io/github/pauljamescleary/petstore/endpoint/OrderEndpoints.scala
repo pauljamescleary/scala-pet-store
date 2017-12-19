@@ -1,6 +1,6 @@
 package io.github.pauljamescleary.petstore.endpoint
 
-import cats.effect.{Effect, Sync}
+import cats.effect.Effect
 import io.circe._
 import io.circe.generic.auto._
 import io.circe.generic.extras.semiauto._
@@ -44,6 +44,6 @@ class OrderEndpoints[F[_]: Effect] extends Http4sDsl[F] {
 }
 
 object OrderEndpoints {
-  def endpoints[F[_]: Sync](orderService: OrderService[F])(implicit M: Effect[F]): HttpService[F] =
+  def endpoints[F[_]: Effect](orderService: OrderService[F]): HttpService[F] =
     new OrderEndpoints[F].endpoints(orderService)
 }
