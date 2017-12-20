@@ -1,7 +1,7 @@
 package io.github.pauljamescleary.petstore.endpoint
 
+import cats.{ApplicativeError}
 import cats.data.Validated.Valid
-import cats.data._
 import cats.effect.Effect
 import cats.implicits._
 import io.circe._
@@ -16,8 +16,9 @@ import org.http4s.dsl.Http4sDsl
 import org.http4s.{EntityDecoder, HttpService, QueryParamDecoder}
 
 import scala.language.higherKinds
+import scala.util.control.NoStackTrace
 
-class PetEndpoints[F[_]: Effect] extends Http4sDsl[F] {
+class PetEndpoints[F[_]: Effect](implicit AE: ApplicativeError[F, Throwable]) extends Http4sDsl[F] {
 
   /* Necessary for decoding query parameters */
   import QueryParamDecoder._
@@ -35,9 +36,11 @@ class PetEndpoints[F[_]: Effect] extends Http4sDsl[F] {
 
   /* Relies on the statusQueryParamDecoder implicit, will parse out a possible multi-value query parameter */
   object StatusMatcher extends OptionalMultiQueryParamDecoderMatcher[PetStatus]("status")
+  case object EmptyStatuses extends Exception with NoStackTrace
 
   /* Parses out tag query param, which could be multi-value */
   object TagMatcher extends OptionalMultiQueryParamDecoderMatcher[String]("tags")
+  case object EmptyTags extends Exception with NoStackTrace
 
   /* We need to define an enum encoder and decoder since these do not come out of the box with generic derivation */
   implicit val statusDecoder: Decoder[PetStatus] = deriveEnumerationDecoder
@@ -109,28 +112,28 @@ class PetEndpoints[F[_]: Effect] extends Http4sDsl[F] {
 
   private def findPetsByStatusEndpoint(petService: PetService[F]): HttpService[F] =
     HttpService[F] {
-      case GET -> Root / "pets" / "findByStatus" :? StatusMatcher(Valid(Nil)) =>
-        // User did not specify any statuses
-        BadRequest("status parameter not specified")
-
       case GET -> Root / "pets" / "findByStatus" :? StatusMatcher(Valid(statuses)) =>
         // We have a list of valid statuses, find them and return
-        for {
-          retrieved <- petService.findByStatus(NonEmptyList.fromListUnsafe(statuses))
+        (for {
+          statusesNel <- AE.fromEither(statuses.toNel.toRight(EmptyStatuses))
+          retrieved <- petService.findByStatus(statusesNel)
           resp <- Ok(retrieved.asJson)
-        } yield resp
+        } yield resp).recoverWith {
+        case EmptyStatuses => BadRequest("tag parameter not specified")
+      }
     }
+
 
   private def findPetsByTagEndpoint(petService: PetService[F]): HttpService[F] =
     HttpService[F] {
-      case GET -> Root / "pets" / "findByTags" :? TagMatcher(Valid(Nil)) =>
-        BadRequest("tag parameter not specified")
-
       case GET -> Root / "pets" / "findByTags" :? TagMatcher(Valid(tags)) =>
-        for {
-          retrieved <- petService.findByTag(NonEmptyList.fromListUnsafe(tags))
-          resp <- Ok(retrieved.asJson)
-        } yield resp
+        (for {
+          tagsNel   <- AE.fromEither(tags.toNel.toRight(EmptyTags))
+          retrieved <- petService.findByTag(tagsNel)
+          resp      <- Ok(retrieved.asJson)
+        } yield resp).recoverWith {
+          case EmptyTags => BadRequest("tag parameter not specified")
+        }
 
     }
 
