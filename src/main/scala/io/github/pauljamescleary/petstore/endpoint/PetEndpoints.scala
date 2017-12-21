@@ -22,9 +22,6 @@ class PetEndpoints[F[_]: Effect] extends Http4sDsl[F] {
   /* Necessary for decoding query parameters */
   import QueryParamDecoder._
 
-  /* Parses out the id query param */
-  object IdMatcher extends QueryParamDecoderMatcher[Long]("id")
-
   /* Parses out the offset and page size params */
   object PageSizeMatcher extends QueryParamDecoderMatcher[Int]("pageSize")
   object OffsetMatcher extends QueryParamDecoderMatcher[Int]("offset")
@@ -80,7 +77,7 @@ class PetEndpoints[F[_]: Effect] extends Http4sDsl[F] {
 
   private def getPetEndpoint(petService: PetService[F]): HttpService[F] =
     HttpService[F] {
-      case GET -> Root / "pets" :? IdMatcher(id) =>
+      case GET -> Root / "pets" / LongVar(id) =>
         petService.get(id).value.flatMap {
           case Right(found) => Ok(found.asJson)
           case Left(PetNotFoundError) => NotFound("The pet was not found")
@@ -91,7 +88,7 @@ class PetEndpoints[F[_]: Effect] extends Http4sDsl[F] {
 
   private def deletePetEndpoint(petService: PetService[F]): HttpService[F] =
     HttpService[F] {
-      case DELETE -> Root / "pets" :? IdMatcher(id) =>
+      case DELETE -> Root / "pets" / LongVar(id) =>
         for {
           _ <- petService.delete(id)
           resp <- Ok()

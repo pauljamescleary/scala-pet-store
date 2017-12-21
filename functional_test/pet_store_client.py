@@ -50,7 +50,7 @@ class PetStoreClient(object):
         :param pet_id:
         :return:
         """
-        url = urljoin(self.index_url, "/pets?id={0}".format(pet_id))
+        url = urljoin(self.index_url, "/pets/{0}".format(pet_id))
 
         return self.session.request('GET', url, self.headers)
 
@@ -96,7 +96,7 @@ class PetStoreClient(object):
         Deletes a pet
         :return:
         """
-        url = urljoin(self.index_url, "/pets?id={0}".format(pet_id))
+        url = urljoin(self.index_url, "/pets/{0}".format(pet_id))
 
         return self.session.request('DELETE', url, self.headers)
 
