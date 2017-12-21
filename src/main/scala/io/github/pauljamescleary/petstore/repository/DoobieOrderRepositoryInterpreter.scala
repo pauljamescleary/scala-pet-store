@@ -33,7 +33,7 @@ class DoobieOrderRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
 
   def get(orderId: Long): F[Option[Order]] =
     sql"""
-      SELECT PET_ID, SHIP_DATE, STATUS, COMPLETE
+      SELECT PET_ID, SHIP_DATE, STATUS, COMPLETE, ID
         FROM ORDERS
        WHERE ID = $orderId
      """.query[Order].option.transact(xa)

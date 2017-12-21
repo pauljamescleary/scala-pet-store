@@ -108,5 +108,13 @@ class PetStoreClient(object):
 
         return self.session.request('POST', url, self.headers, json.dumps(order))
 
+    def get_order(self, order_id):
+        """
+        Gets an order by id
+        """
+        url = urljoin(self.index_url, "/orders/{0}".format(order_id))
+
+        return self.session.request('GET', url, self.headers)
+
 
 

@@ -5,10 +5,6 @@ import io.github.pauljamescleary.petstore.model.Pet
 
 import scala.language.higherKinds
 
-sealed trait ValidationError extends Product with Serializable
-final case class PetAlreadyExistsError(pet: Pet) extends ValidationError
-final case object PetNotFoundError extends ValidationError
-
 trait PetValidationAlgebra[F[_]] {
 
   /* Fails with a PetAlreadyExistsError */
