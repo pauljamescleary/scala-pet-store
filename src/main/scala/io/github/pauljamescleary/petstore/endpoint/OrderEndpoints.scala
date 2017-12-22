@@ -7,6 +7,7 @@ import io.circe.generic.extras.semiauto._
 import io.circe.syntax._
 import io.github.pauljamescleary.petstore.model.{Order, OrderStatus}
 import io.github.pauljamescleary.petstore.service.OrderService
+import io.github.pauljamescleary.petstore.validation.OrderNotFoundError
 import org.http4s._
 import org.http4s.circe._
 import org.http4s.dsl.Http4sDsl
@@ -39,8 +40,19 @@ class OrderEndpoints[F[_]: Effect] extends Http4sDsl[F] {
       }
     }
 
+  private def getOrderEndpoint(orderService: OrderService[F]): HttpService[F] =
+    HttpService[F] {
+      case GET -> Root / "orders" / LongVar(id) =>
+        orderService.get(id).value.flatMap {
+          case Right(found) => Ok(found.asJson)
+          case Left(OrderNotFoundError) => NotFound("The order was not found")
+          case Left(unexpected) =>
+            InternalServerError(s"Unexpected error: $unexpected")
+        }
+    }
+
   def endpoints(orderService: OrderService[F]): HttpService[F] =
-    placeOrderEndpoint(orderService)
+    placeOrderEndpoint(orderService) <+> getOrderEndpoint(orderService)
 }
 
 object OrderEndpoints {
