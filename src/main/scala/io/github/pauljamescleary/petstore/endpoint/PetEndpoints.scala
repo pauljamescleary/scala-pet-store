@@ -67,7 +67,7 @@ class PetEndpoints[F[_]: Effect] extends Http4sDsl[F] {
 
         action.flatMap {
           case Right(saved) => Ok(saved.asJson)
-          case Left(PetNotFoundError()) => NotFound("The pet was not found")
+          case Left(PetNotFoundError) => NotFound("The pet was not found")
         }
     }
 
@@ -76,7 +76,7 @@ class PetEndpoints[F[_]: Effect] extends Http4sDsl[F] {
       case GET -> Root / "pets" / LongVar(id) =>
         petService.get(id).value.flatMap {
           case Right(found) => Ok(found.asJson)
-          case Left(PetNotFoundError()) => NotFound("The pet was not found")
+          case Left(PetNotFoundError) => NotFound("The pet was not found")
         }
     }
 

@@ -13,10 +13,10 @@ class OrderService[F[_]](orderRepo: OrderRepositoryAlgebra[F]) {
 
   def placeOrder(order: Order): F[Order] = orderRepo.put(order)
 
-  def get(id: Long)(implicit M: Monad[F]): EitherT[F, OrderNotFoundError, Order] =
+  def get(id: Long)(implicit M: Monad[F]): EitherT[F, OrderNotFoundError.type, Order] =
     EitherT {
       orderRepo.get(id).map {
-        case None => Left(OrderNotFoundError())
+        case None => Left(OrderNotFoundError)
         case Some(order) => Right(order)
       }
     }

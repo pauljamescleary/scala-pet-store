@@ -45,7 +45,7 @@ class OrderEndpoints[F[_]: Effect] extends Http4sDsl[F] {
       case GET -> Root / "orders" / LongVar(id) =>
         orderService.get(id).value.flatMap {
           case Right(found) => Ok(found.asJson)
-          case Left(OrderNotFoundError()) => NotFound("The order was not found")
+          case Left(OrderNotFoundError) => NotFound("The order was not found")
         }
     }
 
