@@ -4,11 +4,7 @@ import cats._
 import cats.data._
 import io.github.pauljamescleary.petstore.model.{Pet, PetStatus}
 import io.github.pauljamescleary.petstore.repository.PetRepositoryAlgebra
-import io.github.pauljamescleary.petstore.validation.{
-  PetNotFoundError,
-  PetValidationAlgebra,
-  ValidationError
-}
+import io.github.pauljamescleary.petstore.validation.{PetAlreadyExistsError, PetNotFoundError, PetValidationAlgebra}
 
 import scala.language.higherKinds
 
@@ -22,23 +18,23 @@ import scala.language.higherKinds
 class PetService[F[_]](repository: PetRepositoryAlgebra[F], validation: PetValidationAlgebra[F]) {
   import cats.syntax.all._
 
-  def create(pet: Pet)(implicit M: Monad[F]): EitherT[F, ValidationError, Pet] =
+  def create(pet: Pet)(implicit M: Monad[F]): EitherT[F, PetAlreadyExistsError, Pet] =
     for {
       _ <- validation.doesNotExist(pet)
       saved <- EitherT.liftF(repository.put(pet))
     } yield saved
 
   /* Could argue that we could make this idempotent on put and not check if the pet exists */
-  def update(pet: Pet)(implicit M: Monad[F]): EitherT[F, ValidationError, Pet] =
+  def update(pet: Pet)(implicit M: Monad[F]): EitherT[F, PetNotFoundError, Pet] =
     for {
       _ <- validation.exists(pet.id)
       saved <- EitherT.liftF(repository.put(pet))
     } yield saved
 
-  def get(id: Long)(implicit M: Monad[F]): EitherT[F, ValidationError, Pet] =
+  def get(id: Long)(implicit M: Monad[F]): EitherT[F, PetNotFoundError, Pet] =
     EitherT {
       repository.get(id).map {
-        case None => Left(PetNotFoundError)
+        case None => Left(PetNotFoundError())
         case Some(found) => Right(found)
       }
     }
