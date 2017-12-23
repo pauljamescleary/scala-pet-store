@@ -49,8 +49,17 @@ class OrderEndpoints[F[_]: Effect] extends Http4sDsl[F] {
         }
     }
 
+  private def deleteOrderEndpoint(orderService: OrderService[F]): HttpService[F] =
+    HttpService[F] {
+      case DELETE -> Root / "orders" / LongVar(id) =>
+        for {
+          _ <- orderService.delete(id)
+          resp <- Ok()
+        } yield resp
+    }
+
   def endpoints(orderService: OrderService[F]): HttpService[F] =
-    placeOrderEndpoint(orderService) <+> getOrderEndpoint(orderService)
+    placeOrderEndpoint(orderService) <+> getOrderEndpoint(orderService) <+> deleteOrderEndpoint(orderService)
 }
 
 object OrderEndpoints {
