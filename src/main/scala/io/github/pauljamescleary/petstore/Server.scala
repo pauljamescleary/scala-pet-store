@@ -4,12 +4,9 @@ import cats.effect._
 import cats.implicits._
 import fs2.Stream
 import io.github.pauljamescleary.petstore.config.{DatabaseConfig, PetStoreConfig}
-import io.github.pauljamescleary.petstore.endpoint.{OrderEndpoints, PetEndpoints}
-import io.github.pauljamescleary.petstore.repository.{
-  DoobieOrderRepositoryInterpreter,
-  DoobiePetRepositoryInterpreter
-}
-import io.github.pauljamescleary.petstore.service.{OrderService, PetService}
+import io.github.pauljamescleary.petstore.endpoint.{OrderEndpoints, PetEndpoints, UserEndpoints}
+import io.github.pauljamescleary.petstore.repository.{DoobieOrderRepositoryInterpreter, DoobiePetRepositoryInterpreter, DoobieUserRepositoryInterpreter}
+import io.github.pauljamescleary.petstore.service.{OrderService, PetService, UserService}
 import io.github.pauljamescleary.petstore.validation.PetValidationInterpreter
 import org.http4s.server.blaze.BlazeBuilder
 import org.http4s.util.StreamApp
@@ -28,13 +25,16 @@ object Server extends StreamApp[IO] {
       _             <- Stream.eval(DatabaseConfig.initializeDb(conf.db, xa))
       petRepo       =  DoobiePetRepositoryInterpreter[F](xa)
       orderRepo     =  DoobieOrderRepositoryInterpreter[F](xa)
+      userRepo      =  DoobieUserRepositoryInterpreter[F](xa)
       petValidation =  PetValidationInterpreter[F](petRepo)
       petService    =  PetService[F](petRepo, petValidation)
       orderService  =  OrderService[F](orderRepo)
+      userService   =  UserService[F](userRepo)
       exitCode      <- BlazeBuilder[F]
         .bindHttp(8080, "localhost")
         .mountService(PetEndpoints.endpoints[F](petService), "/")
         .mountService(OrderEndpoints.endpoints[F](orderService), "/")
+        .mountService(UserEndpoints.endpoints[F](userService), "/")
         .serve
     } yield exitCode
 }
