@@ -20,6 +20,9 @@ class OrderService[F[_]](orderRepo: OrderRepositoryAlgebra[F]) {
         case Some(order) => Right(order)
       }
     }
+
+  def delete(id: Long)(implicit M: Monad[F]): F[Unit] =
+    orderRepo.delete(id).map(_ => ())
 }
 
 object OrderService {

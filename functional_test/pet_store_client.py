@@ -116,5 +116,13 @@ class PetStoreClient(object):
 
         return self.session.request('GET', url, self.headers)
 
+    def delete_order(self, order_id):
+        """
+        Deletes an order
+        """
+        url = urljoin(self.index_url, "/orders/{0}".format(order_id))
+
+        return self.session.request('DELETE', url, self.headers)
+
 
 
