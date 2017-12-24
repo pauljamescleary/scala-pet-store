@@ -46,8 +46,6 @@ class OrderEndpoints[F[_]: Effect] extends Http4sDsl[F] {
         orderService.get(id).value.flatMap {
           case Right(found) => Ok(found.asJson)
           case Left(OrderNotFoundError) => NotFound("The order was not found")
-          case Left(unexpected) =>
-            InternalServerError(s"Unexpected error: $unexpected")
         }
     }
 

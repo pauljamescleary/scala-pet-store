@@ -54,8 +54,6 @@ class PetEndpoints[F[_]: Effect] extends Http4sDsl[F] {
             Ok(saved.asJson)
           case Left(PetAlreadyExistsError(existing)) =>
             Conflict(s"The pet ${existing.name} of category ${existing.category} already exists")
-          case Left(unexpected) =>
-            InternalServerError(s"Unexpected error: $unexpected")
         }
     }
 
@@ -70,8 +68,6 @@ class PetEndpoints[F[_]: Effect] extends Http4sDsl[F] {
         action.flatMap {
           case Right(saved) => Ok(saved.asJson)
           case Left(PetNotFoundError) => NotFound("The pet was not found")
-          case Left(unexpected) =>
-            InternalServerError(s"Unexpected error: $unexpected")
         }
     }
 
@@ -81,8 +77,6 @@ class PetEndpoints[F[_]: Effect] extends Http4sDsl[F] {
         petService.get(id).value.flatMap {
           case Right(found) => Ok(found.asJson)
           case Left(PetNotFoundError) => NotFound("The pet was not found")
-          case Left(unexpected) =>
-            InternalServerError(s"Unexpected error: $unexpected")
         }
     }
 

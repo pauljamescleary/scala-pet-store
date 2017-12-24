@@ -8,8 +8,8 @@ import io.github.pauljamescleary.petstore.repository.PetRepositoryAlgebra
 
 class PetValidationInterpreter[F[_]: Monad](repository: PetRepositoryAlgebra[F])
     extends PetValidationAlgebra[F] {
-
-  def doesNotExist(pet: Pet): EitherT[F, ValidationError, Unit] = EitherT {
+  
+  def doesNotExist(pet: Pet): EitherT[F, PetAlreadyExistsError, Unit] = EitherT {
     repository.findByNameAndCategory(pet.name, pet.category).map { matches =>
       if (matches.forall(possibleMatch => possibleMatch.bio != pet.bio)) {
         Right(())
@@ -19,7 +19,7 @@ class PetValidationInterpreter[F[_]: Monad](repository: PetRepositoryAlgebra[F])
     }
   }
 
-  def exists(petId: Option[Long]): EitherT[F, ValidationError, Unit] =
+  def exists(petId: Option[Long]): EitherT[F, PetNotFoundError.type, Unit] =
     EitherT {
       petId match {
         case Some(id) =>
@@ -29,9 +29,8 @@ class PetValidationInterpreter[F[_]: Monad](repository: PetRepositoryAlgebra[F])
             case Some(_) => Right(())
             case _ => Left(PetNotFoundError)
           }
-
         case _ =>
-          Either.left[ValidationError, Unit](PetNotFoundError).pure[F]
+          Either.left[PetNotFoundError.type, Unit](PetNotFoundError).pure[F]
       }
     }
 }
