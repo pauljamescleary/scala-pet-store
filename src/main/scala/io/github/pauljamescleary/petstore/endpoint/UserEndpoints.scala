@@ -6,6 +6,7 @@ import io.circe.generic.auto._
 import io.circe.syntax._
 import io.github.pauljamescleary.petstore.model.User
 import io.github.pauljamescleary.petstore.service.UserService
+import io.github.pauljamescleary.petstore.validation.UserAlreadyExistsError
 import org.http4s.circe._
 import org.http4s.{EntityDecoder, HttpService}
 import org.http4s.dsl.Http4sDsl
@@ -18,11 +19,16 @@ class UserEndpoints[F[_]: Effect] extends Http4sDsl[F] {
   private def signupEndpoint(userService: UserService[F]): HttpService[F] =
     HttpService[F] {
       case req @ POST -> Root / "users" =>
-        for {
+        val action = for {
           user <- req.as[User]
-          result <- userService.createUser(user)
-          response <- Ok(result.asJson)
-        } yield response
+          result <- userService.createUser(user).value
+        } yield result
+
+        action.flatMap {
+          case Right(saved) => Ok(saved.asJson)
+          case Left(UserAlreadyExistsError(existing)) =>
+            Conflict(s"The user with user name ${existing.userName} already exists")
+        }
     }
 
   def endpoints(userService: UserService[F]): HttpService[F] = signupEndpoint(userService)

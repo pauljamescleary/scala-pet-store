@@ -1,17 +1,21 @@
 package io.github.pauljamescleary.petstore.service
 
-import cats.Monad
-import cats.data.EitherT
+import cats._
+import cats.data._
 import io.github.pauljamescleary.petstore.model.User
 import io.github.pauljamescleary.petstore.repository.UserRepositoryAlgebra
-import io.github.pauljamescleary.petstore.validation.UserNotFoundError
+import io.github.pauljamescleary.petstore.validation.{UserAlreadyExistsError, UserNotFoundError, UserValidationAlgebra}
 
 import scala.language.higherKinds
 
-class UserService[F[_]](userRepo: UserRepositoryAlgebra[F]) {
+class UserService[F[_]](userRepo: UserRepositoryAlgebra[F], validation: UserValidationAlgebra[F]) {
   import cats.syntax.all._
 
-  def createUser(user: User): F[User] = userRepo.put(user)
+  def createUser(user: User)(implicit M: Monad[F]): EitherT[F, UserAlreadyExistsError, User] =
+    for {
+      _ <- validation.doesNotExist(user)
+      saved <- EitherT.liftF(userRepo.put(user))
+    } yield saved
 
   def getUser(userId: Long)(implicit M: Monad[F]): EitherT[F, UserNotFoundError.type, User] =
     EitherT {
@@ -25,6 +29,6 @@ class UserService[F[_]](userRepo: UserRepositoryAlgebra[F]) {
 }
 
 object UserService {
-  def apply[F[_]](repository: UserRepositoryAlgebra[F]): UserService[F] =
-    new UserService[F](repository)
+  def apply[F[_]](repository: UserRepositoryAlgebra[F], validation: UserValidationAlgebra[F]): UserService[F] =
+    new UserService[F](repository, validation)
 }

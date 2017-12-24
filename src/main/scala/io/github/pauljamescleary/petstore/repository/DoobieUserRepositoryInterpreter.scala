@@ -29,6 +29,13 @@ class DoobieUserRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
        WHERE ID = $userId
      """.query[User].option.transact(xa)
 
+  def findByUserName(userName: String): F[Option[User]] =
+    sql"""
+      SELECT USER_NAME, FIRST_NAME, LAST_NAME, EMAIL, PASSWORD, PHONE, ID
+        FROM USERS
+       WHERE USER_NAME = $userName
+     """.query[User].option.transact(xa)
+
   def delete(userId: Long): F[Option[User]] =
     get(userId).flatMap {
       case Some(user) =>
