@@ -2,19 +2,22 @@
 An implementation of the java pet store using FP techniques in scala.
 
 # Status
-I have stood up a few endpoints, with something like tagless final services and repositories.  Repositories developed in Doobie.
+I have most of the endpoints in place.  There are few big pieces remaining in case y'all want to lend a hand:
 
-Updated to the latest of all of the things as I begin to abstract away the effect type.
-
-I am still exploring tagless final and how to fit all of the pieces together.  Hoping to get into a more complete
-functional example, as well as a UI and some business rules / validations.
+1. Use TSec to add login / authentication using JWT
+2. Create a ScalaJS React front end
+3. Build tests using scala check in an idiomatic sane way
+4. Create a microsite documenting the patterns in the pet store.  Kind of a mini-book
 
 # Want to help out?
-I could use some help with Scalacheck and a UI if people feel compelled to jump in.
+If you have general feedback on how things could be better, feel free to post an issue / gist or
+open a PR!  I am looking for ideas like:
 
-Also, if you have general feedback on how things could be better, feel free to post an issue / gist or
-open a PR!
-
+* If you are a FP or TypeLevel contributor, let me know if something is not idiomatic as per FP or one
+of the TypeLevel libs I am using.  I want this app to be an example of how things _should_ be done as
+much as possible.
+* If you are an OO dev new-ish to Scala, let me know if something is confusing.  I am trying to keep this
+project approachable.  Feel free to email me or open an issue.
 
 ## Why you doing this?
 The goal for this project is to demonstrate how to build an application using FP techniques in Scala.
@@ -22,9 +25,8 @@ When starting out in Scala coming from a Java background, it was extremely diffi
 bits in order to make a cohesive whole application.
 
 ## How are you building it?
-As the goal of the project is to help Java / Spring folks understand how to build an application in Scala, I will
-not be looking to employ the more esoteric features in Scala like Type Classes and Category Theory.  Those things will
-be present, but I hope to obscure them in parts the purpose of allowing the reader to understand what is going on in the code.
+As the goal of the project is to help Java / Spring folks understand how to build an application in Scala.  I hope
+to use good practice / conventions using FP and Scala, while maintaining approachability for OO peeps.
 
 I will reach out to Java developers along the way, to see if techniques that I use are too confusing, or have a low
 enough barrier to entry to pick up quickly.
@@ -33,11 +35,14 @@ enough barrier to entry to pick up quickly.
 I am going to work with the TypeLevel stack initially and see how far I can go with it.  I believe that framing the
 concepts in code in an easy to understand way should be possible with Typelevel.
 
-- [HTTP4S](http://http4s.org/) as the web server.  I could have gone with finch, twitter server, or akka-http here as well, but I have been
-interested in learning http4s.
-- [Circe](https://circe.github.io/circe/) for json serialization.
-- Tagless Final for my core domain.
+- [Http4s](http://http4s.org/) as the web server.  I could have gone with finch, twitter server, or akka-http here as well, but I have been
+interested in learning http4s
+- [Circe](https://circe.github.io/circe/) for json serialization
 - [Doobie](https://github.com/tpolecat/doobie) for database access
+- [Cats](https://typelevel.org/cats/) for FP awesomeness
+- [ScalaCheck](https://www.scalacheck.org/) for property based testing
+- [PureConfig](https://pureconfig.github.io/docs/) for app config
+- Tagless Final for my core domain.
 
 ## Getting Started
 
@@ -72,7 +77,7 @@ In order to run the functional tests, your machine will need to have Python 2.7 
 1. To install pip on a Mac, run `sudo easy_install pip`
 2. Then install virutalenv `sudo pip install virtualenv`
 
-To test out the app, first start it up following the directions above and doing `re-start`
+To test out the app, first start it up following the directions above and doing `reStart`
 
 Then, in a separate terminal, run the test suite:
 
