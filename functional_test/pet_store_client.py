@@ -124,5 +124,12 @@ class PetStoreClient(object):
 
         return self.session.request('DELETE', url, self.headers)
 
+    def signup_user(self, user):
+        """
+        Signs up a new user
+        """
+        url = urljoin(self.index_url, '/users')
+
+        return self.session.request('POST', url, self.headers, json.dumps(user))
 
 
