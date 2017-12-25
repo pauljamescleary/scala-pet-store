@@ -9,7 +9,7 @@ case class DatabaseConfig(url: String, driver: String, user: String, password: S
 object DatabaseConfig {
 
   def dbTransactor[F[_]: Async](dbConfig: DatabaseConfig): F[HikariTransactor[F]] =
-    HikariTransactor[F](dbConfig.driver, dbConfig.url, dbConfig.user, dbConfig.password)
+    HikariTransactor.newHikariTransactor[F](dbConfig.driver, dbConfig.url, dbConfig.user, dbConfig.password)
 
   /**
     * Runs the flyway migrations against the target database
@@ -24,7 +24,7 @@ object DatabaseConfig {
         val fw = new Flyway()
         fw.setDataSource(ds)
         fw.migrate()
-        ()
+        S.pure(())
       }
     } else {
       S.pure(())
