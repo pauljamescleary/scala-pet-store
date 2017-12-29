@@ -14,8 +14,10 @@ object PetStoreConfig {
     * return an error.  This should halt the application from starting up.
     */
   def load[F[_]](implicit E: Effect[F]): F[PetStoreConfig] =
-    loadConfig[PetStoreConfig]("petstore") match {
-      case Right(ok) => E.pure(ok)
-      case Left(e) => E.raiseError(new ConfigReaderException[PetStoreConfig](e))
+    E.delay {
+      loadConfig[PetStoreConfig]("petstore") match {
+        case Right(ok) => ok
+        case Left(e) => throw new ConfigReaderException[PetStoreConfig](e)
+      }
     }
 }

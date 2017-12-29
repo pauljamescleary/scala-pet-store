@@ -21,10 +21,12 @@ object DatabaseConfig {
       implicit S: Sync[F]): F[Unit] =
     if (dbConfig.url.contains(":h2:")) {
       xa.configure { ds =>
-        val fw = new Flyway()
-        fw.setDataSource(ds)
-        fw.migrate()
-        S.pure(())
+        S.delay {
+          val fw = new Flyway()
+          fw.setDataSource(ds)
+          fw.migrate()
+          ()
+        }
       }
     } else {
       S.pure(())
