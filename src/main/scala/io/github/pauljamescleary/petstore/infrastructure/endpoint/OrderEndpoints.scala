@@ -5,14 +5,13 @@ import io.circe._
 import io.circe.generic.auto._
 import io.circe.generic.extras.semiauto._
 import io.circe.syntax._
-import io.github.pauljamescleary.petstore.domain.model.{Order, OrderStatus}
-import io.github.pauljamescleary.petstore.domain.service.OrderService
-import io.github.pauljamescleary.petstore.domain.validation.OrderNotFoundError
 import org.http4s._
 import org.http4s.circe._
 import org.http4s.dsl.Http4sDsl
-
 import scala.language.higherKinds
+
+import io.github.pauljamescleary.petstore.domain.OrderNotFoundError
+import io.github.pauljamescleary.petstore.domain.orders.{Order, OrderService, OrderStatus}
 
 class OrderEndpoints[F[_]: Effect] extends Http4sDsl[F] {
 

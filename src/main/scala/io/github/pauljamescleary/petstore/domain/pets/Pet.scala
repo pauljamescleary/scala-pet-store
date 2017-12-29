@@ -1,4 +1,4 @@
-package io.github.pauljamescleary.petstore.domain.model
+package io.github.pauljamescleary.petstore.domain.pets
 
 case class Pet(
     name: String,

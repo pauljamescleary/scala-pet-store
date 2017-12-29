@@ -1,12 +1,10 @@
-package io.github.pauljamescleary.petstore.domain.service
+package io.github.pauljamescleary.petstore.domain.pets
+
+import scala.language.higherKinds
 
 import cats._
 import cats.data._
-import io.github.pauljamescleary.petstore.domain.model.{Pet, PetStatus}
-import io.github.pauljamescleary.petstore.domain.repository.PetRepositoryAlgebra
-import io.github.pauljamescleary.petstore.domain.validation.{PetAlreadyExistsError, PetNotFoundError, PetValidationAlgebra}
-
-import scala.language.higherKinds
+import io.github.pauljamescleary.petstore.domain.{PetAlreadyExistsError, PetNotFoundError}
 
 /**
   * The entry point to our domain, works with repositories and validations to implement behavior

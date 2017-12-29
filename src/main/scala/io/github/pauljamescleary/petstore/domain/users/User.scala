@@ -1,4 +1,4 @@
-package io.github.pauljamescleary.petstore.domain.model
+package io.github.pauljamescleary.petstore.domain.users
 
 case class User(
     userName: String,

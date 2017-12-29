@@ -5,8 +5,7 @@ import cats.data._
 import cats.implicits._
 import doobie._
 import doobie.implicits._
-import io.github.pauljamescleary.petstore.domain.model._
-import io.github.pauljamescleary.petstore.domain.repository.PetRepositoryAlgebra
+import io.github.pauljamescleary.petstore.domain.pets.{Pet, PetRepositoryAlgebra, PetStatus}
 
 class DoobiePetRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
     extends PetRepositoryAlgebra[F] {

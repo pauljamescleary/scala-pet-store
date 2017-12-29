@@ -1,12 +1,10 @@
-package io.github.pauljamescleary.petstore.domain.service
+package io.github.pauljamescleary.petstore.domain.users
+
+import scala.language.higherKinds
 
 import cats._
 import cats.data._
-import io.github.pauljamescleary.petstore.domain.model.User
-import io.github.pauljamescleary.petstore.domain.repository.UserRepositoryAlgebra
-import io.github.pauljamescleary.petstore.domain.validation.{UserAlreadyExistsError, UserNotFoundError, UserValidationAlgebra}
-
-import scala.language.higherKinds
+import io.github.pauljamescleary.petstore.domain.{UserAlreadyExistsError, UserNotFoundError}
 
 class UserService[F[_]](userRepo: UserRepositoryAlgebra[F], validation: UserValidationAlgebra[F]) {
   import cats.syntax.all._

@@ -8,14 +8,13 @@ import io.circe._
 import io.circe.generic.auto._
 import io.circe.generic.extras.semiauto._
 import io.circe.syntax._
-import io.github.pauljamescleary.petstore.domain.model.{Pet, PetStatus}
-import io.github.pauljamescleary.petstore.domain.service.PetService
-import io.github.pauljamescleary.petstore.domain.validation.{PetAlreadyExistsError, PetNotFoundError}
 import org.http4s.circe._
 import org.http4s.dsl.Http4sDsl
 import org.http4s.{EntityDecoder, HttpService, QueryParamDecoder}
-
 import scala.language.higherKinds
+
+import io.github.pauljamescleary.petstore.domain.{PetAlreadyExistsError, PetNotFoundError}
+import io.github.pauljamescleary.petstore.domain.pets.{Pet, PetService, PetStatus}
 
 class PetEndpoints[F[_]: Effect] extends Http4sDsl[F] {
 

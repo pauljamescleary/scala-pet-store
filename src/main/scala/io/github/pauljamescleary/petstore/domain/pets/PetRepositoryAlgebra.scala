@@ -1,9 +1,8 @@
-package io.github.pauljamescleary.petstore.domain.repository
-
-import cats.data.NonEmptyList
-import io.github.pauljamescleary.petstore.domain.model.{Pet, PetStatus}
+package io.github.pauljamescleary.petstore.domain.pets
 
 import scala.language.higherKinds
+
+import cats.data.NonEmptyList
 
 trait PetRepositoryAlgebra[F[_]] {
 

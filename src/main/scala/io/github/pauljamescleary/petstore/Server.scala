@@ -1,10 +1,11 @@
 package io.github.pauljamescleary.petstore
 
 import config.{DatabaseConfig, PetStoreConfig}
+import domain.users._
+import domain.orders._
+import domain.pets._
 import infrastructure.endpoint.{OrderEndpoints, PetEndpoints, UserEndpoints}
-import io.github.pauljamescleary.petstore.infrastructure.repository.doobie.{DoobieOrderRepositoryInterpreter, DoobiePetRepositoryInterpreter, DoobieUserRepositoryInterpreter}
-import domain.service.{OrderService, PetService, UserService}
-import domain.validation.interpreters._
+import infrastructure.repository.doobie.{DoobieOrderRepositoryInterpreter, DoobiePetRepositoryInterpreter, DoobieUserRepositoryInterpreter}
 
 import cats.effect._
 import cats.implicits._

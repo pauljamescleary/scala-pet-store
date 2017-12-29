@@ -1,4 +1,4 @@
-package io.github.pauljamescleary.petstore.domain.model
+package io.github.pauljamescleary.petstore.domain.pets
 
 sealed trait PetStatus extends Product with Serializable
 case object Available extends PetStatus

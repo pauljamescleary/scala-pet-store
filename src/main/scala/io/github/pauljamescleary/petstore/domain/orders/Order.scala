@@ -1,4 +1,4 @@
-package io.github.pauljamescleary.petstore.domain.model
+package io.github.pauljamescleary.petstore.domain.orders
 
 import java.time.Instant
 

@@ -1,10 +1,8 @@
 package io.github.pauljamescleary.petstore.infrastructure.endpoint
 
-import io.github.pauljamescleary.petstore.domain.model._
-import io.github.pauljamescleary.petstore.domain.service._
+import io.github.pauljamescleary.petstore.domain.orders._
 import io.github.pauljamescleary.petstore.PetStoreArbitraries
 import io.github.pauljamescleary.petstore.infrastructure.repository.inmemory.OrderRepositoryInMemoryInterpreter
-
 import cats.effect._
 import io.circe._
 import io.circe.generic.auto._

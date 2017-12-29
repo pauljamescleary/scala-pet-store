@@ -5,8 +5,7 @@ import scala.util.Random
 
 import cats._
 import cats.implicits._
-import io.github.pauljamescleary.petstore.domain.model.Order
-import io.github.pauljamescleary.petstore.domain.repository.OrderRepositoryAlgebra
+import io.github.pauljamescleary.petstore.domain.orders.{Order, OrderRepositoryAlgebra}
 
 class OrderRepositoryInMemoryInterpreter[F[_]: Applicative] extends OrderRepositoryAlgebra[F] {
 

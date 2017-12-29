@@ -1,6 +1,4 @@
-package io.github.pauljamescleary.petstore.domain.repository
-
-import io.github.pauljamescleary.petstore.domain.model.User
+package io.github.pauljamescleary.petstore.domain.users
 
 import scala.language.higherKinds
 

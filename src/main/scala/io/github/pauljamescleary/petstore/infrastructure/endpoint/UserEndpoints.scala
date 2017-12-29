@@ -4,9 +4,8 @@ import cats.effect.Effect
 import cats.implicits._
 import io.circe.generic.auto._
 import io.circe.syntax._
-import io.github.pauljamescleary.petstore.domain.model.User
-import io.github.pauljamescleary.petstore.domain.service.UserService
-import io.github.pauljamescleary.petstore.domain.validation.UserAlreadyExistsError
+import io.github.pauljamescleary.petstore.domain.UserAlreadyExistsError
+import io.github.pauljamescleary.petstore.domain.users.{User, UserService}
 import org.http4s.circe._
 import org.http4s.{EntityDecoder, HttpService}
 import org.http4s.dsl.Http4sDsl

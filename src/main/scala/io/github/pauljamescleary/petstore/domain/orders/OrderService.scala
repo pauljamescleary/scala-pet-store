@@ -1,12 +1,10 @@
-package io.github.pauljamescleary.petstore.domain.service
+package io.github.pauljamescleary.petstore.domain.orders
+
+import scala.language.higherKinds
 
 import cats.Monad
 import cats.data.EitherT
-import io.github.pauljamescleary.petstore.domain.model.Order
-import io.github.pauljamescleary.petstore.domain.repository.OrderRepositoryAlgebra
-import io.github.pauljamescleary.petstore.domain.validation.OrderNotFoundError
-
-import scala.language.higherKinds
+import io.github.pauljamescleary.petstore.domain.OrderNotFoundError
 
 class OrderService[F[_]](orderRepo: OrderRepositoryAlgebra[F]) {
   import cats.syntax.all._

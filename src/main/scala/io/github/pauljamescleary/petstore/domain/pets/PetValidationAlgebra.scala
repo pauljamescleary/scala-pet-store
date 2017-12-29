@@ -1,9 +1,9 @@
-package io.github.pauljamescleary.petstore.domain.validation
-
-import cats.data.EitherT
-import io.github.pauljamescleary.petstore.domain.model.Pet
+package io.github.pauljamescleary.petstore.domain.pets
 
 import scala.language.higherKinds
+
+import cats.data.EitherT
+import io.github.pauljamescleary.petstore.domain.{PetAlreadyExistsError, PetNotFoundError}
 
 trait PetValidationAlgebra[F[_]] {
 

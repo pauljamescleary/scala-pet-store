@@ -6,8 +6,8 @@ import cats._
 import cats.implicits._
 import doobie._
 import doobie.implicits._
-import io.github.pauljamescleary.petstore.domain.model.{Order, OrderStatus}
-import io.github.pauljamescleary.petstore.domain.repository.OrderRepositoryAlgebra
+import io.github.pauljamescleary.petstore.domain.orders
+import io.github.pauljamescleary.petstore.domain.orders.{OrderRepositoryAlgebra, OrderStatus}
 
 class DoobieOrderRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
     extends OrderRepositoryAlgebra[F] {
@@ -23,8 +23,8 @@ class DoobieOrderRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
       dt => java.sql.Timestamp.from(dt)
     )
 
-  def put(order: Order): F[Order] = {
-    val insert: ConnectionIO[Order] =
+  def put(order: orders.Order): F[orders.Order] = {
+    val insert: ConnectionIO[orders.Order] =
       for {
         id <- sql"REPLACE INTO ORDERS (PET_ID, SHIP_DATE, STATUS, COMPLETE) values (${order.petId}, ${order.shipDate}, ${order.status}, ${order.complete})".update
           .withUniqueGeneratedKeys[Long]("ID")
@@ -32,21 +32,21 @@ class DoobieOrderRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
     insert.transact(xa)
   }
 
-  def get(orderId: Long): F[Option[Order]] =
+  def get(orderId: Long): F[Option[orders.Order]] =
     sql"""
       SELECT PET_ID, SHIP_DATE, STATUS, COMPLETE, ID
         FROM ORDERS
        WHERE ID = $orderId
-     """.query[Order].option.transact(xa)
+     """.query[orders.Order].option.transact(xa)
 
-  def delete(orderId: Long): F[Option[Order]] =
+  def delete(orderId: Long): F[Option[orders.Order]] =
     get(orderId).flatMap {
       case Some(order) =>
         sql"DELETE FROM ORDERS WHERE ID = $orderId".update.run
           .transact(xa)
           .map(_ => Some(order))
       case None =>
-        none[Order].pure[F]
+        none[orders.Order].pure[F]
     }
 }
 

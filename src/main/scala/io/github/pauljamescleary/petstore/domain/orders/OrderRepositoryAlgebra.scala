@@ -1,6 +1,4 @@
-package io.github.pauljamescleary.petstore.domain.repository
-
-import io.github.pauljamescleary.petstore.domain.model.Order
+package io.github.pauljamescleary.petstore.domain.orders
 
 import scala.language.higherKinds
 
