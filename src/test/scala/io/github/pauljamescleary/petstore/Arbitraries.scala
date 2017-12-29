@@ -4,7 +4,7 @@ import java.time.Instant
 
 import org.scalacheck._
 import org.scalacheck.Arbitrary.arbitrary
-import io.github.pauljamescleary.petstore.model._
+import domain.model._
 
 trait PetStoreArbitraries {
 
