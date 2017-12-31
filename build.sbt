@@ -5,6 +5,8 @@ scalaVersion    := "2.12.3"
 
 resolvers += Resolver.sonatypeRepo("snapshots")
 
+resolvers += Resolver.bintrayRepo("jmcardon", "tsec")
+
 val CatsVersion       = "1.0.0-RC2"
 val CirceVersion      = "0.9.0-M3"
 val DoobieVersion     = "0.5.0-M11"
@@ -15,6 +17,7 @@ val ScalaCheckVersion = "1.13.5"
 val ScalaTestVersion  = "3.0.4"
 val FlywayVersion     = "4.2.0"
 val PureConfigVersion = "0.8.0"
+val TsecVersion       = "0.0.1-M6"
 
 libraryDependencies ++= Seq(
   "org.typelevel"         %% "cats-core"            % CatsVersion,
@@ -35,6 +38,8 @@ libraryDependencies ++= Seq(
   "ch.qos.logback"        %  "logback-classic"      % LogbackVersion,
   "org.flywaydb"          %  "flyway-core"          % FlywayVersion,
   "com.github.pureconfig" %% "pureconfig"           % PureConfigVersion,
+  "io.github.jmcardon"    %% "tsec-common"          % TsecVersion,
+  "io.github.jmcardon"    %% "tsec-http4s"          % TsecVersion,
   "org.scalacheck"        %% "scalacheck"           % ScalaCheckVersion % Test,
   "org.scalatest"         %% "scalatest"            % ScalaTestVersion  % Test
 )

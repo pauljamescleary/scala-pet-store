@@ -4,12 +4,14 @@ import cats.effect._
 import cats.implicits._
 import fs2.StreamApp.ExitCode
 import fs2.{Stream, StreamApp}
+import io.github.pauljamescleary.petstore.auth.AuthStore
 import io.github.pauljamescleary.petstore.config.{DatabaseConfig, PetStoreConfig}
 import io.github.pauljamescleary.petstore.endpoint.{OrderEndpoints, PetEndpoints, UserEndpoints}
 import io.github.pauljamescleary.petstore.repository.{DoobieOrderRepositoryInterpreter, DoobiePetRepositoryInterpreter, DoobieUserRepositoryInterpreter}
 import io.github.pauljamescleary.petstore.service.{OrderService, PetService, UserService}
 import io.github.pauljamescleary.petstore.validation.{PetValidationInterpreter, UserValidationInterpreter}
 import org.http4s.server.blaze.BlazeBuilder
+import tsec.authentication.SecuredRequestHandler
 
 object Server extends StreamApp[IO] {
 
@@ -30,10 +32,11 @@ object Server extends StreamApp[IO] {
       userValidation =  UserValidationInterpreter[F](userRepo)
       orderService   =  OrderService[F](orderRepo)
       userService    =  UserService[F](userRepo, userValidation)
+      reqHandler     <- Stream.eval(AuthStore.jwtAuthenticator(userRepo).map(SecuredRequestHandler(_)))
       exitCode       <- BlazeBuilder[F]
         .bindHttp(8080, "localhost")
-        .mountService(PetEndpoints.endpoints[F](petService), "/")
-        .mountService(OrderEndpoints.endpoints[F](orderService), "/")
+        .mountService(PetEndpoints.endpoints[F](petService, reqHandler), "/")
+        .mountService(OrderEndpoints.endpoints[F](orderService, reqHandler), "/")
         .mountService(UserEndpoints.endpoints[F](userService), "/")
         .serve
     } yield exitCode
