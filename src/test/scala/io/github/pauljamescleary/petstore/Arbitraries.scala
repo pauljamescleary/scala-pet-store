@@ -4,7 +4,9 @@ import java.time.Instant
 
 import org.scalacheck._
 import org.scalacheck.Arbitrary.arbitrary
-import io.github.pauljamescleary.petstore.model._
+import io.github.pauljamescleary.petstore.domain.orders._
+import io.github.pauljamescleary.petstore.domain.{orders, pets}
+import io.github.pauljamescleary.petstore.domain.pets._
 
 trait PetStoreArbitraries {
 
@@ -25,7 +27,7 @@ trait PetStoreArbitraries {
       status <- arbitrary[OrderStatus]
       complete <- arbitrary[Boolean]
       id <- Gen.option(Gen.posNum[Long])
-    } yield Order(petId, shipDate, status, complete, id)
+    } yield orders.Order(petId, shipDate, status, complete, id)
   }
 
   implicit val petStatus = Arbitrary[PetStatus] {
@@ -45,7 +47,7 @@ trait PetStoreArbitraries {
         .map(_.map(x => s"http://${x}.com"))
         .map(_.toSet)
       id <- Gen.option(Gen.posNum[Long])
-    } yield Pet(name, category, bio, status, tags, photoUrls, id)
+    } yield pets.Pet(name, category, bio, status, tags, photoUrls, id)
   }
 
 }

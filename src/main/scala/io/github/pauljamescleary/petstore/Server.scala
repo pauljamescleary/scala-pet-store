@@ -1,14 +1,16 @@
 package io.github.pauljamescleary.petstore
 
+import config.{DatabaseConfig, PetStoreConfig}
+import domain.users._
+import domain.orders._
+import domain.pets._
+import infrastructure.endpoint.{OrderEndpoints, PetEndpoints, UserEndpoints}
+import infrastructure.repository.doobie.{DoobieOrderRepositoryInterpreter, DoobiePetRepositoryInterpreter, DoobieUserRepositoryInterpreter}
+
 import cats.effect._
 import cats.implicits._
 import fs2.StreamApp.ExitCode
 import fs2.{Stream, StreamApp}
-import io.github.pauljamescleary.petstore.config.{DatabaseConfig, PetStoreConfig}
-import io.github.pauljamescleary.petstore.endpoint.{OrderEndpoints, PetEndpoints, UserEndpoints}
-import io.github.pauljamescleary.petstore.repository.{DoobieOrderRepositoryInterpreter, DoobiePetRepositoryInterpreter, DoobieUserRepositoryInterpreter}
-import io.github.pauljamescleary.petstore.service.{OrderService, PetService, UserService}
-import io.github.pauljamescleary.petstore.validation.{PetValidationInterpreter, UserValidationInterpreter}
 import org.http4s.server.blaze.BlazeBuilder
 
 object Server extends StreamApp[IO] {
