@@ -11,4 +11,6 @@ trait UserRepositoryAlgebra[F[_]] {
   def delete(userId: Long): F[Option[User]]
 
   def findByUserName(userName: String): F[Option[User]]
+
+  def list(pageSize: Int, offset: Int): F[List[User]]
 }
