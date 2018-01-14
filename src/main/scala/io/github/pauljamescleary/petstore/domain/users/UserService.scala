@@ -23,6 +23,14 @@ class UserService[F[_]](userRepo: UserRepositoryAlgebra[F], validation: UserVali
       }
     }
 
+  def getUserByName(userName: String)(implicit M: Monad[F]): EitherT[F, UserNotFoundError.type, User] =
+    EitherT {
+      userRepo.findByUserName(userName).map {
+        case None => Left(UserNotFoundError)
+        case Some(user) => Right(user)
+      }
+    }
+
   def deleteUser(userId: Long): F[Option[User]] = userRepo.delete(userId)
 
   def update(user: User)(implicit M: Monad[F]): EitherT[F, UserNotFoundError.type, User] =

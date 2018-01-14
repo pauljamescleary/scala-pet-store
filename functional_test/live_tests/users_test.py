@@ -58,3 +58,9 @@ def test_update_user(pet_context, pet_store_client):
 
     updated_user = response.json()
     assert_that(updated_user['lastName'], is_('Wicked'))
+
+def test_user_by_username(pet_store_client):
+    response = pet_store_client.find_user_by_name('jwick201')
+
+    pets = response.json()
+    assert_that(pets['userName'], is_('jwick201'))
