@@ -36,3 +36,9 @@ def test_signup_existing_user(pet_store_client):
     response = pet_store_client.signup_user(user)
     assert_that(response.status_code, is_(409))
 
+def test_list_users(pet_context, pet_store_client):
+    response = pet_store_client.list_users()
+
+    pets = response.json()
+
+    assert_that(pets[0]['firstName'], is_('John'))

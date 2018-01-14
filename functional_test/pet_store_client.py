@@ -132,4 +132,21 @@ class PetStoreClient(object):
 
         return self.session.request('POST', url, self.headers, json.dumps(user))
 
+    def update_user(self, user):
+        """
+        Updates a user, returning the updated pet response
+        :param user:
+        :return:
+        """
+        url = urljoin(self.index_url, '/users')
 
+        return self.session.request('PUT', url, self.headers, json.dumps(user))
+
+    def list_users(self, page_size=10, offset=0):
+        """
+        Returns a list of users
+        :return:
+        """
+        url = urljoin(self.index_url, "/users?pageSize={0}&offset={1}".format(page_size, offset))
+
+        return self.session.request('GET', url, self.headers)

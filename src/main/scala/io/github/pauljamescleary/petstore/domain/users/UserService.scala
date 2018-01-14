@@ -24,6 +24,15 @@ class UserService[F[_]](userRepo: UserRepositoryAlgebra[F], validation: UserVali
     }
 
   def deleteUser(userId: Long): F[Option[User]] = userRepo.delete(userId)
+
+  def update(user: User)(implicit M: Monad[F]): EitherT[F, UserNotFoundError.type, User] =
+    for {
+      _ <- validation.exists(user.id)
+      saved <- EitherT.liftF(userRepo.put(user))
+    } yield saved
+
+  def list(pageSize: Int, offset: Int): F[List[User]] =
+    userRepo.list(pageSize, offset)
 }
 
 object UserService {
