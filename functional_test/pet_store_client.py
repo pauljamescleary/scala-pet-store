@@ -150,3 +150,11 @@ class PetStoreClient(object):
         url = urljoin(self.index_url, "/users?pageSize={0}&offset={1}".format(page_size, offset))
 
         return self.session.request('GET', url, self.headers)
+
+
+    def find_user_by_name(self, userName):
+        """
+        Get user by userName
+        """
+        url = urljoin(self.index_url, "/users/{0}".format(userName))
+        return self.session.request('GET', url, self.headers)

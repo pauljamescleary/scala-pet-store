@@ -56,10 +56,20 @@ class UserEndpoints[F[_]: Effect] extends Http4sDsl[F] {
         } yield resp
     }
 
+  private def searchByName(userService: UserService[F]): HttpService[F] =
+    HttpService[F] {
+      case GET -> Root / "users" / userName =>
+        userService.getUserByName(userName).value.flatMap {
+          case Right(found) => Ok(found.asJson)
+          case Left(UserNotFoundError) => NotFound("The user was not found")
+        }
+    }
+
   def endpoints(userService: UserService[F]): HttpService[F] =
     signupEndpoint(userService) <+>
     updateEndpoint(userService) <+>
-    listEndpoint(userService)
+    listEndpoint(userService)   <+>
+    searchByName(userService)
 }
 
 object UserEndpoints {
