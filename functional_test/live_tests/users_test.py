@@ -39,6 +39,22 @@ def test_signup_existing_user(pet_store_client):
 def test_list_users(pet_context, pet_store_client):
     response = pet_store_client.list_users()
 
-    pets = response.json()
+    users = response.json()
 
-    assert_that(pets[0]['firstName'], is_('John'))
+    assert_that(users[0]['firstName'], is_('John'))
+
+def test_update_user(pet_context, pet_store_client):
+    user = {
+        "userName": "jwick201",
+        "firstName": "John",
+        "lastName": "Wicked",
+        "email": "wheresmycar@gmail.com",
+        "password": "wickofyourwit",
+        "phone": "215-789-0123",
+        "id": 1
+    }
+    response = pet_store_client.update_user(user)
+    assert_that(response.status_code, is_(200))
+
+    updated_user = response.json()
+    assert_that(updated_user['lastName'], is_('Wicked'))

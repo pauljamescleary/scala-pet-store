@@ -26,8 +26,9 @@ class UserEndpointsSpec
     val userService = UserService[IO](userRepo, userValidation)
     val userHttpService = UserEndpoints.endpoints[IO](userService)
 
-    forAll { (user: User) =>
-      (for {
+    val user = User("test", "test", "test", "test", "test", "test", None)
+
+    for {
         request <- Request[IO](Method.POST, Uri.uri("/users"))
           .withBody(user.asJson)
         response <- userHttpService
@@ -35,8 +36,7 @@ class UserEndpointsSpec
           .getOrElse(fail(s"Request was not handled: $request"))
       } yield {
         response.status shouldEqual Ok
-      }).unsafeRunSync
-    }
+      }
   }
 
   test("update user") {
@@ -47,8 +47,9 @@ class UserEndpointsSpec
 
     implicit val userDecoder: EntityDecoder[IO, User] = jsonOf[IO, User]
 
-    forAll { (user: User) =>
-      (for {
+    val user = User("test", "test", "test", "test", "test", "test", None)
+
+    for {
         createRequest <- Request[IO](Method.POST, Uri.uri("/users"))
           .withBody(user.asJson)
         createResponse <- userHttpService
@@ -65,7 +66,7 @@ class UserEndpointsSpec
       } yield {
         updateResponse.status shouldEqual Ok
         updatedUser.userName shouldEqual user.userName.reverse
-      }).unsafeRunSync
+        createdUser.id shouldEqual updatedUser.id
+      }
     }
-  }
 }
