@@ -134,7 +134,7 @@ class PetStoreClient(object):
 
     def update_user(self, user):
         """
-        Updates a user, returning the updated pet response
+        Updates a user, returning the updated user response
         :param user:
         :return:
         """
