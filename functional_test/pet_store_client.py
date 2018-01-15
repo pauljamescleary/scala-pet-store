@@ -157,4 +157,5 @@ class PetStoreClient(object):
         Get user by userName
         """
         url = urljoin(self.index_url, "/users/{0}".format(userName))
+
         return self.session.request('GET', url, self.headers)
