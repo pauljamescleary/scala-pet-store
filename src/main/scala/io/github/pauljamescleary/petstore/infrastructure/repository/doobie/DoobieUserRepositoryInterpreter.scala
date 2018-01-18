@@ -46,7 +46,7 @@ class DoobieUserRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
         none[User].pure[F]
     }
 
-  override def list(pageSize: Int, offset: Int): F[List[User]] =
+  def list(pageSize: Int, offset: Int): F[List[User]] =
     sql"""SELECT USER_NAME, FIRST_NAME, LAST_NAME, EMAIL, PASSWORD, PHONE, ID
           FROM USERS
           ORDER BY USER_NAME LIMIT $offset, $pageSize"""

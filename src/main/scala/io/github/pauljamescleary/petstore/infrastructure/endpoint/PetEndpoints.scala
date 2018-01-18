@@ -18,12 +18,7 @@ import io.github.pauljamescleary.petstore.domain.pets.{Pet, PetService, PetStatu
 
 class PetEndpoints[F[_]: Effect] extends Http4sDsl[F] {
 
-  /* Necessary for decoding query parameters */
-  import QueryParamDecoder._
-
-  /* Parses out the offset and page size params */
-  object PageSizeMatcher extends QueryParamDecoderMatcher[Int]("pageSize")
-  object OffsetMatcher extends QueryParamDecoderMatcher[Int]("offset")
+  import Pagination._
 
   /* Parses out status query param which could be multi param */
   implicit val statusQueryParamDecoder: QueryParamDecoder[PetStatus] =
