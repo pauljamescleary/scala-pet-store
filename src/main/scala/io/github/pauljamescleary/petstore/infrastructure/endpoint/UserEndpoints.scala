@@ -6,7 +6,7 @@ import io.circe.generic.auto._
 import io.circe.syntax._
 import org.http4s.circe._
 import org.http4s.dsl.Http4sDsl
-import org.http4s.{EntityDecoder, HttpService, QueryParamDecoder}
+import org.http4s.{EntityDecoder, HttpService}
 
 import scala.language.higherKinds
 import io.github.pauljamescleary.petstore.domain.{UserAlreadyExistsError, UserNotFoundError}
@@ -14,11 +14,7 @@ import io.github.pauljamescleary.petstore.domain.users.{User, UserService}
 
 class UserEndpoints[F[_]: Effect] extends Http4sDsl[F] {
 
-  import QueryParamDecoder._
-
-  object PageSizeMatcher extends QueryParamDecoderMatcher[Int]("pageSize")
-  object OffsetMatcher extends QueryParamDecoderMatcher[Int]("offset")
-
+  import Pagination._
   /* Jsonization of our User type */
   implicit val userDecoder: EntityDecoder[F, User] = jsonOf[F, User]
 
