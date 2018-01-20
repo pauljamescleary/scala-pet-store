@@ -65,11 +65,22 @@ class UserEndpoints[F[_]: Effect] extends Http4sDsl[F] {
         }
     }
 
+  private def deleteUserEndpoint(userService: UserService[F]): HttpService[F] =
+    HttpService[F] {
+      case DELETE -> Root / "users" / userByName =>
+        for {
+          _ <- userService.deleteByName(userByName)
+          resp <- Ok()
+        } yield resp
+    }
+
+
   def endpoints(userService: UserService[F]): HttpService[F] =
     signupEndpoint(userService) <+>
     updateEndpoint(userService) <+>
     listEndpoint(userService)   <+>
-    searchByName(userService)
+    searchByName(userService)   <+>
+    deleteUserEndpoint(userService)
 }
 
 object UserEndpoints {

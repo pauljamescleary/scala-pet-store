@@ -39,7 +39,9 @@ class DoobieUserRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
   def delete(userId: Long): F[Option[User]] =
     get(userId).flatMap {
       case Some(user) =>
-        sql"DELETE FROM USERS WHERE ID = $userId".update.run
+        sql"DELETE FROM USERS WHERE ID = $userId"
+          .update
+          .run
           .transact(xa)
           .map(_ => Some(user))
       case None =>
@@ -53,6 +55,18 @@ class DoobieUserRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
       .query[User]
       .list
       .transact(xa)
+
+  def deleteByUserName(userName: String): F[Option[User]] =
+    findByUserName(userName).flatMap {
+      case Some(user) =>
+        sql"""DELETE FROM USERS WHERE USER_NAME = $userName"""
+          .update
+          .run
+          .transact(xa)
+          .map(_ => Some(user))
+      case None =>
+        none[User].pure[F]
+    }
 }
 
 object DoobieUserRepositoryInterpreter {

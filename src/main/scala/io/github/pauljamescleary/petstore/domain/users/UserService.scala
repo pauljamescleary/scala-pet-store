@@ -33,6 +33,9 @@ class UserService[F[_]](userRepo: UserRepositoryAlgebra[F], validation: UserVali
 
   def deleteUser(userId: Long): F[Option[User]] = userRepo.delete(userId)
 
+  def deleteByName(userName: String)(implicit M: Monad[F]): F[Unit] =
+    userRepo.deleteByUserName(userName).map(_ => ())
+
   def update(user: User)(implicit M: Monad[F]): EitherT[F, UserNotFoundError.type, User] =
     for {
       _ <- validation.exists(user.id)
