@@ -58,7 +58,7 @@ def test_update_user(pet_context, pet_store_client):
         "email": "wheresmycar@gmail.com",
         "password": "wickofyourwit",
         "phone": "215-789-0123",
-        "id": 2
+        "id": 1
     }
     response = pet_store_client.update_user(user)
     assert_that(response.status_code, is_(200))
