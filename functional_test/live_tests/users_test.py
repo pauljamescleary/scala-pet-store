@@ -66,3 +66,8 @@ def test_update_user(pet_context, pet_store_client):
     updated_user = response.json()
     assert_that(updated_user['lastName'], is_('Wicked'))
 
+def test_delete_user_by_username(pet_store_client):
+    response = pet_store_client.delete_user_by_username('jwick200')
+
+    assert_that(response.status_code, is_(200))
+

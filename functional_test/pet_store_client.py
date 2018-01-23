@@ -159,3 +159,11 @@ class PetStoreClient(object):
         url = urljoin(self.index_url, "/users/{0}".format(userName))
 
         return self.session.request('GET', url, self.headers)
+
+    def delete_user_by_username(self, userName):
+        """
+        Delete user by userName
+        """
+        url = urljoin(self.index_url, "/users/{0}".format(userName))
+
+        return self.session.request('DELETE', url, self.headers)

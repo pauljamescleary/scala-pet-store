@@ -69,4 +69,63 @@ class UserEndpointsSpec
         createdUser.id shouldEqual updatedUser.id
       }
     }
+
+  test("get user by userName") {
+    val userRepo = UserRepositoryInMemoryInterpreter[IO]()
+    val userValidation = UserValidationInterpreter[IO](userRepo)
+    val userService = UserService[IO](userRepo, userValidation)
+    val userHttpService: HttpService[IO] = UserEndpoints.endpoints[IO](userService)
+
+    implicit val userDecoder: EntityDecoder[IO, User] = jsonOf[IO, User]
+
+    val user = User("test", "test", "test", "test", "test", "test", None)
+
+    for {
+      createRequest <- Request[IO](Method.POST, Uri.uri("/users"))
+        .withBody(user.asJson)
+      createResponse <- userHttpService
+        .run(createRequest)
+        .getOrElse(fail(s"Request was not handled: $createRequest"))
+      createdUser <- createResponse.as[User]
+      getResponse <- userHttpService
+        .run(Request[IO](Method.GET, Uri.unsafeFromString(s"/users/${createdUser.userName}")))
+        .getOrElse(fail(s"Request was not handled"))
+      getUser <- getResponse.as[User]
+    } yield {
+      getResponse.status shouldEqual Ok
+      createdUser.userName shouldEqual getUser.userName
+    }
+
+  }
+
+
+  test("delete user by userName") {
+    val userRepo = UserRepositoryInMemoryInterpreter[IO]()
+    val userValidation = UserValidationInterpreter[IO](userRepo)
+    val userService = UserService[IO](userRepo, userValidation)
+    val userHttpService: HttpService[IO] = UserEndpoints.endpoints[IO](userService)
+
+    implicit val userDecoder: EntityDecoder[IO, User] = jsonOf[IO, User]
+
+    val user = User("test", "test", "test", "test", "test", "test", None)
+
+    for {
+      createRequest <- Request[IO](Method.POST, Uri.uri("/users"))
+        .withBody(user.asJson)
+      createResponse <- userHttpService
+        .run(createRequest)
+        .getOrElse(fail(s"Request was not handled: $createRequest"))
+      createdUser <- createResponse.as[User]
+      deleteResponse <- userHttpService
+        .run(Request[IO](Method.DELETE, Uri.unsafeFromString(s"/users/${createdUser.userName}")))
+        .getOrElse(fail(s"Delete request was not handled"))
+      getResponse <- userHttpService
+        .run(Request[IO](Method.GET, Uri.unsafeFromString(s"/users/${createdUser.userName}")))
+        .getOrElse(fail(s"Get request was not handled"))
+    } yield {
+      createResponse.status shouldEqual Ok
+      deleteResponse.status shouldEqual Ok
+      getResponse.status shouldEqual NotFound
+    }
+  }
 }

@@ -31,6 +31,14 @@ class UserRepositoryInMemoryInterpreter[F[_]: Applicative] extends UserRepositor
 
   override def list(pageSize: Int, offset: Int): F[List[User]] =
     cache.values.toList.sortBy(_.lastName).slice(offset, offset + pageSize).pure[F]
+
+  override def deleteByUserName(userName: String): F[Option[User]] = {
+    val deleted = for {
+      user <- cache.values.find(u => u.firstName == userName)
+      removed <- cache.remove(user.id.get)
+    } yield removed
+    deleted.pure[F]
+  }
 }
 
 object UserRepositoryInMemoryInterpreter {
