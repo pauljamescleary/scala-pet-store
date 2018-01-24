@@ -3,6 +3,7 @@ package io.github.pauljamescleary.petstore.infrastructure.repository.doobie
 import scala.language.higherKinds
 
 import cats._
+import cats.data.OptionT
 import cats.implicits._
 import doobie._
 import doobie.implicits._
@@ -29,10 +30,6 @@ private object UserQueries {
 
   def delete(userId: Long): Update0 = sql"""
     DELETE FROM USERS WHERE ID = $userId
-  """.update
-
-  def deleteByUserName(userName: String): Update0 = sql"""
-    DELETE FROM USERS WHERE USER_NAME = $userName
   """.update
 
   val selectAll: Query0[User] = sql"""
@@ -66,10 +63,7 @@ class DoobieUserRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
     }
 
   def deleteByUserName(userName: String): F[Option[User]] =
-    findByUserName(userName).flatMap {
-      case Some(user) => UserQueries.deleteByUserName(userName).run.transact(xa).map(_ => Some(user))
-      case None => none[User].pure[F]
-    }
+    OptionT(findByUserName(userName)).mapFilter(_.id).flatMapF(delete).value
 
   def list(pageSize: Int, offset: Int): F[List[User]] =
     paginate(pageSize, offset)(selectAll).list.transact(xa)
