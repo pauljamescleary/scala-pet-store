@@ -7,6 +7,7 @@ import cats.implicits._
 import doobie._
 import doobie.implicits._
 import io.github.pauljamescleary.petstore.domain.users.{User, UserRepositoryAlgebra}
+import pagination._
 
 private object UserQueries {
   def insert(user: User): Update0 = sql"""
@@ -34,15 +35,16 @@ private object UserQueries {
     DELETE FROM USERS WHERE USER_NAME = $userName
   """.update
 
-  def paginated(pageSize: Int, offset: Int): Query0[User] = sql"""
+  val selectAll: Query0[User] = sql"""
     SELECT USER_NAME, FIRST_NAME, LAST_NAME, EMAIL, PASSWORD, PHONE, ID
     FROM USERS
-    ORDER BY USER_NAME LIMIT $offset, $pageSize
   """.query
 }
 
 class DoobieUserRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
   extends UserRepositoryAlgebra[F] {
+
+  import UserQueries._
 
   def put(user: User): F[User] = {
     val insert: ConnectionIO[User] =
@@ -52,10 +54,10 @@ class DoobieUserRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
     insert.transact(xa)
   }
 
-  def get(userId: Long): F[Option[User]] = UserQueries.select(userId).option.transact(xa)
+  def get(userId: Long): F[Option[User]] = select(userId).option.transact(xa)
 
   def findByUserName(userName: String): F[Option[User]] =
-    UserQueries.byUserName(userName).option.transact(xa)
+    byUserName(userName).option.transact(xa)
 
   def delete(userId: Long): F[Option[User]] =
     get(userId).flatMap {
@@ -70,7 +72,7 @@ class DoobieUserRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
     }
 
   def list(pageSize: Int, offset: Int): F[List[User]] =
-    UserQueries.paginated(pageSize, offset).list.transact(xa)
+    paginate(pageSize, offset)(selectAll).list.transact(xa)
 }
 
 object DoobieUserRepositoryInterpreter {
