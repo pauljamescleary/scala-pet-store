@@ -12,7 +12,7 @@ class UserService[F[_]](userRepo: UserRepositoryAlgebra[F], validation: UserVali
   def createUser(user: User)(implicit M: Monad[F]): EitherT[F, UserAlreadyExistsError, User] =
     for {
       _ <- validation.doesNotExist(user)
-      saved <- EitherT.liftF(userRepo.put(user))
+      saved <- EitherT.liftF(userRepo.create(user))
     } yield saved
 
   def getUser(userId: Long)(implicit M: Monad[F]): EitherT[F, UserNotFoundError.type, User] =
@@ -39,7 +39,7 @@ class UserService[F[_]](userRepo: UserRepositoryAlgebra[F], validation: UserVali
   def update(user: User)(implicit M: Monad[F]): EitherT[F, UserNotFoundError.type, User] =
     for {
       _ <- validation.exists(user.id)
-      saved <- EitherT.liftF(userRepo.put(user))
+      saved <- EitherT.fromOptionF(userRepo.update(user), UserNotFoundError)
     } yield saved
 
   def list(pageSize: Int, offset: Int): F[List[User]] =

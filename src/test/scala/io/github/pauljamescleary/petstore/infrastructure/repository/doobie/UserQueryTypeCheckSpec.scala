@@ -17,6 +17,7 @@ class UserQueryTypeCheckSpec extends FunSuite with Matchers with IOChecker {
     user.arbitrary.sample.map { u =>
       check(insert(u))
       check(byUserName(u.userName))
+      u.id.foreach(id => check(update(u, id)))
     }
     check(selectAll)
     check(select(1L))

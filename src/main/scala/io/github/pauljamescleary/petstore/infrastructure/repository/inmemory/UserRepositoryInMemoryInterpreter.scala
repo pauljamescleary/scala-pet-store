@@ -14,11 +14,16 @@ class UserRepositoryInMemoryInterpreter[F[_]: Applicative] extends UserRepositor
 
   private val random = new Random
 
-  def put(user: User): F[User] = {
-    val toSave =
-      if (user.id.isDefined) user else user.copy(id = Some(random.nextLong))
-    toSave.id.foreach { cache.put(_, toSave) }
+  def create(user: User): F[User] = {
+    val id = random.nextLong
+    val toSave = user.copy(id = id.some)
+    cache += (id -> toSave)
     toSave.pure[F]
+  }
+
+  def update(user: User): F[Option[User]] = user.id.traverse{ id =>
+    cache.update(id, user)
+    user.pure[F]
   }
 
   def get(id: Long): F[Option[User]] = cache.get(id).pure[F]

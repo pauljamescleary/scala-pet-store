@@ -22,6 +22,12 @@ private object PetSQL {
     VALUES (${pet.name}, ${pet.category}, ${pet.bio}, ${pet.status}, ${pet.tags}, ${pet.photoUrls})
   """.update
 
+  def update(pet: Pet, id: Long) : Update0 = sql"""
+    UPDATE PET
+    SET NAME = ${pet.name}, BIO = ${pet.bio}, STATUS = ${pet.status}, TAGS = ${pet.tags}, PHOTO_URLS = ${pet.photoUrls}
+    WHERE id = $id
+  """.update
+
   def select(id: Long) : Query0[Pet] = sql"""
     SELECT NAME, CATEGORY, BIO, STATUS, TAGS, PHOTO_URLS, ID
     FROM PET
@@ -68,8 +74,12 @@ class DoobiePetRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
     extends PetRepositoryAlgebra[F] {
   import PetSQL._
 
-  def put(pet: Pet): F[Pet] =
+  def create(pet: Pet): F[Pet] =
     insert(pet).withUniqueGeneratedKeys[Long]("ID").map(id => pet.copy(id = id.some)).transact(xa)
+
+  def update(pet: Pet): F[Option[Pet]] = OptionT.fromOption[ConnectionIO](pet.id).semiflatMap(id =>
+    PetSQL.update(pet, id).run.as(pet)
+  ).value.transact(xa)
 
   def get(id: Long): F[Option[Pet]] = select(id).option.transact(xa)
 
@@ -88,7 +98,6 @@ class DoobiePetRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
 
   def findByTag(tags: NonEmptyList[String]): F[List[Pet]] =
     selectTagLikeString(tags).list.transact(xa)
-
 }
 
 object DoobiePetRepositoryInterpreter {

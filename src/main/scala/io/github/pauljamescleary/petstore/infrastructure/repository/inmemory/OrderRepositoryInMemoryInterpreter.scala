@@ -13,11 +13,8 @@ class OrderRepositoryInMemoryInterpreter[F[_]: Applicative] extends OrderReposit
 
   private val random = new Random
 
-  def put(order: Order): F[Order] = {
-    val toSave =
-      if (order.id.isDefined) order
-      else order.copy(id = Some(random.nextLong))
-
+  def create(order: Order): F[Order] = {
+    val toSave = order.copy(id = order.id.orElse(random.nextLong.some))
     toSave.id.foreach { cache.put(_, toSave) }
     toSave.pure[F]
   }
@@ -27,7 +24,6 @@ class OrderRepositoryInMemoryInterpreter[F[_]: Applicative] extends OrderReposit
 
   def delete(orderId: Long): F[Option[Order]] =
     cache.remove(orderId).pure[F]
-
 }
 
 object OrderRepositoryInMemoryInterpreter {
