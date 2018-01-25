@@ -18,7 +18,7 @@ private object PetSQL {
     .xmap(str => str.split(',').toSet, strSet => strSet.mkString(","))
 
   def insert(pet: Pet) : Update0 = sql"""
-    REPLACE INTO PET (NAME, CATEGORY, BIO, STATUS, TAGS, PHOTO_URLS)
+    INSERT INTO PET (NAME, CATEGORY, BIO, STATUS, TAGS, PHOTO_URLS)
     VALUES (${pet.name}, ${pet.category}, ${pet.bio}, ${pet.status}, ${pet.tags}, ${pet.photoUrls})
   """.update
 

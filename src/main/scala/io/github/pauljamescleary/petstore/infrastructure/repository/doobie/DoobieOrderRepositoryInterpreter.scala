@@ -8,7 +8,7 @@ import cats.implicits._
 import doobie._
 import doobie.implicits._
 import io.github.pauljamescleary.petstore.domain.orders
-import io.github.pauljamescleary.petstore.domain.orders.{OrderRepositoryAlgebra, OrderStatus}
+import orders.{OrderRepositoryAlgebra, OrderStatus, Order}
 
 private object OrderSQL {
   /* We require type StatusMeta to handle our ADT Status */
@@ -22,14 +22,14 @@ private object OrderSQL {
       dt => java.sql.Timestamp.from(dt)
     )
 
-  def select(orderId: Long): Query0[orders.Order] = sql"""
+  def select(orderId: Long): Query0[Order] = sql"""
     SELECT PET_ID, SHIP_DATE, STATUS, COMPLETE, ID
     FROM ORDERS
     WHERE ID = $orderId
-  """.query[orders.Order]
+  """.query[Order]
 
-  def update(order : orders.Order) : Update0 = sql"""
-    REPLACE INTO ORDERS (PET_ID, SHIP_DATE, STATUS, COMPLETE)
+  def insert(order : Order) : Update0 = sql"""
+    INSERT INTO ORDERS (PET_ID, SHIP_DATE, STATUS, COMPLETE)
     VALUES (${order.petId}, ${order.shipDate}, ${order.status}, ${order.complete})
   """.update
 
@@ -43,12 +43,12 @@ class DoobieOrderRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
     extends OrderRepositoryAlgebra[F] {
   import OrderSQL._
 
-  def put(order: orders.Order): F[orders.Order] =
-    update(order).withUniqueGeneratedKeys[Long]("ID").map(id => order.copy(id = id.some)).transact(xa)
+  def put(order: Order): F[Order] =
+    insert(order).withUniqueGeneratedKeys[Long]("ID").map(id => order.copy(id = id.some)).transact(xa)
 
-  def get(orderId: Long): F[Option[orders.Order]] = OrderSQL.select(orderId).option.transact(xa)
+  def get(orderId: Long): F[Option[Order]] = OrderSQL.select(orderId).option.transact(xa)
 
-  def delete(orderId: Long): F[Option[orders.Order]] =
+  def delete(orderId: Long): F[Option[Order]] =
     OptionT(get(orderId)).semiflatMap(order =>
       OrderSQL.delete(orderId).run.transact(xa).map(_ => order)
     ).value
