@@ -11,7 +11,7 @@ import PetStoreArbitraries.user
 class UserQueryTypeCheckSpec extends FunSuite with Matchers with IOChecker {
   override val transactor : Transactor[IO] = testTransactor
 
-  import UserQueries._
+  import UserSQL._
 
   test("Typecheck user queries") {
     user.arbitrary.sample.map { u =>

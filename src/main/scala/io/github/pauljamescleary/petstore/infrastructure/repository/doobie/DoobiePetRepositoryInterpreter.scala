@@ -8,7 +8,7 @@ import doobie.implicits._
 import io.github.pauljamescleary.petstore.domain.pets.{Pet, PetRepositoryAlgebra, PetStatus}
 import pagination._
 
-private object PetQueries {
+private object PetSQL {
   /* We require type StatusMeta to handle our ADT Status */
   implicit val StatusMeta: Meta[PetStatus] =
     Meta[String].xmap(PetStatus.apply, PetStatus.nameOf)
@@ -66,12 +66,12 @@ private object PetQueries {
 
 class DoobiePetRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
     extends PetRepositoryAlgebra[F] {
-  import PetQueries._
+  import PetSQL._
 
   def put(pet: Pet): F[Pet] = {
     val insert: ConnectionIO[Pet] =
       for {
-        id <- PetQueries.insert(pet).withUniqueGeneratedKeys[Long]("ID")
+        id <- PetSQL.insert(pet).withUniqueGeneratedKeys[Long]("ID")
       } yield pet.copy(id = Some(id))
     insert.transact(xa)
   }
@@ -80,7 +80,7 @@ class DoobiePetRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
 
   def delete(id: Long): F[Option[Pet]] =
     get(id).flatMap {
-      case Some(pet) => PetQueries.delete(id).run.transact(xa).map(_ => pet.some)
+      case Some(pet) => PetSQL.delete(id).run.transact(xa).map(_ => pet.some)
       case None => none[Pet].pure[F]
     }
 

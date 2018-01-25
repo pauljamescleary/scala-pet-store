@@ -10,7 +10,7 @@ import doobie.implicits._
 import io.github.pauljamescleary.petstore.domain.users.{User, UserRepositoryAlgebra}
 import pagination._
 
-private object UserQueries {
+private object UserSQL {
   def insert(user: User): Update0 = sql"""
     REPLACE INTO USERS (USER_NAME, FIRST_NAME, LAST_NAME, EMAIL, PASSWORD, PHONE)
     VALUES (${user.userName}, ${user.firstName}, ${user.lastName}, ${user.email}, ${user.password}, ${user.phone})
@@ -41,12 +41,12 @@ private object UserQueries {
 class DoobieUserRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
   extends UserRepositoryAlgebra[F] {
 
-  import UserQueries._
+  import UserSQL._
 
   def put(user: User): F[User] = {
     val insert: ConnectionIO[User] =
       for {
-        id <- UserQueries.insert(user).withUniqueGeneratedKeys[Long]("ID")
+        id <- UserSQL.insert(user).withUniqueGeneratedKeys[Long]("ID")
       } yield user.copy(id = Some(id))
     insert.transact(xa)
   }
@@ -58,7 +58,7 @@ class DoobieUserRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
 
   def delete(userId: Long): F[Option[User]] =
     get(userId).flatMap {
-      case Some(user) => UserQueries.delete(userId).run.transact(xa).map(_ => Some(user))
+      case Some(user) => UserSQL.delete(userId).run.transact(xa).map(_ => Some(user))
       case None => none[User].pure[F]
     }
 

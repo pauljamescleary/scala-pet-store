@@ -13,7 +13,7 @@ import cats.syntax.applicative._
 class PetQueryTypeCheckSpec extends FunSuite with Matchers with IOChecker {
   override val transactor : Transactor[IO] = testTransactor
 
-  import PetQueries._
+  import PetSQL._
 
   test("Typecheck pet queries") {
     pet.arbitrary.sample.map { p =>

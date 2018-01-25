@@ -7,6 +7,8 @@ import doobie.scalatest.IOChecker
 import doobie.util.transactor.Transactor
 
 class OrderQueryTypeCheckSpec extends FunSuite with Matchers with IOChecker {
+  import OrderSQL._
+
   override val transactor : Transactor[IO] = testTransactor
 
   test("Typecheck order queries") {

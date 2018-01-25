@@ -9,7 +9,7 @@ import doobie.implicits._
 import io.github.pauljamescleary.petstore.domain.orders
 import io.github.pauljamescleary.petstore.domain.orders.{OrderRepositoryAlgebra, OrderStatus}
 
-private object OrderQueries {
+private object OrderSQL {
   /* We require type StatusMeta to handle our ADT Status */
   private implicit val StatusMeta: Meta[OrderStatus] =
     Meta[String].xmap(OrderStatus.apply, OrderStatus.nameOf)
@@ -44,16 +44,16 @@ class DoobieOrderRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
   def put(order: orders.Order): F[orders.Order] = {
     val insert: ConnectionIO[orders.Order] =
       for {
-        id <- OrderQueries.update(order).withUniqueGeneratedKeys[Long]("ID")
+        id <- OrderSQL.update(order).withUniqueGeneratedKeys[Long]("ID")
       } yield order.copy(id = Some(id))
     insert.transact(xa)
   }
 
-  def get(orderId: Long): F[Option[orders.Order]] = OrderQueries.select(orderId).option.transact(xa)
+  def get(orderId: Long): F[Option[orders.Order]] = OrderSQL.select(orderId).option.transact(xa)
 
   def delete(orderId: Long): F[Option[orders.Order]] =
     get(orderId).flatMap {
-      case Some(order) => OrderQueries.delete(orderId).run.transact(xa).map(_ => Some(order))
+      case Some(order) => OrderSQL.delete(orderId).run.transact(xa).map(_ => Some(order))
       case None => none[orders.Order].pure[F]
     }
 }
