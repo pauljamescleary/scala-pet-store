@@ -68,21 +68,14 @@ class DoobiePetRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
     extends PetRepositoryAlgebra[F] {
   import PetSQL._
 
-  def put(pet: Pet): F[Pet] = {
-    val insert: ConnectionIO[Pet] =
-      for {
-        id <- PetSQL.insert(pet).withUniqueGeneratedKeys[Long]("ID")
-      } yield pet.copy(id = Some(id))
-    insert.transact(xa)
-  }
+  def put(pet: Pet): F[Pet] =
+    insert(pet).withUniqueGeneratedKeys[Long]("ID").map(id => pet.copy(id = id.some)).transact(xa)
 
   def get(id: Long): F[Option[Pet]] = select(id).option.transact(xa)
 
-  def delete(id: Long): F[Option[Pet]] =
-    get(id).flatMap {
-      case Some(pet) => PetSQL.delete(id).run.transact(xa).map(_ => pet.some)
-      case None => none[Pet].pure[F]
-    }
+  def delete(id: Long): F[Option[Pet]] = OptionT(get(id)).semiflatMap(pet =>
+    PetSQL.delete(id).run.transact(xa).map(_ => pet)
+  ).value
 
   def findByNameAndCategory(name: String, category: String): F[Set[Pet]] =
     selectByNameAndCategory(name, category).list.transact(xa).map(_.toSet)

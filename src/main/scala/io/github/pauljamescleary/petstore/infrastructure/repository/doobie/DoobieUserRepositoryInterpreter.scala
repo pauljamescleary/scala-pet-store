@@ -43,24 +43,17 @@ class DoobieUserRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
 
   import UserSQL._
 
-  def put(user: User): F[User] = {
-    val insert: ConnectionIO[User] =
-      for {
-        id <- UserSQL.insert(user).withUniqueGeneratedKeys[Long]("ID")
-      } yield user.copy(id = Some(id))
-    insert.transact(xa)
-  }
+  def put(user: User): F[User] =
+    insert(user).withUniqueGeneratedKeys[Long]("ID").map(id => user.copy(id = id.some)).transact(xa)
 
   def get(userId: Long): F[Option[User]] = select(userId).option.transact(xa)
 
   def findByUserName(userName: String): F[Option[User]] =
     byUserName(userName).option.transact(xa)
 
-  def delete(userId: Long): F[Option[User]] =
-    get(userId).flatMap {
-      case Some(user) => UserSQL.delete(userId).run.transact(xa).map(_ => Some(user))
-      case None => none[User].pure[F]
-    }
+  def delete(userId: Long): F[Option[User]] = OptionT(get(userId)).semiflatMap(user =>
+    UserSQL.delete(userId).run.transact(xa).map(_ => user)
+  ).value
 
   def deleteByUserName(userName: String): F[Option[User]] =
     OptionT(findByUserName(userName)).mapFilter(_.id).flatMapF(delete).value

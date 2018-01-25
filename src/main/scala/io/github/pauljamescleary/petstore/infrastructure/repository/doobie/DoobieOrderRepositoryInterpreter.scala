@@ -3,6 +3,7 @@ package io.github.pauljamescleary.petstore.infrastructure.repository.doobie
 import java.time.Instant
 
 import cats._
+import cats.data.OptionT
 import cats.implicits._
 import doobie._
 import doobie.implicits._
@@ -40,22 +41,17 @@ private object OrderSQL {
 
 class DoobieOrderRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
     extends OrderRepositoryAlgebra[F] {
+  import OrderSQL._
 
-  def put(order: orders.Order): F[orders.Order] = {
-    val insert: ConnectionIO[orders.Order] =
-      for {
-        id <- OrderSQL.update(order).withUniqueGeneratedKeys[Long]("ID")
-      } yield order.copy(id = Some(id))
-    insert.transact(xa)
-  }
+  def put(order: orders.Order): F[orders.Order] =
+    update(order).withUniqueGeneratedKeys[Long]("ID").map(id => order.copy(id = id.some)).transact(xa)
 
   def get(orderId: Long): F[Option[orders.Order]] = OrderSQL.select(orderId).option.transact(xa)
 
   def delete(orderId: Long): F[Option[orders.Order]] =
-    get(orderId).flatMap {
-      case Some(order) => OrderSQL.delete(orderId).run.transact(xa).map(_ => Some(order))
-      case None => none[orders.Order].pure[F]
-    }
+    OptionT(get(orderId)).semiflatMap(order =>
+      OrderSQL.delete(orderId).run.transact(xa).map(_ => order)
+    ).value
 }
 
 object DoobieOrderRepositoryInterpreter {
