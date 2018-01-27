@@ -26,7 +26,7 @@ class UserEndpointsSpec
     val userService = UserService[IO](userRepo, userValidation)
     val userHttpService = UserEndpoints.endpoints[IO](userService)
 
-    val user = User("test", "test", "test", "test", "test", "test", None)
+    val user = User("username", "firstname", "lastname", "email", "password", "phone", None)
 
     for {
         request <- Request[IO](Method.POST, Uri.uri("/users"))
@@ -47,7 +47,7 @@ class UserEndpointsSpec
 
     implicit val userDecoder: EntityDecoder[IO, User] = jsonOf[IO, User]
 
-    val user = User("test", "test", "test", "test", "test", "test", None)
+    val user = User("username", "firstname", "lastname", "email", "password", "phone", None)
 
     for {
         createRequest <- Request[IO](Method.POST, Uri.uri("/users"))
@@ -78,7 +78,7 @@ class UserEndpointsSpec
 
     implicit val userDecoder: EntityDecoder[IO, User] = jsonOf[IO, User]
 
-    val user = User("test", "test", "test", "test", "test", "test", None)
+    val user = User("username", "firstname", "lastname", "email", "password", "phone", None)
 
     for {
       createRequest <- Request[IO](Method.POST, Uri.uri("/users"))
