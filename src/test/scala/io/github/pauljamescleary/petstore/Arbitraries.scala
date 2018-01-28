@@ -7,6 +7,8 @@ import org.scalacheck.Arbitrary.arbitrary
 import io.github.pauljamescleary.petstore.domain.orders._
 import io.github.pauljamescleary.petstore.domain.{orders, pets}
 import io.github.pauljamescleary.petstore.domain.pets._
+import io.github.pauljamescleary.petstore.domain.users._
+
 
 trait PetStoreArbitraries {
 
@@ -50,6 +52,17 @@ trait PetStoreArbitraries {
     } yield pets.Pet(name, category, bio, status, tags, photoUrls, id)
   }
 
+  implicit val user = Arbitrary[User] {
+    for {
+      userName <- arbitrary[String]
+      firstName <- arbitrary[String]
+      lastName <- arbitrary[String]
+      email <- arbitrary[String]
+      password <- arbitrary[String]
+      phone <- arbitrary[String]
+      id <- Gen.option(Gen.posNum[Long])
+    } yield User(userName, firstName, lastName, email, password, phone, id)
+  }
 }
 
 object PetStoreArbitraries extends PetStoreArbitraries
