@@ -56,7 +56,7 @@ class UserEndpoints[F[_]: Effect] extends Http4sDsl[F] {
         } yield resp
     }
 
-  private def searchByName(userService: UserService[F]): HttpService[F] =
+  private def searchByNameEndpoint(userService: UserService[F]): HttpService[F] =
     HttpService[F] {
       case GET -> Root / "users" / userName =>
         userService.getUserByName(userName).value.flatMap {
@@ -67,9 +67,9 @@ class UserEndpoints[F[_]: Effect] extends Http4sDsl[F] {
 
   private def deleteUserEndpoint(userService: UserService[F]): HttpService[F] =
     HttpService[F] {
-      case DELETE -> Root / "users" / userByName =>
+      case DELETE -> Root / "users" / userName =>
         for {
-          _ <- userService.deleteByName(userByName)
+          _ <- userService.deleteByName(userName)
           resp <- Ok()
         } yield resp
     }
@@ -79,7 +79,7 @@ class UserEndpoints[F[_]: Effect] extends Http4sDsl[F] {
     signupEndpoint(userService) <+>
     updateEndpoint(userService) <+>
     listEndpoint(userService)   <+>
-    searchByName(userService)   <+>
+    searchByNameEndpoint(userService)   <+>
     deleteUserEndpoint(userService)
 }
 

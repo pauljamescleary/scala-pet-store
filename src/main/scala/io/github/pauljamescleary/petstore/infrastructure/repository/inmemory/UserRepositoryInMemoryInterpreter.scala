@@ -34,7 +34,7 @@ class UserRepositoryInMemoryInterpreter[F[_]: Applicative] extends UserRepositor
 
   override def deleteByUserName(userName: String): F[Option[User]] = {
     val deleted = for {
-      user <- cache.values.find(u => u.firstName == userName)
+      user <- cache.values.find(u => u.userName == userName)
       removed <- cache.remove(user.id.get)
     } yield removed
     deleted.pure[F]
