@@ -50,7 +50,7 @@ class DoobieOrderRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
 
   def delete(orderId: Long): F[Option[Order]] =
     OptionT(get(orderId)).semiflatMap(order =>
-      OrderSQL.delete(orderId).run.transact(xa).map(_ => order)
+      OrderSQL.delete(orderId).run.transact(xa).as(order)
     ).value
 }
 
