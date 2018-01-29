@@ -28,12 +28,7 @@ class PetService[F[_]](repository: PetRepositoryAlgebra[F], validation: PetValid
   } yield saved
 
   def get(id: Long)(implicit M: Monad[F]): EitherT[F, PetNotFoundError.type, Pet] =
-    EitherT {
-      repository.get(id).map {
-        case None => Left(PetNotFoundError)
-        case Some(found) => Right(found)
-      }
-    }
+    EitherT.fromOptionF(repository.get(id), PetNotFoundError)
 
   /* In some circumstances we may care if we actually delete the pet; here we are idempotent and do not care */
   def delete(id: Long)(implicit M: Monad[F]): F[Unit] =

@@ -16,20 +16,10 @@ class UserService[F[_]](userRepo: UserRepositoryAlgebra[F], validation: UserVali
     } yield saved
 
   def getUser(userId: Long)(implicit M: Monad[F]): EitherT[F, UserNotFoundError.type, User] =
-    EitherT {
-      userRepo.get(userId).map {
-        case None => Left(UserNotFoundError)
-        case Some(user) => Right(user)
-      }
-    }
+    EitherT.fromOptionF(userRepo.get(userId), UserNotFoundError)
 
   def getUserByName(userName: String)(implicit M: Monad[F]): EitherT[F, UserNotFoundError.type, User] =
-    EitherT {
-      userRepo.findByUserName(userName).map {
-        case None => Left(UserNotFoundError)
-        case Some(user) => Right(user)
-      }
-    }
+    EitherT.fromOptionF(userRepo.findByUserName(userName), UserNotFoundError)
 
   def deleteUser(userId: Long): F[Option[User]] = userRepo.delete(userId)
 
