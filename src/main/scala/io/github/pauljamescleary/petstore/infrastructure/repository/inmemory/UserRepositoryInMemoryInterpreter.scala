@@ -2,7 +2,6 @@ package io.github.pauljamescleary.petstore.infrastructure.repository.inmemory
 
 import java.util.Random
 
-import cats._
 import cats.implicits._
 import cats.Applicative
 import io.github.pauljamescleary.petstore.domain.users.{User, UserRepositoryAlgebra}
