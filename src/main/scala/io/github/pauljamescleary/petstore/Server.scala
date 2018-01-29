@@ -8,7 +8,6 @@ import infrastructure.endpoint.{OrderEndpoints, PetEndpoints, UserEndpoints}
 import infrastructure.repository.doobie.{DoobieOrderRepositoryInterpreter, DoobiePetRepositoryInterpreter, DoobieUserRepositoryInterpreter}
 
 import cats.effect._
-import cats.implicits._
 import fs2.StreamApp.ExitCode
 import fs2.{Stream, StreamApp}
 import org.http4s.server.blaze.BlazeBuilder
