@@ -13,7 +13,7 @@ class OrderRepositoryInMemoryInterpreter[F[_]: Applicative] extends OrderReposit
 
   private val random = new Random
 
-  override def put(order: Order): F[Order] = {
+  def put(order: Order): F[Order] = {
     val toSave =
       if (order.id.isDefined) order
       else order.copy(id = Some(random.nextLong))
@@ -22,10 +22,10 @@ class OrderRepositoryInMemoryInterpreter[F[_]: Applicative] extends OrderReposit
     toSave.pure[F]
   }
 
-  override def get(orderId: Long): F[Option[Order]] =
+  def get(orderId: Long): F[Option[Order]] =
     cache.get(orderId).pure[F]
 
-  override def delete(orderId: Long): F[Option[Order]] =
+  def delete(orderId: Long): F[Option[Order]] =
     cache.remove(orderId).pure[F]
 
 }
