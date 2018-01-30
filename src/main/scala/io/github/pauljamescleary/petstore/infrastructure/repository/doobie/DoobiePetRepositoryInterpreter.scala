@@ -74,7 +74,7 @@ class DoobiePetRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
   def get(id: Long): F[Option[Pet]] = select(id).option.transact(xa)
 
   def delete(id: Long): F[Option[Pet]] = OptionT(get(id)).semiflatMap(pet =>
-    PetSQL.delete(id).run.transact(xa).map(_ => pet)
+    PetSQL.delete(id).run.transact(xa).as(pet)
   ).value
 
   def findByNameAndCategory(name: String, category: String): F[Set[Pet]] =
