@@ -1,4 +1,6 @@
-# Scala Pet Store
+Scala Pet Store [![Build Status](https://travis-ci.org/pauljamescleary/scala-pet-store.svg?branch=master)](https://travis-ci.org/pauljamescleary/scala-pet-store)
+[![Chat](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/scala-pet-store/scala-pet-store)
+==============
 An implementation of the java pet store using FP techniques in scala.
 
 
