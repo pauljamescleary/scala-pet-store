@@ -4,7 +4,7 @@ import scala.language.higherKinds
 
 trait OrderRepositoryAlgebra[F[_]] {
 
-  def put(order: Order): F[Order]
+  def create(order: Order): F[Order]
 
   def get(orderId: Long): F[Option[Order]]
 

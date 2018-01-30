@@ -16,9 +16,10 @@ class PetQueryTypeCheckSpec extends FunSuite with Matchers with IOChecker {
   import PetSQL._
 
   test("Typecheck pet queries") {
-    pet.arbitrary.sample.map { p =>
+    pet.arbitrary.sample.map{ p =>
       check(selectByStatus(p.status.pure[NonEmptyList]))
       check(insert(p))
+      p.id.foreach(id => check(PetSQL.update(p, id)))
     }
 
     check(selectTagLikeString("example".pure[NonEmptyList]))

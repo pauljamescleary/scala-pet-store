@@ -43,7 +43,7 @@ class DoobieOrderRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
     extends OrderRepositoryAlgebra[F] {
   import OrderSQL._
 
-  def put(order: Order): F[Order] =
+  def create(order: Order): F[Order] =
     insert(order).withUniqueGeneratedKeys[Long]("ID").map(id => order.copy(id = id.some)).transact(xa)
 
   def get(orderId: Long): F[Option[Order]] = OrderSQL.select(orderId).option.transact(xa)

@@ -1,7 +1,6 @@
 package io.github.pauljamescleary.petstore.infrastructure.repository.doobie
 
 import scala.language.higherKinds
-
 import cats._
 import cats.data.OptionT
 import cats.implicits._
@@ -14,6 +13,12 @@ private object UserSQL {
   def insert(user: User): Update0 = sql"""
     INSERT INTO USERS (USER_NAME, FIRST_NAME, LAST_NAME, EMAIL, PASSWORD, PHONE)
     VALUES (${user.userName}, ${user.firstName}, ${user.lastName}, ${user.email}, ${user.password}, ${user.phone})
+  """.update
+
+  def update(user: User, id: Long): Update0 = sql"""
+    UPDATE USERS
+    SET FIRST_NAME = ${user.firstName}, LAST_NAME = ${user.lastName}, EMAIL = ${user.email}, PASSWORD = ${user.password}, PHONE = ${user.phone}
+    WHERE ID = $id
   """.update
 
   def select(userId: Long): Query0[User] = sql"""
@@ -43,8 +48,12 @@ class DoobieUserRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
 
   import UserSQL._
 
-  def put(user: User): F[User] =
+  def create(user: User): F[User] =
     insert(user).withUniqueGeneratedKeys[Long]("ID").map(id => user.copy(id = id.some)).transact(xa)
+
+  def update(user: User): F[Option[User]] = OptionT.fromOption[ConnectionIO](user.id).semiflatMap { id =>
+    UserSQL.update(user, id).run
+  }.value.as(user.some).transact(xa)
 
   def get(userId: Long): F[Option[User]] = select(userId).option.transact(xa)
 
@@ -52,7 +61,7 @@ class DoobieUserRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
     byUserName(userName).option.transact(xa)
 
   def delete(userId: Long): F[Option[User]] = OptionT(get(userId)).semiflatMap(user =>
-    UserSQL.delete(userId).run.transact(xa).map(_ => user)
+    UserSQL.delete(userId).run.transact(xa).as(user)
   ).value
 
   def deleteByUserName(userName: String): F[Option[User]] =

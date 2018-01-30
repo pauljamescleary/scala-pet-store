@@ -9,18 +9,14 @@ import io.github.pauljamescleary.petstore.domain.OrderNotFoundError
 class OrderService[F[_]](orderRepo: OrderRepositoryAlgebra[F]) {
   import cats.syntax.all._
 
-  def placeOrder(order: Order): F[Order] = orderRepo.put(order)
+  def placeOrder(order: Order): F[Order] = orderRepo.create(order)
 
   def get(id: Long)(implicit M: Monad[F]): EitherT[F, OrderNotFoundError.type, Order] =
-    EitherT {
-      orderRepo.get(id).map {
-        case None => Left(OrderNotFoundError)
-        case Some(order) => Right(order)
-      }
-    }
+    EitherT.fromOptionF(orderRepo.get(id), OrderNotFoundError)
+
 
   def delete(id: Long)(implicit M: Monad[F]): F[Unit] =
-    orderRepo.delete(id).map(_ => ())
+    orderRepo.delete(id).as(())
 }
 
 object OrderService {

@@ -16,26 +16,19 @@ import io.github.pauljamescleary.petstore.domain.{PetAlreadyExistsError, PetNotF
 class PetService[F[_]](repository: PetRepositoryAlgebra[F], validation: PetValidationAlgebra[F]) {
   import cats.syntax.all._
 
-  def create(pet: Pet)(implicit M: Monad[F]): EitherT[F, PetAlreadyExistsError, Pet] =
-    for {
-      _ <- validation.doesNotExist(pet)
-      saved <- EitherT.liftF(repository.put(pet))
-    } yield saved
+  def create(pet: Pet)(implicit M: Monad[F]): EitherT[F, PetAlreadyExistsError, Pet] = for {
+    _ <- validation.doesNotExist(pet)
+    saved <- EitherT.liftF(repository.create(pet))
+  } yield saved
 
   /* Could argue that we could make this idempotent on put and not check if the pet exists */
-  def update(pet: Pet)(implicit M: Monad[F]): EitherT[F, PetNotFoundError.type, Pet] =
-    for {
-      _ <- validation.exists(pet.id)
-      saved <- EitherT.liftF(repository.put(pet))
-    } yield saved
+  def update(pet: Pet)(implicit M: Monad[F]): EitherT[F, PetNotFoundError.type, Pet] = for {
+    _ <- validation.exists(pet.id)
+    saved <- EitherT.fromOptionF(repository.update(pet), PetNotFoundError)
+  } yield saved
 
   def get(id: Long)(implicit M: Monad[F]): EitherT[F, PetNotFoundError.type, Pet] =
-    EitherT {
-      repository.get(id).map {
-        case None => Left(PetNotFoundError)
-        case Some(found) => Right(found)
-      }
-    }
+    EitherT.fromOptionF(repository.get(id), PetNotFoundError)
 
   /* In some circumstances we may care if we actually delete the pet; here we are idempotent and do not care */
   def delete(id: Long)(implicit M: Monad[F]): F[Unit] =

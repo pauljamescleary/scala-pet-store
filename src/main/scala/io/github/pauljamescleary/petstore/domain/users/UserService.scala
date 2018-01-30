@@ -12,24 +12,14 @@ class UserService[F[_]](userRepo: UserRepositoryAlgebra[F], validation: UserVali
   def createUser(user: User)(implicit M: Monad[F]): EitherT[F, UserAlreadyExistsError, User] =
     for {
       _ <- validation.doesNotExist(user)
-      saved <- EitherT.liftF(userRepo.put(user))
+      saved <- EitherT.liftF(userRepo.create(user))
     } yield saved
 
   def getUser(userId: Long)(implicit M: Monad[F]): EitherT[F, UserNotFoundError.type, User] =
-    EitherT {
-      userRepo.get(userId).map {
-        case None => Left(UserNotFoundError)
-        case Some(user) => Right(user)
-      }
-    }
+    EitherT.fromOptionF(userRepo.get(userId), UserNotFoundError)
 
   def getUserByName(userName: String)(implicit M: Monad[F]): EitherT[F, UserNotFoundError.type, User] =
-    EitherT {
-      userRepo.findByUserName(userName).map {
-        case None => Left(UserNotFoundError)
-        case Some(user) => Right(user)
-      }
-    }
+    EitherT.fromOptionF(userRepo.findByUserName(userName), UserNotFoundError)
 
   def deleteUser(userId: Long): F[Option[User]] = userRepo.delete(userId)
 
@@ -39,7 +29,7 @@ class UserService[F[_]](userRepo: UserRepositoryAlgebra[F], validation: UserVali
   def update(user: User)(implicit M: Monad[F]): EitherT[F, UserNotFoundError.type, User] =
     for {
       _ <- validation.exists(user.id)
-      saved <- EitherT.liftF(userRepo.put(user))
+      saved <- EitherT.fromOptionF(userRepo.update(user), UserNotFoundError)
     } yield saved
 
   def list(pageSize: Int, offset: Int): F[List[User]] =
