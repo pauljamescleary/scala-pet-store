@@ -90,4 +90,8 @@ scalacOptions ++= Seq(
   // format: on
 )
 
+// Filter out compiler flags to make the repl experience functional...
+val badConsoleFlags = Seq("-Xfatal-warnings", "-Ywarn-unused:imports")
+scalacOptions in (Compile, console) ~= (_.filterNot(badConsoleFlags.contains(_)))
+
 enablePlugins(ScalafmtPlugin, JavaAppPackaging)
