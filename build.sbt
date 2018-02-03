@@ -94,4 +94,4 @@ scalacOptions ++= Seq(
 val badConsoleFlags = Seq("-Xfatal-warnings", "-Ywarn-unused:imports")
 scalacOptions in (Compile, console) ~= (_.filterNot(badConsoleFlags.contains(_)))
 
-enablePlugins(ScalafmtPlugin, JavaAppPackaging)
+enablePlugins(ScalafmtPlugin, JavaAppPackaging, MicrositesPlugin, TutPlugin)
