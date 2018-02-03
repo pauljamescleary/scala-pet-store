@@ -138,7 +138,7 @@ class PetStoreClient(object):
         :param user:
         :return:
         """
-        url = urljoin(self.index_url, '/users')
+        url = urljoin(self.index_url, "/users/{0}".format(user['userName']))
 
         return self.session.request('PUT', url, self.headers, json.dumps(user))
 

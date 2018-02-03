@@ -35,10 +35,11 @@ class UserEndpoints[F[_]: Effect] extends Http4sDsl[F] {
 
   private def updateEndpoint(userService: UserService[F]): HttpService[F] =
     HttpService[F] {
-      case req @ PUT -> Root / "users" =>
+      case req @ PUT -> Root / "users" / name =>
         val action = for {
           user <- req.as[User]
-          result <- userService.update(user).value
+          updated = user.copy(userName = name)
+          result <- userService.update(updated).value
         } yield result
 
         action.flatMap {
