@@ -6,10 +6,10 @@ scalaVersion    := "2.12.3"
 resolvers += Resolver.sonatypeRepo("snapshots")
 
 val CatsVersion       = "1.0.1"
-val CirceVersion      = "0.9.0"
-val DoobieVersion     = "0.5.0-M13"
+val CirceVersion      = "0.9.1"
+val DoobieVersion     = "0.5.0-RC1"
 val H2Version         = "1.4.196"
-val Http4sVersion     = "0.18.0-M8"
+val Http4sVersion     = "0.18.0"
 val LogbackVersion    = "1.2.3"
 val ScalaCheckVersion = "1.13.5"
 val ScalaTestVersion  = "3.0.4"

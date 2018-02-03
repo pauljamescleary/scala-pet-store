@@ -13,6 +13,7 @@ import fs2.{Stream, StreamApp}
 import org.http4s.server.blaze.BlazeBuilder
 
 object Server extends StreamApp[IO] {
+  import scala.concurrent.ExecutionContext.Implicits.global
 
   override def stream(args: List[String], shutdown: IO[Unit]): Stream[IO, ExitCode] =
     createStream[IO](args, shutdown)
