@@ -7,7 +7,7 @@ import cats.implicits._
 import doobie._
 import doobie.implicits._
 import io.github.pauljamescleary.petstore.domain.users.{User, UserRepositoryAlgebra}
-import pagination._
+import SQLPagination._
 
 private object UserSQL {
   def insert(user: User): Update0 = sql"""

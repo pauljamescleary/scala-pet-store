@@ -6,7 +6,7 @@ import cats.implicits._
 import doobie._
 import doobie.implicits._
 import io.github.pauljamescleary.petstore.domain.pets.{Pet, PetRepositoryAlgebra, PetStatus}
-import pagination._
+import SQLPagination._
 
 private object PetSQL {
   /* We require type StatusMeta to handle our ADT Status */

@@ -9,7 +9,7 @@ import doobie.implicits._
   * unexpectedly for H2. H2 reports it requires a VARCHAR for limit and offset,
   * which seems wrong.
   */
-trait Pagination {
+trait SQLPagination {
   def limit[A: Composite](lim: Int)(q: Query0[A]): Query0[A] =
     (q.toFragment ++ sql" LIMIT $lim").query
 
@@ -17,4 +17,4 @@ trait Pagination {
     (q.toFragment ++ sql" LIMIT $lim OFFSET $offset").query
 }
 
-object pagination extends Pagination
+object SQLPagination extends SQLPagination
