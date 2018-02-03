@@ -95,3 +95,7 @@ val badConsoleFlags = Seq("-Xfatal-warnings", "-Ywarn-unused:imports")
 scalacOptions in (Compile, console) ~= (_.filterNot(badConsoleFlags.contains(_)))
 
 enablePlugins(ScalafmtPlugin, JavaAppPackaging, MicrositesPlugin, TutPlugin)
+
+ghpages.settings
+
+git.remoteRepo := "git@github.com:pauljamescleary/scala-pet-store.git"
