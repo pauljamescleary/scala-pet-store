@@ -1,16 +1,25 @@
-package io.github.pauljamescleary.petstore.infrastructure.endpoint
+package io.github.pauljamescleary.petstore
+package infrastructure.endpoint
 
-import io.github.pauljamescleary.petstore.domain.users._
-import io.github.pauljamescleary.petstore.PetStoreArbitraries
-import io.github.pauljamescleary.petstore.infrastructure.repository.inmemory.UserRepositoryInMemoryInterpreter
+import org.scalatest._
+import org.scalatest.prop.PropertyChecks
 import cats.effect._
 import io.circe.syntax._
 import io.circe.generic.auto._
 import org.http4s._
 import org.http4s.dsl._
 import org.http4s.circe._
-import org.scalatest._
-import org.scalatest.prop.PropertyChecks
+
+import scala.concurrent.duration._
+import tsec.authentication.JWTAuthenticator
+import tsec.mac.imports.HMACSHA256
+import tsec.passwordhashers.imports.BCrypt
+
+import domain.users._
+import domain.authentication._
+import infrastructure.repository.inmemory.UserRepositoryInMemoryInterpreter
+import infrastructure.authentication._
+
 
 class UserEndpointsSpec
   extends FunSuite
@@ -21,10 +30,16 @@ class UserEndpointsSpec
 
   test("create user") {
 
+    val keyGen = HMACSHA256
+    val key = keyGen.generateKeyUnsafe()
+
     val userRepo = UserRepositoryInMemoryInterpreter[IO]()
+    val authService = JWTAuthenticator.stateless(10.minutes, None, userRepo, key)
+    val cryptRepo = new PasswordHasherCryptInterpreter[IO, BCrypt]
+    val cryptService = new CryptService(cryptRepo)
     val userValidation = UserValidationInterpreter[IO](userRepo)
     val userService = UserService[IO](userRepo, userValidation)
-    val userHttpService = UserEndpoints.endpoints[IO](userService)
+    val userHttpService = UserEndpoints.endpoints(userService, cryptService, authService)
 
     val user = User("username", "firstname", "lastname", "email", "password", "phone", None)
 
@@ -40,10 +55,16 @@ class UserEndpointsSpec
   }
 
   test("update user") {
+    val keyGen = HMACSHA256
+    val key = keyGen.generateKeyUnsafe()
+
     val userRepo = UserRepositoryInMemoryInterpreter[IO]()
+    val authService = JWTAuthenticator.stateless(10.minutes, None, userRepo, key)
+    val cryptRepo = new PasswordHasherCryptInterpreter[IO, BCrypt]
+    val cryptService = new CryptService(cryptRepo)
     val userValidation = UserValidationInterpreter[IO](userRepo)
     val userService = UserService[IO](userRepo, userValidation)
-    val userHttpService: HttpService[IO] = UserEndpoints.endpoints[IO](userService)
+    val userHttpService: HttpService[IO] = UserEndpoints.endpoints(userService, cryptService, authService)
 
     implicit val userDecoder: EntityDecoder[IO, User] = jsonOf[IO, User]
 
@@ -71,10 +92,16 @@ class UserEndpointsSpec
     }
 
   test("get user by userName") {
+    val keyGen = HMACSHA256
+    val key = keyGen.generateKeyUnsafe()
+
     val userRepo = UserRepositoryInMemoryInterpreter[IO]()
+    val authService = JWTAuthenticator.stateless(10.minutes, None, userRepo, key)
+    val cryptRepo = new PasswordHasherCryptInterpreter[IO, BCrypt]
+    val cryptService = new CryptService(cryptRepo)
     val userValidation = UserValidationInterpreter[IO](userRepo)
     val userService = UserService[IO](userRepo, userValidation)
-    val userHttpService: HttpService[IO] = UserEndpoints.endpoints[IO](userService)
+    val userHttpService: HttpService[IO] = UserEndpoints.endpoints(userService, cryptService, authService)
 
     implicit val userDecoder: EntityDecoder[IO, User] = jsonOf[IO, User]
 
@@ -100,10 +127,16 @@ class UserEndpointsSpec
 
 
   test("delete user by userName") {
+    val keyGen = HMACSHA256
+    val key = keyGen.generateKeyUnsafe()
+
     val userRepo = UserRepositoryInMemoryInterpreter[IO]()
+    val authService = JWTAuthenticator.stateless(10.minutes, None, userRepo, key)
+    val cryptRepo = new PasswordHasherCryptInterpreter[IO, BCrypt]
+    val cryptService = new CryptService(cryptRepo)
     val userValidation = UserValidationInterpreter[IO](userRepo)
     val userService = UserService[IO](userRepo, userValidation)
-    val userHttpService: HttpService[IO] = UserEndpoints.endpoints[IO](userService)
+    val userHttpService: HttpService[IO] = UserEndpoints.endpoints(userService, cryptService, authService)
 
     implicit val userDecoder: EntityDecoder[IO, User] = jsonOf[IO, User]
 

@@ -9,3 +9,4 @@ case object PetNotFoundError extends ValidationError
 case object OrderNotFoundError extends ValidationError
 case object UserNotFoundError extends ValidationError
 case class UserAlreadyExistsError(user: User) extends ValidationError
+case class UserAuthenticationFailedError(userName: String) extends ValidationError
