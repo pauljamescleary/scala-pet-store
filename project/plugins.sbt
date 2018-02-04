@@ -15,7 +15,7 @@ addSbtPlugin("org.tpolecat" % "tut-plugin" % "0.6.2")
 
 addSbtPlugin("com.47deg"  % "sbt-microsites" % "0.7.15")
 
-addSbtPlugin("com.typesafe.sbt" % "sbt-ghpages" % "0.5.4")
+addSbtPlugin("com.typesafe.sbt" % "sbt-ghpages" % "0.6.2")
 
 resolvers += "Flyway".at("https://davidmweber.github.io/flyway-sbt.repo")
 

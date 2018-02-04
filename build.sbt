@@ -94,8 +94,16 @@ scalacOptions ++= Seq(
 val badConsoleFlags = Seq("-Xfatal-warnings", "-Ywarn-unused:imports")
 scalacOptions in (Compile, console) ~= (_.filterNot(badConsoleFlags.contains(_)))
 
-enablePlugins(ScalafmtPlugin, JavaAppPackaging, MicrositesPlugin, TutPlugin)
-
-ghpages.settings
+enablePlugins(ScalafmtPlugin, JavaAppPackaging, GhpagesPlugin, MicrositesPlugin, TutPlugin)
 
 git.remoteRepo := "git@github.com:pauljamescleary/scala-pet-store.git"
+
+micrositeGithubOwner := "pauljamescleary"
+
+micrositeGithubRepo := "scala-pet-store"
+
+micrositeName := "Scala Pet Store"
+
+micrositeDescription := "An example application using FP techniques in Scala"
+
+micrositeBaseUrl := "scala-pet-store"
