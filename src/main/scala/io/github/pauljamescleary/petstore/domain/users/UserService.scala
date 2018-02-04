@@ -1,35 +1,32 @@
 package io.github.pauljamescleary.petstore.domain.users
 
-import scala.language.higherKinds
-
 import cats._
 import cats.data._
 import io.github.pauljamescleary.petstore.domain.{UserAlreadyExistsError, UserNotFoundError}
 
-class UserService[F[_]](userRepo: UserRepositoryAlgebra[F], validation: UserValidationAlgebra[F]) {
-  import cats.syntax.all._
+class UserService[F[_]: Monad](userRepo: UserRepositoryAlgebra[F], validation: UserValidationAlgebra[F]) {
 
-  def createUser(user: User)(implicit M: Monad[F]): EitherT[F, UserAlreadyExistsError, User] =
+  def createUser(user: User): EitherT[F, UserAlreadyExistsError, User] =
     for {
       _ <- validation.doesNotExist(user)
-      saved <- EitherT.liftF(userRepo.create(user))
+      saved <- EitherT.liftF(userRepo.put(user))
     } yield saved
 
-  def getUser(userId: Long)(implicit M: Monad[F]): EitherT[F, UserNotFoundError.type, User] =
-    EitherT.fromOptionF(userRepo.get(userId), UserNotFoundError)
+  def getUser(userId: Long): EitherT[F, UserNotFoundError.type, User] =
+    EitherT.fromOptionF(userRepo.get(userId).value, UserNotFoundError)
 
-  def getUserByName(userName: String)(implicit M: Monad[F]): EitherT[F, UserNotFoundError.type, User] =
-    EitherT.fromOptionF(userRepo.findByUserName(userName), UserNotFoundError)
+  def getUserByName(userName: String): EitherT[F, UserNotFoundError.type, User] =
+    EitherT.fromOptionF(userRepo.findByUserName(userName).value, UserNotFoundError)
 
-  def deleteUser(userId: Long): F[Option[User]] = userRepo.delete(userId)
+  def deleteUser(userId: Long): F[Unit] = userRepo.delete(userId)
 
-  def deleteByName(userName: String)(implicit M: Monad[F]): F[Unit] =
-    userRepo.deleteByUserName(userName).as(())
+  def deleteByUserName(userName: String): F[Unit] =
+    userRepo.deleteByUserName(userName)
 
-  def update(user: User)(implicit M: Monad[F]): EitherT[F, UserNotFoundError.type, User] =
+  def update(user: User): EitherT[F, UserNotFoundError.type, User] =
     for {
       _ <- validation.exists(user.id)
-      saved <- EitherT.fromOptionF(userRepo.update(user), UserNotFoundError)
+      saved <- EitherT.liftF(userRepo.update(user))
     } yield saved
 
   def list(pageSize: Int, offset: Int): F[List[User]] =
@@ -37,6 +34,6 @@ class UserService[F[_]](userRepo: UserRepositoryAlgebra[F], validation: UserVali
 }
 
 object UserService {
-  def apply[F[_]](repository: UserRepositoryAlgebra[F], validation: UserValidationAlgebra[F]): UserService[F] =
+  def apply[F[_]: Monad](repository: UserRepositoryAlgebra[F], validation: UserValidationAlgebra[F]): UserService[F] =
     new UserService[F](repository, validation)
 }

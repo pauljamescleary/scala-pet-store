@@ -3,7 +3,10 @@ name            := "scala-pet-store"
 version         := "0.0.1-SNAPSHOT"
 scalaVersion    := "2.12.3"
 
-resolvers += Resolver.sonatypeRepo("snapshots")
+resolvers ++= Seq(
+  Resolver.sonatypeRepo("snapshots"),
+  "jmcardon at bintray" at "https://dl.bintray.com/jmcardon/tsec"
+)
 
 val CatsVersion       = "1.0.1"
 val CirceVersion      = "0.9.1"
@@ -15,6 +18,7 @@ val ScalaCheckVersion = "1.13.5"
 val ScalaTestVersion  = "3.0.4"
 val FlywayVersion     = "4.2.0"
 val PureConfigVersion = "0.9.0"
+val TsecVersion       = "0.0.1-M9"
 
 libraryDependencies ++= Seq(
   "org.typelevel"         %% "cats-core"            % CatsVersion,
@@ -36,7 +40,18 @@ libraryDependencies ++= Seq(
   "org.flywaydb"          %  "flyway-core"          % FlywayVersion,
   "com.github.pureconfig" %% "pureconfig"           % PureConfigVersion,
   "org.scalacheck"        %% "scalacheck"           % ScalaCheckVersion % Test,
-  "org.scalatest"         %% "scalatest"            % ScalaTestVersion  % Test
+  "org.scalatest"         %% "scalatest"            % ScalaTestVersion  % Test,
+
+  // Authentication dependencies
+  "io.github.jmcardon"    %% "tsec-common"          % TsecVersion,
+  "io.github.jmcardon"    %% "tsec-password"        % TsecVersion,
+  "io.github.jmcardon"    %% "tsec-symmetric-cipher" % TsecVersion,
+  "io.github.jmcardon"    %% "tsec-mac"             % TsecVersion,
+  "io.github.jmcardon"    %% "tsec-signatures"      % TsecVersion,
+  "io.github.jmcardon"    %% "tsec-md"              % TsecVersion,
+  "io.github.jmcardon"    %% "tsec-jwt-mac"         % TsecVersion,
+  "io.github.jmcardon"    %% "tsec-jwt-sig"         % TsecVersion,
+  "io.github.jmcardon"    %% "tsec-http4s"          % TsecVersion
 )
 
 

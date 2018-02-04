@@ -132,6 +132,14 @@ class PetStoreClient(object):
 
         return self.session.request('POST', url, self.headers, json.dumps(user))
 
+    def login_user(self, user):
+        """
+        Logs in a new user
+        """
+        url = urljoin(self.index_url, '/login')
+
+        return self.session.request('POST', url, self.headers, json.dumps(user))
+
     def update_user(self, user):
         """
         Updates a user, returning the updated user response

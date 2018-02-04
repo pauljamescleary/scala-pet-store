@@ -5,7 +5,7 @@ case class User(
     firstName: String,
     lastName: String,
     email: String,
-    password: String,
+    hash: String,
     phone: String,
     id: Option[Long] = None
 )

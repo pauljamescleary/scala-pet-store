@@ -1,28 +1,58 @@
-package io.github.pauljamescleary.petstore.infrastructure.endpoint
+package io.github.pauljamescleary.petstore
+package infrastructure.endpoint
 
+import cats.data.EitherT
 import cats.effect.Effect
 import cats.implicits._
 import io.circe.generic.auto._
 import io.circe.syntax._
 import org.http4s.circe._
 import org.http4s.dsl.Http4sDsl
-import org.http4s.{EntityDecoder, HttpService}
+import org.http4s.{EntityDecoder, HttpService, Response}
 
 import scala.language.higherKinds
-import io.github.pauljamescleary.petstore.domain.{UserAlreadyExistsError, UserNotFoundError}
-import io.github.pauljamescleary.petstore.domain.users.{User, UserService}
+import domain._
+import domain.users._
+import domain.authentication._
+import tsec.passwordhashers.PasswordHash
+import tsec.passwordhashers.core.PasswordHasher
 
-class UserEndpoints[F[_]: Effect] extends Http4sDsl[F] {
-
+class UserEndpoints[F[_]: Effect, A, K] extends Http4sDsl[F] {
+//  type AuthService = AuthenticatorService[F, Long, User, K]
   import Pagination._
   /* Jsonization of our User type */
-  implicit val userDecoder: EntityDecoder[F, User] = jsonOf[F, User]
 
-  private def signupEndpoint(userService: UserService[F]): HttpService[F] =
+  implicit val userDecoder: EntityDecoder[F, User] = jsonOf
+  implicit val loginReqDecoder: EntityDecoder[F, LoginRequest] = jsonOf
+
+  implicit val signupReqDecoder: EntityDecoder[F, SignupRequest] = jsonOf
+
+  private def loginEndpoint(userService: UserService[F], cryptService: PasswordHasher[A]): HttpService[F] =
+    HttpService[F] {
+      case req @ POST -> Root / "login" =>
+        val action: EitherT[F, UserAuthenticationFailedError, Response[F]] = for {
+          login <- EitherT.liftF(req.as[LoginRequest])
+          name = login.userName
+          user <- userService.getUserByName(name).leftMap(_ => UserAuthenticationFailedError(name))
+          valid <- EitherT.liftF(cryptService.checkpw(login.password, PasswordHash[A](user.hash)))
+          resp <- EitherT.liftF(Ok(user.asJson))
+        } yield resp
+
+        action.value.flatMap(
+          _.fold(
+            { case UserAuthenticationFailedError(name) => Conflict(s"Authentication failed for user $name") },
+            _.pure[F]
+          )
+        )
+    }
+
+  private def signupEndpoint(userService: UserService[F], crypt: PasswordHasher[A]): HttpService[F] =
     HttpService[F] {
       case req @ POST -> Root / "users" =>
         val action = for {
-          user <- req.as[User]
+          signup <- req.as[SignupRequest]
+          hash <- crypt.hashpw(signup.password)
+          user <- signup.asUser(hash).pure[F]
           result <- userService.createUser(user).value
         } yield result
 
@@ -70,14 +100,15 @@ class UserEndpoints[F[_]: Effect] extends Http4sDsl[F] {
     HttpService[F] {
       case DELETE -> Root / "users" / userName =>
         for {
-          _ <- userService.deleteByName(userName)
+          _ <- userService.deleteByUserName(userName)
           resp <- Ok()
         } yield resp
     }
 
 
-  def endpoints(userService: UserService[F]): HttpService[F] =
-    signupEndpoint(userService) <+>
+  def endpoints(userService: UserService[F], cryptService: PasswordHasher[A]): HttpService[F] =
+    loginEndpoint(userService, cryptService) <+>
+    signupEndpoint(userService, cryptService) <+>
     updateEndpoint(userService) <+>
     listEndpoint(userService)   <+>
     searchByNameEndpoint(userService)   <+>
@@ -85,6 +116,9 @@ class UserEndpoints[F[_]: Effect] extends Http4sDsl[F] {
 }
 
 object UserEndpoints {
-  def endpoints[F[_]: Effect](userService: UserService[F]): HttpService[F] =
-    new UserEndpoints[F].endpoints(userService)
+  def endpoints[F[_]: Effect, A, K](
+    userService: UserService[F],
+    cryptService: PasswordHasher[A]
+  ): HttpService[F] =
+    new UserEndpoints[F, A, K].endpoints(userService, cryptService)
 }
