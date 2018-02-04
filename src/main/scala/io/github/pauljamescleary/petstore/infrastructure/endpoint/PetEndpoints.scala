@@ -53,9 +53,10 @@ class PetEndpoints[F[_]: Effect] extends Http4sDsl[F] {
 
   private def updatePetEndpoint(petService: PetService[F]): HttpService[F] =
     HttpService[F] {
-      case req @ PUT -> Root / "pets" =>
+      case req @ PUT -> Root / "pets" / LongVar(petId) =>
         val action = for {
           pet <- req.as[Pet]
+          updated = pet.copy(id = Some(petId))
           result <- petService.update(pet).value
         } yield result
 

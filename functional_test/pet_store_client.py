@@ -40,7 +40,7 @@ class PetStoreClient(object):
         :param pet:
         :return:
         """
-        url = urljoin(self.index_url, '/pets')
+        url = urljoin(self.index_url, "/pets/{0}".format(pet['id']))
 
         return self.session.request('PUT', url, self.headers, json.dumps(pet))
 
