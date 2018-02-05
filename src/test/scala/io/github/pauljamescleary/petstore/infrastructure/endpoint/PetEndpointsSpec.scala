@@ -64,7 +64,7 @@ class PetEndpointsSpec
           .getOrElse(fail(s"Request was not handled: $createRequest"))
         createdPet <- createResponse.as[Pet]
         petToUpdate = createdPet.copy(name = createdPet.name.reverse)
-        updateRequest <- Request[IO](Method.PUT, Uri.uri("/pets"))
+        updateRequest <- Request[IO](Method.PUT, Uri.unsafeFromString(s"/pets/${petToUpdate.id.get}"))
           .withBody(petToUpdate.asJson)
         updateResponse <- petHttpService
           .run(updateRequest)

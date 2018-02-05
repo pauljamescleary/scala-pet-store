@@ -56,8 +56,8 @@ class UserEndpointsSpec
           .run(createRequest)
           .getOrElse(fail(s"Request was not handled: $createRequest"))
         createdUser <- createResponse.as[User]
-        userToUpdate = createdUser.copy(userName = createdUser.userName.reverse)
-        updateUser <- Request[IO](Method.PUT, Uri.uri("/users"))
+        userToUpdate = createdUser.copy(lastName = createdUser.lastName.reverse)
+        updateUser <- Request[IO](Method.PUT, Uri.unsafeFromString(s"/users/${createdUser.userName}"))
           .withBody(userToUpdate.asJson)
         updateResponse <- userHttpService
           .run(updateUser)
