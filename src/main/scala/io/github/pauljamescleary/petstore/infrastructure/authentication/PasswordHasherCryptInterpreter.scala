@@ -6,9 +6,8 @@ import tsec.passwordhashers.PasswordHash
 import domain.authentication.CryptAlgebra
 import tsec.passwordhashers.core.PasswordHasher
 
-class PasswordHasherCryptInterpreter[F[_] : Sync, A](
-  implicit H: PasswordHasher[A]
-) extends CryptAlgebra[F, A] {
+class PasswordHasherCryptInterpreter[F[_] : Sync, A : PasswordHasher] extends CryptAlgebra[F, A] {
+  val H = implicitly[PasswordHasher[A]]
 
   def hash(password: String): F[PasswordHash[A]] = H.hashpw[F](password)
 
