@@ -1,11 +1,17 @@
 package io.github.pauljamescleary.petstore.domain.users
 
 import cats.data.OptionT
-import tsec.authentication.BackingStore
 
-trait UserBackingStore[F[_]] extends BackingStore[F, Long, User]
+trait UserRepositoryAlgebra[F[_]]{
 
-trait UserRepositoryAlgebra[F[_]] extends UserBackingStore[F]{
+  def put(elem: User): F[User]
+
+  def get(id: Long): OptionT[F, User]
+
+  def update(v: User): F[User]
+
+  def delete(id: Long): F[Unit]
+
   def findByUserName(userName: String): OptionT[F, User]
 
   def deleteByUserName(userName: String): F[Unit]

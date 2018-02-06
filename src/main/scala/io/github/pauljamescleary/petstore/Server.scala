@@ -38,7 +38,7 @@ object Server extends StreamApp[IO] {
       orderRepo      =  DoobieOrderRepositoryInterpreter[F](xa)
       userRepo       =  DoobieUserRepositoryInterpreter[F](xa)
       petValidation  =  PetValidationInterpreter[F](petRepo)
-      authService    =  JWTAuthenticator.stateless(10.minutes, None, userRepo, signingKey)
+      authService    =  JWTAuthenticator.stateless(10.minutes, None, UserBackingStore.trans(userRepo), signingKey)
       cryptService   =  new CryptService(cryptRepo)
       petService     =  PetService[F](petRepo, petValidation)
       userValidation =  UserValidationInterpreter[F](userRepo)

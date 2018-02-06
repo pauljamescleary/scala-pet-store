@@ -33,7 +33,7 @@ class UserEndpointsSpec
     val key = keyGen.generateKeyUnsafe()
 
     val userRepo = UserRepositoryInMemoryInterpreter[IO]()
-    val authService = JWTAuthenticator.stateless(10.minutes, None, userRepo, key)
+    val authService = JWTAuthenticator.stateless(10.minutes, None, UserBackingStore.trans(userRepo), key)
     val cryptRepo = new PasswordHasherCryptInterpreter[IO, BCrypt]
     val cryptService = new CryptService(cryptRepo)
     val userValidation = UserValidationInterpreter[IO](userRepo)
@@ -58,7 +58,7 @@ class UserEndpointsSpec
     val key = keyGen.generateKeyUnsafe()
 
     val userRepo = UserRepositoryInMemoryInterpreter[IO]()
-    val authService = JWTAuthenticator.stateless(10.minutes, None, userRepo, key)
+    val authService = JWTAuthenticator.stateless(10.minutes, None, UserBackingStore.trans(userRepo), key)
     val cryptRepo = new PasswordHasherCryptInterpreter[IO, BCrypt]
     val cryptService = new CryptService(cryptRepo)
     val userValidation = UserValidationInterpreter[IO](userRepo)
@@ -95,7 +95,7 @@ class UserEndpointsSpec
     val key = keyGen.generateKeyUnsafe()
 
     val userRepo = UserRepositoryInMemoryInterpreter[IO]()
-    val authService = JWTAuthenticator.stateless(10.minutes, None, userRepo, key)
+    val authService = JWTAuthenticator.stateless(10.minutes, None, UserBackingStore.trans(userRepo), key)
     val cryptRepo = new PasswordHasherCryptInterpreter[IO, BCrypt]
     val cryptService = new CryptService(cryptRepo)
     val userValidation = UserValidationInterpreter[IO](userRepo)
@@ -130,7 +130,7 @@ class UserEndpointsSpec
     val key = keyGen.generateKeyUnsafe()
 
     val userRepo = UserRepositoryInMemoryInterpreter[IO]()
-    val authService = JWTAuthenticator.stateless(10.minutes, None, userRepo, key)
+    val authService = JWTAuthenticator.stateless(10.minutes, None, UserBackingStore.trans(userRepo), key)
     val cryptRepo = new PasswordHasherCryptInterpreter[IO, BCrypt]
     val cryptService = new CryptService(cryptRepo)
     val userValidation = UserValidationInterpreter[IO](userRepo)
