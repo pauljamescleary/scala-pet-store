@@ -10,34 +10,26 @@ import org.http4s.circe._
 import org.http4s.dsl.Http4sDsl
 import org.http4s.{EntityDecoder, HttpService, Response}
 import tsec.authentication._
-import tsec.authentication.AuthenticatorService
 import tsec.passwordhashers.PasswordHash
 
 import domain._
 import domain.users._
 import infrastructure.authentication._
 
-
-object AuthService{
-  type AuthService[F[_], K] = AuthenticatorService[F, Long, User, K]
-}
-
 import AuthService._
 
-class UserEndpoints[F[_]: Effect, A, K] extends Http4sDsl[F] {
+class UserEndpoints[F[_]: Effect, A, K](authService: AuthService[F, K]) extends Http4sDsl[F] {
   type CS = CryptService[F, A]
-  type AS = AuthService[F, K]
-
   import Pagination._
-  /* Jsonization of our User type */
+
+  /* Jsonization of our User type and requests */
   implicit val userDecoder: EntityDecoder[F, User] = jsonOf
   implicit val loginReqDecoder: EntityDecoder[F, LoginRequest] = jsonOf
-
   implicit val signupReqDecoder: EntityDecoder[F, SignupRequest] = jsonOf
 
-//  implicit val webTokenEncoder: EntityEncoder[F, K] = jsonEncoderOf[F, K]
+  val Auth = SecuredRequestHandler(authService)
 
-  private def loginEndpoint(userService: UserService[F], authService: AS, crypt: CS): HttpService[F] =
+  private def loginEndpoint(userService: UserService[F], crypt: CS): HttpService[F] =
     HttpService {
       case req@POST -> Root / "login" =>
         val action: EitherT[F, UserAuthenticationFailedError, Response[F]] = for {
@@ -56,7 +48,7 @@ class UserEndpoints[F[_]: Effect, A, K] extends Http4sDsl[F] {
         }
     }
 
-  private def signupEndpoint(userService: UserService[F], authService: AS, crypt: CS): HttpService[F] =
+  private def signupEndpoint(userService: UserService[F], crypt: CS): HttpService[F] =
     HttpService[F] {
       case req @ POST -> Root / "users" =>
         val action = for {
@@ -73,11 +65,11 @@ class UserEndpoints[F[_]: Effect, A, K] extends Http4sDsl[F] {
         }
     }
 
-  private def updateEndpoint(userService: UserService[F], authService: AS): HttpService[F] = {
-    HttpService {
-      case req @ PUT -> Root / "users" =>
+  private def updateEndpoint(userService: UserService[F]): HttpService[F] = {
+    Auth {
+      case req @ PUT -> Root / "users" asAuthed _ =>
         val action = for {
-          updateUser <- req.as[User]
+          updateUser <- req.request.as[User]
           result <- userService.update(updateUser).value
         } yield result
 
@@ -89,17 +81,17 @@ class UserEndpoints[F[_]: Effect, A, K] extends Http4sDsl[F] {
   }
 
   private def listEndpoint(userService: UserService[F]): HttpService[F] =
-    HttpService[F] {
-      case GET -> Root / "users" :? PageSizeMatcher(pageSize) :? OffsetMatcher(offset) =>
+    Auth {
+      case GET -> Root / "users" :? PageSizeMatcher(pageSize) :? OffsetMatcher(offset) asAuthed _ =>
         for {
           retrived <- userService.list(pageSize, offset)
           resp <- Ok(retrived.asJson)
         } yield resp
     }
-
+  
   private def searchByNameEndpoint(userService: UserService[F]): HttpService[F] =
-    HttpService[F] {
-      case GET -> Root / "users" / userName =>
+    Auth {
+      case GET -> Root / "users" / userName asAuthed _ =>
         userService.getUserByName(userName).value.flatMap {
           case Right(found) => Ok(found.asJson)
           case Left(UserNotFoundError) => NotFound("The user was not found")
@@ -107,8 +99,8 @@ class UserEndpoints[F[_]: Effect, A, K] extends Http4sDsl[F] {
     }
 
   private def deleteUserEndpoint(userService: UserService[F]): HttpService[F] =
-    HttpService[F] {
-      case DELETE -> Root / "users" / userName =>
+    Auth {
+      case DELETE -> Root / "users" / userName asAuthed _ =>
         for {
           _ <- userService.deleteByUserName(userName)
           resp <- Ok()
@@ -116,10 +108,10 @@ class UserEndpoints[F[_]: Effect, A, K] extends Http4sDsl[F] {
     }
 
   
-  def endpoints(userService: UserService[F], authService: AS, crypt: CS): HttpService[F] =
-    loginEndpoint(userService, authService, crypt) <+>
-    signupEndpoint(userService, authService, crypt) <+>
-    updateEndpoint(userService, authService) <+>
+  def endpoints(userService: UserService[F], crypt: CS): HttpService[F] =
+    loginEndpoint(userService, crypt) <+>
+    signupEndpoint(userService, crypt) <+>
+    updateEndpoint(userService) <+>
     listEndpoint(userService)   <+>
     searchByNameEndpoint(userService)   <+>
     deleteUserEndpoint(userService)
@@ -131,5 +123,5 @@ object UserEndpoints {
     cryptService: CryptService[F, A],
     authService: AuthService[F, K]
   ): HttpService[F] =
-    new UserEndpoints[F, A, K].endpoints(userService, authService, cryptService)
+    new UserEndpoints[F, A, K](authService).endpoints(userService, cryptService)
 }
