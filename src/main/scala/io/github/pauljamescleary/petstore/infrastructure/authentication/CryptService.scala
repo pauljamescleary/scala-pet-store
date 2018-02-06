@@ -1,4 +1,4 @@
-package io.github.pauljamescleary.petstore.domain.authentication
+package io.github.pauljamescleary.petstore.infrastructure.authentication
 
 import cats._
 import tsec.passwordhashers.PasswordHash

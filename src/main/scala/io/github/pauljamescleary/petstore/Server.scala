@@ -1,20 +1,20 @@
 package io.github.pauljamescleary.petstore
 
-import config.{DatabaseConfig, PetStoreConfig}
-import domain.users._
-import domain.orders._
-import domain.pets._
-import infrastructure.endpoint.{OrderEndpoints, PetEndpoints, UserEndpoints}
-import infrastructure.repository.doobie.{DoobieOrderRepositoryInterpreter, DoobiePetRepositoryInterpreter, DoobieUserRepositoryInterpreter}
 import cats.effect._
 import fs2.StreamApp.ExitCode
 import fs2.{Stream, StreamApp}
-import io.github.pauljamescleary.petstore.domain.authentication.CryptService
-import io.github.pauljamescleary.petstore.infrastructure.authentication.PasswordHasherCryptInterpreter
 import org.http4s.server.blaze.BlazeBuilder
 import tsec.authentication.JWTAuthenticator
 import tsec.mac.imports._
 import tsec.passwordhashers.imports.BCrypt
+
+import config._
+import domain.users._
+import domain.orders._
+import domain.pets._
+import infrastructure.authentication._
+import infrastructure.endpoint._
+import infrastructure.repository.doobie._
 
 import scala.concurrent.duration._
 

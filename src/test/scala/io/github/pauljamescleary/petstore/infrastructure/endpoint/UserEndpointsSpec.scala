@@ -16,7 +16,6 @@ import tsec.mac.imports.HMACSHA256
 import tsec.passwordhashers.imports.BCrypt
 
 import domain.users._
-import domain.authentication._
 import infrastructure.repository.inmemory.UserRepositoryInMemoryInterpreter
 import infrastructure.authentication._
 

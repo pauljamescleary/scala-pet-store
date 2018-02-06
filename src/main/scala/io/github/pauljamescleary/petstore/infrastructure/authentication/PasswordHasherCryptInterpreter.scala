@@ -3,7 +3,6 @@ package infrastructure.authentication
 
 import cats.effect.Sync
 import tsec.passwordhashers.PasswordHash
-import domain.authentication.CryptAlgebra
 import tsec.passwordhashers.core.PasswordHasher
 
 class PasswordHasherCryptInterpreter[F[_] : Sync, A : PasswordHasher] extends CryptAlgebra[F, A] {

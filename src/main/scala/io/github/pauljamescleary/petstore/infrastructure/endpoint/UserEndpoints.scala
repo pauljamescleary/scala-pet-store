@@ -6,18 +6,17 @@ import cats.effect.Effect
 import cats.implicits._
 import io.circe.generic.auto._
 import io.circe.syntax._
-import io.github.pauljamescleary.petstore.domain.authentication.CryptService
 import org.http4s.circe._
 import org.http4s.dsl.Http4sDsl
 import org.http4s.{EntityDecoder, HttpService, Response}
-
-import scala.language.higherKinds
-import domain._
-import domain.users._
-import domain.authentication._
 import tsec.authentication._
 import tsec.authentication.AuthenticatorService
 import tsec.passwordhashers.PasswordHash
+
+import domain._
+import domain.users._
+import infrastructure.authentication._
+
 
 object AuthService{
   type AuthService[F[_], K] = AuthenticatorService[F, Long, User, K]

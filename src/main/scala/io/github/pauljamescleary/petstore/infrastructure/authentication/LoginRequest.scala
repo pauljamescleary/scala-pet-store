@@ -1,7 +1,6 @@
-package io.github.pauljamescleary.petstore
-package domain.authentication
+package io.github.pauljamescleary.petstore.infrastructure.authentication
 
-import domain.users.User
+import io.github.pauljamescleary.petstore.domain.users.User
 import tsec.passwordhashers.PasswordHash
 
 final case class LoginRequest(
