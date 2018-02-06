@@ -31,6 +31,20 @@ def test_signup_existing_user(pet_store_client):
     response = pet_store_client.signup_user(user2)
     assert_that(response.status_code, is_(409))
 
+def test_user_lookup_not_allowed(pet_store_client):
+    response = pet_store_client.find_user_by_name(user2['userName'])
+
+    assert_that(response.status_code, is_(401))
+
+
+def test_login(pet_store_client):
+    response = pet_store_client.login_user(user1)
+
+    assert_that(response.status_code, is_(200))
+
+    assert_that(response.headers['Authorization'], not_none())
+
+
 def test_user_by_username(pet_store_client):
     response = pet_store_client.find_user_by_name(user2['userName'])
 
