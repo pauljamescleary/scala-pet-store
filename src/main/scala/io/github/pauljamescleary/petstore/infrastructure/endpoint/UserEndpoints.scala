@@ -16,11 +16,18 @@ import domain._
 import domain.users._
 import domain.authentication._
 import tsec.authentication._
+import tsec.authentication.AuthenticatorService
 import tsec.passwordhashers.PasswordHash
 
+object AuthService{
+  type AuthService[F[_], K] = AuthenticatorService[F, Long, User, K]
+}
+
+import AuthService._
+
 class UserEndpoints[F[_]: Effect, A, K] extends Http4sDsl[F] {
-  type AuthService = AuthenticatorService[F, Long, User, K]
   type CS = CryptService[F, A]
+  type AS = AuthService[F, K]
 
   import Pagination._
   /* Jsonization of our User type */
@@ -29,25 +36,28 @@ class UserEndpoints[F[_]: Effect, A, K] extends Http4sDsl[F] {
 
   implicit val signupReqDecoder: EntityDecoder[F, SignupRequest] = jsonOf
 
-  private def loginEndpoint(userService: UserService[F], crypt: CS, Auth: AuthService): HttpService[F] =
-    HttpService[F] {
-      case req @ POST -> Root / "login" =>
+//  implicit val webTokenEncoder: EntityEncoder[F, K] = jsonEncoderOf[F, K]
+
+  private def loginEndpoint(userService: UserService[F], authService: AS, crypt: CS): HttpService[F] =
+    HttpService {
+      case req@POST -> Root / "login" =>
         val action: EitherT[F, UserAuthenticationFailedError, Response[F]] = for {
           login <- EitherT.liftF(req.as[LoginRequest])
           name = login.userName
           user <- userService.getUserByName(name).leftMap(_ => UserAuthenticationFailedError(name))
           valid <- EitherT.liftF(crypt.check(login.password, PasswordHash[A](user.hash)))
+          tok <- EitherT.fromOptionF(user.id.traverse(authService.create(_)), UserAuthenticationFailedError(name))
           resp <- EitherT.liftF(Ok())
-        } yield resp
+        } yield authService.embed(resp, tok)
 
         // Handle error cases:
-        action.value.flatMap{
+        action.value.flatMap {
           case Right(resp) => resp.pure[F]
-          case Left(UserAuthenticationFailedError(name)) => Conflict(s"Authentication failed for user $name")
+          case Left(UserAuthenticationFailedError(name)) => BadRequest(s"Authentication failed for $name")
         }
     }
 
-  private def signupEndpoint(userService: UserService[F], crypt: CS, Auth: AuthService): HttpService[F] =
+  private def signupEndpoint(userService: UserService[F], authService: AS, crypt: CS): HttpService[F] =
     HttpService[F] {
       case req @ POST -> Root / "users" =>
         val action = for {
@@ -64,12 +74,12 @@ class UserEndpoints[F[_]: Effect, A, K] extends Http4sDsl[F] {
         }
     }
 
-  private def updateEndpoint(userService: UserService[F], Auth: AuthService): HttpService[F] =
-    HttpService[F] {
+  private def updateEndpoint(userService: UserService[F], authService: AS): HttpService[F] = {
+    HttpService {
       case req @ PUT -> Root / "users" =>
         val action = for {
-          user <- req.as[User]
-          result <- userService.update(user).value
+          updateUser <- req.as[User]
+          result <- userService.update(updateUser).value
         } yield result
 
         action.flatMap {
@@ -77,8 +87,9 @@ class UserEndpoints[F[_]: Effect, A, K] extends Http4sDsl[F] {
           case Left(UserNotFoundError) => NotFound("User not found")
         }
     }
+  }
 
-  private def listEndpoint(userService: UserService[F], Auth: AuthService): HttpService[F] =
+  private def listEndpoint(userService: UserService[F]): HttpService[F] =
     HttpService[F] {
       case GET -> Root / "users" :? PageSizeMatcher(pageSize) :? OffsetMatcher(offset) =>
         for {
@@ -87,7 +98,7 @@ class UserEndpoints[F[_]: Effect, A, K] extends Http4sDsl[F] {
         } yield resp
     }
 
-  private def searchByNameEndpoint(userService: UserService[F], Auth: AuthService): HttpService[F] =
+  private def searchByNameEndpoint(userService: UserService[F]): HttpService[F] =
     HttpService[F] {
       case GET -> Root / "users" / userName =>
         userService.getUserByName(userName).value.flatMap {
@@ -96,7 +107,7 @@ class UserEndpoints[F[_]: Effect, A, K] extends Http4sDsl[F] {
         }
     }
 
-  private def deleteUserEndpoint(userService: UserService[F], Auth: AuthService): HttpService[F] =
+  private def deleteUserEndpoint(userService: UserService[F]): HttpService[F] =
     HttpService[F] {
       case DELETE -> Root / "users" / userName =>
         for {
@@ -105,21 +116,21 @@ class UserEndpoints[F[_]: Effect, A, K] extends Http4sDsl[F] {
         } yield resp
     }
 
-
-  def endpoints(userService: UserService[F], crypt: CS, Auth: AuthService): HttpService[F] =
-    loginEndpoint(userService, crypt, Auth) <+>
-    signupEndpoint(userService, crypt, Auth) <+>
-    updateEndpoint(userService, Auth) <+>
-    listEndpoint(userService, Auth)   <+>
-    searchByNameEndpoint(userService, Auth)   <+>
-    deleteUserEndpoint(userService, Auth)
+  
+  def endpoints(userService: UserService[F], authService: AS, crypt: CS): HttpService[F] =
+    loginEndpoint(userService, authService, crypt) <+>
+    signupEndpoint(userService, authService, crypt) <+>
+    updateEndpoint(userService, authService) <+>
+    listEndpoint(userService)   <+>
+    searchByNameEndpoint(userService)   <+>
+    deleteUserEndpoint(userService)
 }
 
 object UserEndpoints {
   def endpoints[F[_]: Effect, A, K](
     userService: UserService[F],
     cryptService: CryptService[F, A],
-    Auth: AuthenticatorService[F, Long, User, K]
+    authService: AuthService[F, K]
   ): HttpService[F] =
-    new UserEndpoints[F, A, K].endpoints(userService, cryptService, Auth)
+    new UserEndpoints[F, A, K].endpoints(userService, authService, cryptService)
 }
