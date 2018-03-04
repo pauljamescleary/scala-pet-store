@@ -12,11 +12,11 @@ import orders.{OrderRepositoryAlgebra, OrderStatus, Order}
 
 private object OrderSQL {
   /* We require type StatusMeta to handle our ADT Status */
-  private implicit val StatusMeta: Meta[OrderStatus] =
+  implicit val StatusMeta: Meta[OrderStatus] =
     Meta[String].xmap(OrderStatus.apply, OrderStatus.nameOf)
 
   /* We require conversion for date time */
-  private implicit val DateTimeMeta: Meta[Instant] =
+  implicit val DateTimeMeta: Meta[Instant] =
     Meta[java.sql.Timestamp].xmap(
       ts => ts.toInstant,
       dt => java.sql.Timestamp.from(dt)
