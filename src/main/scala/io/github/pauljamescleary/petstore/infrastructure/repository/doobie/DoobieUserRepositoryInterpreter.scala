@@ -68,7 +68,7 @@ class DoobieUserRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
     OptionT(findByUserName(userName)).mapFilter(_.id).flatMapF(delete).value
 
   def list(pageSize: Int, offset: Int): F[List[User]] =
-    paginate(pageSize, offset)(selectAll).list.transact(xa)
+    paginate(pageSize, offset)(selectAll).to[List].transact(xa)
 }
 
 object DoobieUserRepositoryInterpreter {

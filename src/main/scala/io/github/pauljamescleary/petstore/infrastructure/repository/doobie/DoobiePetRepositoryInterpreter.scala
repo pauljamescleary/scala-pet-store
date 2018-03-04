@@ -88,16 +88,16 @@ class DoobiePetRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
   ).value
 
   def findByNameAndCategory(name: String, category: String): F[Set[Pet]] =
-    selectByNameAndCategory(name, category).list.transact(xa).map(_.toSet)
+    selectByNameAndCategory(name, category).to[List].transact(xa).map(_.toSet)
 
   def list(pageSize: Int, offset: Int): F[List[Pet]] =
-    paginate(pageSize, offset)(selectAll).list.transact(xa)
+    paginate(pageSize, offset)(selectAll).to[List].transact(xa)
 
   def findByStatus(statuses: NonEmptyList[PetStatus]): F[List[Pet]] =
-    selectByStatus(statuses).list.transact(xa)
+    selectByStatus(statuses).to[List].transact(xa)
 
   def findByTag(tags: NonEmptyList[String]): F[List[Pet]] =
-    selectTagLikeString(tags).list.transact(xa)
+    selectTagLikeString(tags).to[List].transact(xa)
 }
 
 object DoobiePetRepositoryInterpreter {
