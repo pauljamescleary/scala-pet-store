@@ -40,7 +40,7 @@ class UserEndpoints[F[_]: Effect, A, K] extends Http4sDsl[F] {
 
         action.value.flatMap(
           _.fold(
-            { case UserAuthenticationFailedError(name) => Conflict(s"Authentication failed for user $name") },
+            { case UserAuthenticationFailedError(name) => BadRequest(s"Authentication failed for user $name") },
             _.pure[F]
           )
         )
