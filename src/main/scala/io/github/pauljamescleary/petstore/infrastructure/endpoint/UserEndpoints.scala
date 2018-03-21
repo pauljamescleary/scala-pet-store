@@ -8,7 +8,7 @@ import io.circe.generic.auto._
 import io.circe.syntax._
 import org.http4s.circe._
 import org.http4s.dsl.Http4sDsl
-import org.http4s.{EntityDecoder, HttpService, Response}
+import org.http4s.{EntityDecoder, HttpService}
 
 import scala.language.higherKinds
 import domain._
@@ -30,18 +30,23 @@ class UserEndpoints[F[_]: Effect, A, K] extends Http4sDsl[F] {
   private def loginEndpoint(userService: UserService[F], cryptService: PasswordHasher[A]): HttpService[F] =
     HttpService[F] {
       case req @ POST -> Root / "login" =>
-        val action: EitherT[F, UserAuthenticationFailedError, Response[F]] = for {
+        val action: EitherT[F, UserAuthenticationFailedError, User] = for {
           login <- EitherT.liftF(req.as[LoginRequest])
           name = login.userName
           user <- userService.getUserByName(name).leftMap(_ => UserAuthenticationFailedError(name))
           valid <- EitherT.liftF(cryptService.checkpw(login.password, PasswordHash[A](user.hash)))
-          resp <- EitherT.liftF(Ok(user.asJson))
+          resp <- {
+            if(valid)
+              EitherT.rightT[F, UserAuthenticationFailedError](user)
+            else
+              EitherT.leftT[F, User](UserAuthenticationFailedError(name))
+          }
         } yield resp
 
         action.value.flatMap(
           _.fold(
             { case UserAuthenticationFailedError(name) => BadRequest(s"Authentication failed for user $name") },
-            _.pure[F]
+            u => Ok(u.asJson)
           )
         )
     }
