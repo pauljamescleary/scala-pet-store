@@ -34,20 +34,17 @@ class UserEndpoints[F[_]: Effect, A, K] extends Http4sDsl[F] {
           name = login.userName
           user <- userService.getUserByName(name).leftMap(_ => UserAuthenticationFailedError(name))
           valid <- EitherT.liftF(cryptService.checkpw(login.password, PasswordHash[A](user.hash)))
-          resp <- {
-            if(valid)
-              EitherT.rightT[F, UserAuthenticationFailedError](user)
-            else
-              EitherT.leftT[F, User](UserAuthenticationFailedError(name))
-          }
+          resp <-
+            if(valid) EitherT.rightT[F, UserAuthenticationFailedError](user)
+            else EitherT.leftT[F, User](UserAuthenticationFailedError(name))
         } yield resp
 
-        action.value.flatMap(
-          _.fold(
+        action
+          .fold(
             { case UserAuthenticationFailedError(name) => BadRequest(s"Authentication failed for user $name") },
             u => Ok(u.asJson)
           )
-        )
+          .flatten
     }
 
   private def signupEndpoint(userService: UserService[F], crypt: PasswordHasher[A]): HttpService[F] =
