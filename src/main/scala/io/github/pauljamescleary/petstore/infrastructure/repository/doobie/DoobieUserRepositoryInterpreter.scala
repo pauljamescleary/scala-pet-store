@@ -47,26 +47,23 @@ class DoobieUserRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
 
   import UserSQL._
 
-  def put(user: User): F[User] =
+  def create(user: User): F[User] =
     insert(user).withUniqueGeneratedKeys[Long]("ID").map(id => user.copy(id = id.some)).transact(xa)
 
-  def updateSafe(user: User): OptionT[F, User] = OptionT.fromOption[F](user.id).flatMapF { id =>
-    UserSQL.update(user, id).run.as(user.some).transact(xa)
-  }
+  def update(user: User): F[Option[User]] = OptionT.fromOption[F](user.id).semiflatMap { id =>
+    UserSQL.update(user, id).run.transact(xa).as(user)
+  }.value
 
-  def update(user: User): F[User] = OptionT.fromOption[F](user.id).semiflatMap { id =>
-    UserSQL.update(user, id).run.transact(xa)
-  }.value.as(user)
+  def get(userId: Long): F[Option[User]] = select(userId).option.transact(xa)
 
-  def get(userId: Long): OptionT[F, User] = OptionT(select(userId).option.transact(xa))
+  def findByUserName(userName: String): F[Option[User]] = byUserName(userName).option.transact(xa)
 
-  def findByUserName(userName: String): OptionT[F, User] =
-    OptionT(byUserName(userName).option.transact(xa))
+  def delete(userId: Long): F[Option[User]] = OptionT(get(userId)).semiflatMap(user =>
+    UserSQL.delete(userId).run.transact(xa).as(user)
+  ).value
 
-  def delete(userId: Long): F[Unit] = UserSQL.delete(userId).run.transact(xa).as(())
-
-  def deleteByUserName(userName: String): F[Unit] =
-    findByUserName(userName).mapFilter(_.id).semiflatMap(delete).value.as(())
+  def deleteByUserName(userName: String): F[Option[User]] =
+    OptionT(findByUserName(userName)).mapFilter(_.id).flatMapF(delete).value
 
   def list(pageSize: Int, offset: Int): F[List[User]] =
     paginate(pageSize, offset)(selectAll).to[List].transact(xa)

@@ -7,7 +7,7 @@ import io.github.pauljamescleary.petstore.domain.{UserAlreadyExistsError, UserNo
 
 class UserValidationInterpreter[F[_]: Monad](userRepo: UserRepositoryAlgebra[F]) extends UserValidationAlgebra[F] {
   def doesNotExist(user: User) = EitherT {
-    userRepo.findByUserName(user.userName).value.map {
+    userRepo.findByUserName(user.userName).map {
       case None => Right(())
       case Some(_) => Left(UserAlreadyExistsError(user))
     }
@@ -15,15 +15,14 @@ class UserValidationInterpreter[F[_]: Monad](userRepo: UserRepositoryAlgebra[F])
 
   def exists(userId: Option[Long]): EitherT[F, UserNotFoundError.type, Unit] =
     EitherT {
-      userId match {
-        case Some(id) =>
-          userRepo.get(id).value.map {
-            case Some(_) => Right(())
-            case _ => Left(UserNotFoundError)
-          }
-        case _ =>
-          Either.left[UserNotFoundError.type, Unit](UserNotFoundError).pure[F]
-      }
+      userId.map { id =>
+        userRepo.get(id).map {
+          case Some(_) => Right(())
+          case _ => Left(UserNotFoundError)
+        }
+      }.getOrElse(
+        Either.left[UserNotFoundError.type, Unit](UserNotFoundError).pure[F]
+      )
     }
 }
 
