@@ -18,7 +18,6 @@ import tsec.passwordhashers.PasswordHash
 import tsec.passwordhashers.core.PasswordHasher
 
 class UserEndpoints[F[_]: Effect, A, K] extends Http4sDsl[F] {
-//  type AuthService = AuthenticatorService[F, Long, User, K]
   import Pagination._
   /* Jsonization of our User type */
 
