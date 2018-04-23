@@ -1,6 +1,5 @@
 package io.github.pauljamescleary.petstore.infrastructure.repository.doobie
 
-import scala.language.higherKinds
 import cats._
 import cats.data.OptionT
 import cats.implicits._
@@ -11,24 +10,24 @@ import SQLPagination._
 
 private object UserSQL {
   def insert(user: User): Update0 = sql"""
-    INSERT INTO USERS (USER_NAME, FIRST_NAME, LAST_NAME, EMAIL, PASSWORD, PHONE)
-    VALUES (${user.userName}, ${user.firstName}, ${user.lastName}, ${user.email}, ${user.password}, ${user.phone})
+    INSERT INTO USERS (USER_NAME, FIRST_NAME, LAST_NAME, EMAIL, HASH, PHONE)
+    VALUES (${user.userName}, ${user.firstName}, ${user.lastName}, ${user.email}, ${user.hash}, ${user.phone})
   """.update
 
   def update(user: User, id: Long): Update0 = sql"""
     UPDATE USERS
-    SET FIRST_NAME = ${user.firstName}, LAST_NAME = ${user.lastName}, EMAIL = ${user.email}, PASSWORD = ${user.password}, PHONE = ${user.phone}
+    SET FIRST_NAME = ${user.firstName}, LAST_NAME = ${user.lastName}, EMAIL = ${user.email}, HASH = ${user.hash}, PHONE = ${user.phone}
     WHERE ID = $id
   """.update
 
   def select(userId: Long): Query0[User] = sql"""
-    SELECT USER_NAME, FIRST_NAME, LAST_NAME, EMAIL, PASSWORD, PHONE, ID
+    SELECT USER_NAME, FIRST_NAME, LAST_NAME, EMAIL, HASH, PHONE, ID
     FROM USERS
     WHERE ID = $userId
   """.query
 
   def byUserName(userName: String): Query0[User] = sql"""
-    SELECT USER_NAME, FIRST_NAME, LAST_NAME, EMAIL, PASSWORD, PHONE, ID
+    SELECT USER_NAME, FIRST_NAME, LAST_NAME, EMAIL, HASH, PHONE, ID
     FROM USERS
     WHERE USER_NAME = $userName
   """.query[User]
@@ -38,7 +37,7 @@ private object UserSQL {
   """.update
 
   val selectAll: Query0[User] = sql"""
-    SELECT USER_NAME, FIRST_NAME, LAST_NAME, EMAIL, PASSWORD, PHONE, ID
+    SELECT USER_NAME, FIRST_NAME, LAST_NAME, EMAIL, HASH, PHONE, ID
     FROM USERS
   """.query
 }
@@ -51,14 +50,13 @@ class DoobieUserRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
   def create(user: User): F[User] =
     insert(user).withUniqueGeneratedKeys[Long]("ID").map(id => user.copy(id = id.some)).transact(xa)
 
-  def update(user: User): F[Option[User]] = OptionT.fromOption[ConnectionIO](user.id).semiflatMap { id =>
-    UserSQL.update(user, id).run
-  }.value.as(user.some).transact(xa)
+  def update(user: User): F[Option[User]] = OptionT.fromOption[F](user.id).semiflatMap { id =>
+    UserSQL.update(user, id).run.transact(xa).as(user)
+  }.value
 
   def get(userId: Long): F[Option[User]] = select(userId).option.transact(xa)
 
-  def findByUserName(userName: String): F[Option[User]] =
-    byUserName(userName).option.transact(xa)
+  def findByUserName(userName: String): F[Option[User]] = byUserName(userName).option.transact(xa)
 
   def delete(userId: Long): F[Option[User]] = OptionT(get(userId)).semiflatMap(user =>
     UserSQL.delete(userId).run.transact(xa).as(user)

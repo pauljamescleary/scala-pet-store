@@ -1,16 +1,20 @@
-package io.github.pauljamescleary.petstore.infrastructure.endpoint
+package io.github.pauljamescleary.petstore
+package infrastructure.endpoint
 
-import io.github.pauljamescleary.petstore.domain.users._
-import io.github.pauljamescleary.petstore.PetStoreArbitraries
-import io.github.pauljamescleary.petstore.infrastructure.repository.inmemory.UserRepositoryInMemoryInterpreter
+import org.scalatest._
+import org.scalatest.prop.PropertyChecks
 import cats.effect._
 import io.circe.syntax._
 import io.circe.generic.auto._
 import org.http4s._
 import org.http4s.dsl._
 import org.http4s.circe._
-import org.scalatest._
-import org.scalatest.prop.PropertyChecks
+
+import tsec.passwordhashers.imports.BCrypt
+
+import domain.users._
+import infrastructure.repository.inmemory.UserRepositoryInMemoryInterpreter
+
 
 class UserEndpointsSpec
   extends FunSuite
@@ -24,7 +28,7 @@ class UserEndpointsSpec
     val userRepo = UserRepositoryInMemoryInterpreter[IO]()
     val userValidation = UserValidationInterpreter[IO](userRepo)
     val userService = UserService[IO](userRepo, userValidation)
-    val userHttpService = UserEndpoints.endpoints[IO](userService)
+    val userHttpService = UserEndpoints.endpoints(userService, BCrypt)
 
     val user = User("username", "firstname", "lastname", "email", "password", "phone", None)
 
@@ -43,7 +47,7 @@ class UserEndpointsSpec
     val userRepo = UserRepositoryInMemoryInterpreter[IO]()
     val userValidation = UserValidationInterpreter[IO](userRepo)
     val userService = UserService[IO](userRepo, userValidation)
-    val userHttpService: HttpService[IO] = UserEndpoints.endpoints[IO](userService)
+    val userHttpService: HttpService[IO] = UserEndpoints.endpoints(userService, BCrypt)
 
     implicit val userDecoder: EntityDecoder[IO, User] = jsonOf[IO, User]
 
@@ -74,7 +78,7 @@ class UserEndpointsSpec
     val userRepo = UserRepositoryInMemoryInterpreter[IO]()
     val userValidation = UserValidationInterpreter[IO](userRepo)
     val userService = UserService[IO](userRepo, userValidation)
-    val userHttpService: HttpService[IO] = UserEndpoints.endpoints[IO](userService)
+    val userHttpService: HttpService[IO] = UserEndpoints.endpoints(userService, BCrypt)
 
     implicit val userDecoder: EntityDecoder[IO, User] = jsonOf[IO, User]
 
@@ -103,7 +107,7 @@ class UserEndpointsSpec
     val userRepo = UserRepositoryInMemoryInterpreter[IO]()
     val userValidation = UserValidationInterpreter[IO](userRepo)
     val userService = UserService[IO](userRepo, userValidation)
-    val userHttpService: HttpService[IO] = UserEndpoints.endpoints[IO](userService)
+    val userHttpService: HttpService[IO] = UserEndpoints.endpoints(userService, BCrypt)
 
     implicit val userDecoder: EntityDecoder[IO, User] = jsonOf[IO, User]
 

@@ -1,7 +1,5 @@
 package io.github.pauljamescleary.petstore.domain.users
 
-import scala.language.higherKinds
-
 trait UserRepositoryAlgebra[F[_]] {
   def create(user: User): F[User]
 

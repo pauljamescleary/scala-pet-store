@@ -1,32 +1,30 @@
 package io.github.pauljamescleary.petstore.domain.users
 
-import scala.language.higherKinds
-
 import cats._
 import cats.data._
+import cats.syntax.functor._
 import io.github.pauljamescleary.petstore.domain.{UserAlreadyExistsError, UserNotFoundError}
 
-class UserService[F[_]](userRepo: UserRepositoryAlgebra[F], validation: UserValidationAlgebra[F]) {
-  import cats.syntax.all._
+class UserService[F[_]: Monad](userRepo: UserRepositoryAlgebra[F], validation: UserValidationAlgebra[F]) {
 
-  def createUser(user: User)(implicit M: Monad[F]): EitherT[F, UserAlreadyExistsError, User] =
+  def createUser(user: User): EitherT[F, UserAlreadyExistsError, User] =
     for {
       _ <- validation.doesNotExist(user)
       saved <- EitherT.liftF(userRepo.create(user))
     } yield saved
 
-  def getUser(userId: Long)(implicit M: Monad[F]): EitherT[F, UserNotFoundError.type, User] =
+  def getUser(userId: Long): EitherT[F, UserNotFoundError.type, User] =
     EitherT.fromOptionF(userRepo.get(userId), UserNotFoundError)
 
-  def getUserByName(userName: String)(implicit M: Monad[F]): EitherT[F, UserNotFoundError.type, User] =
+  def getUserByName(userName: String): EitherT[F, UserNotFoundError.type, User] =
     EitherT.fromOptionF(userRepo.findByUserName(userName), UserNotFoundError)
 
-  def deleteUser(userId: Long): F[Option[User]] = userRepo.delete(userId)
+  def deleteUser(userId: Long): F[Unit] = userRepo.delete(userId).as(())
 
-  def deleteByName(userName: String)(implicit M: Monad[F]): F[Unit] =
+  def deleteByUserName(userName: String): F[Unit] =
     userRepo.deleteByUserName(userName).as(())
 
-  def update(user: User)(implicit M: Monad[F]): EitherT[F, UserNotFoundError.type, User] =
+  def update(user: User): EitherT[F, UserNotFoundError.type, User] =
     for {
       _ <- validation.exists(user.id)
       saved <- EitherT.fromOptionF(userRepo.update(user), UserNotFoundError)
@@ -37,6 +35,6 @@ class UserService[F[_]](userRepo: UserRepositoryAlgebra[F], validation: UserVali
 }
 
 object UserService {
-  def apply[F[_]](repository: UserRepositoryAlgebra[F], validation: UserValidationAlgebra[F]): UserService[F] =
+  def apply[F[_]: Monad](repository: UserRepositoryAlgebra[F], validation: UserValidationAlgebra[F]): UserService[F] =
     new UserService[F](repository, validation)
 }

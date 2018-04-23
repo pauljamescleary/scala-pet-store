@@ -15,15 +15,14 @@ class UserValidationInterpreter[F[_]: Monad](userRepo: UserRepositoryAlgebra[F])
 
   def exists(userId: Option[Long]): EitherT[F, UserNotFoundError.type, Unit] =
     EitherT {
-      userId match {
-        case Some(id) =>
-          userRepo.get(id).map {
-            case Some(_) => Right(())
-            case _ => Left(UserNotFoundError)
-          }
-        case _ =>
-          Either.left[UserNotFoundError.type, Unit](UserNotFoundError).pure[F]
-      }
+      userId.map { id =>
+        userRepo.get(id).map {
+          case Some(_) => Right(())
+          case _ => Left(UserNotFoundError)
+        }
+      }.getOrElse(
+        Either.left[UserNotFoundError.type, Unit](UserNotFoundError).pure[F]
+      )
     }
 }
 
