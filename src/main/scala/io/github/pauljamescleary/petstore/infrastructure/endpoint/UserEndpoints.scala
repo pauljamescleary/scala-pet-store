@@ -39,12 +39,10 @@ class UserEndpoints[F[_]: Effect, A, K] extends Http4sDsl[F] {
             else EitherT.leftT[F, User](UserAuthenticationFailedError(name))
         } yield resp
 
-        action
-          .fold(
-            { case UserAuthenticationFailedError(name) => BadRequest(s"Authentication failed for user $name") },
-            u => Ok(u.asJson)
-          )
-          .flatten
+        action.value.flatMap {
+          case Right(user) => Ok(user.asJson)
+          case Left(UserAuthenticationFailedError(name)) => BadRequest(s"Authentication failed for user $name")
+        }
     }
 
   private def signupEndpoint(userService: UserService[F], crypt: PasswordHasher[F, A]): HttpService[F] =
