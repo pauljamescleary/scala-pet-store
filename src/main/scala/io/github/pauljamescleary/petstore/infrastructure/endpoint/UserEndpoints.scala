@@ -14,8 +14,8 @@ import scala.language.higherKinds
 import domain._
 import domain.users._
 import domain.authentication._
-import tsec.passwordhashers.PasswordHash
-import tsec.passwordhashers.core.PasswordHasher
+import tsec.common.Verified
+import tsec.passwordhashers.{PasswordHash, PasswordHasher}
 
 class UserEndpoints[F[_]: Effect, A, K] extends Http4sDsl[F] {
   import Pagination._
@@ -26,16 +26,16 @@ class UserEndpoints[F[_]: Effect, A, K] extends Http4sDsl[F] {
 
   implicit val signupReqDecoder: EntityDecoder[F, SignupRequest] = jsonOf
 
-  private def loginEndpoint(userService: UserService[F], cryptService: PasswordHasher[A]): HttpService[F] =
+  private def loginEndpoint(userService: UserService[F], cryptService: PasswordHasher[F, A]): HttpService[F] =
     HttpService[F] {
       case req @ POST -> Root / "login" =>
         val action: EitherT[F, UserAuthenticationFailedError, User] = for {
           login <- EitherT.liftF(req.as[LoginRequest])
           name = login.userName
           user <- userService.getUserByName(name).leftMap(_ => UserAuthenticationFailedError(name))
-          valid <- EitherT.liftF(cryptService.checkpw(login.password, PasswordHash[A](user.hash)))
+          checkResult <- EitherT.liftF(cryptService.checkpw(login.password, PasswordHash[A](user.hash)))
           resp <-
-            if(valid) EitherT.rightT[F, UserAuthenticationFailedError](user)
+            if(checkResult == Verified) EitherT.rightT[F, UserAuthenticationFailedError](user)
             else EitherT.leftT[F, User](UserAuthenticationFailedError(name))
         } yield resp
 
@@ -47,7 +47,7 @@ class UserEndpoints[F[_]: Effect, A, K] extends Http4sDsl[F] {
           .flatten
     }
 
-  private def signupEndpoint(userService: UserService[F], crypt: PasswordHasher[A]): HttpService[F] =
+  private def signupEndpoint(userService: UserService[F], crypt: PasswordHasher[F, A]): HttpService[F] =
     HttpService[F] {
       case req @ POST -> Root / "users" =>
         val action = for {
@@ -107,7 +107,7 @@ class UserEndpoints[F[_]: Effect, A, K] extends Http4sDsl[F] {
     }
 
 
-  def endpoints(userService: UserService[F], cryptService: PasswordHasher[A]): HttpService[F] =
+  def endpoints(userService: UserService[F], cryptService: PasswordHasher[F, A]): HttpService[F] =
     loginEndpoint(userService, cryptService) <+>
     signupEndpoint(userService, cryptService) <+>
     updateEndpoint(userService) <+>
@@ -119,7 +119,7 @@ class UserEndpoints[F[_]: Effect, A, K] extends Http4sDsl[F] {
 object UserEndpoints {
   def endpoints[F[_]: Effect, A, K](
     userService: UserService[F],
-    cryptService: PasswordHasher[A]
+    cryptService: PasswordHasher[F, A]
   ): HttpService[F] =
     new UserEndpoints[F, A, K].endpoints(userService, cryptService)
 }
