@@ -1,24 +1,21 @@
 organization    := "io.github.pauljamescleary"
 name            := "scala-pet-store"
 version         := "0.0.1-SNAPSHOT"
-scalaVersion    := "2.12.3"
+scalaVersion    := "2.12.6"
 
-resolvers ++= Seq(
-  Resolver.sonatypeRepo("snapshots"),
-  "jmcardon at bintray" at "https://dl.bintray.com/jmcardon/tsec"
-)
+resolvers += Resolver.sonatypeRepo("snapshots")
 
-val CatsVersion       = "1.0.1"
-val CirceVersion      = "0.9.1"
-val DoobieVersion     = "0.5.1"
+val CatsVersion       = "1.1.0"
+val CirceVersion      = "0.9.3"
+val DoobieVersion     = "0.5.2"
 val H2Version         = "1.4.196"
-val Http4sVersion     = "0.18.1"
+val Http4sVersion     = "0.18.4"
 val LogbackVersion    = "1.2.3"
-val ScalaCheckVersion = "1.13.5"
+val ScalaCheckVersion = "1.14.0"
 val ScalaTestVersion  = "3.0.4"
 val FlywayVersion     = "4.2.0"
-val PureConfigVersion = "0.9.0"
-val TsecVersion       = "0.0.1-M9"
+val PureConfigVersion = "0.9.1"
+val TsecVersion       = "0.0.1-M11"
 
 libraryDependencies ++= Seq(
   "org.typelevel"         %% "cats-core"            % CatsVersion,
@@ -45,10 +42,8 @@ libraryDependencies ++= Seq(
   // Authentication dependencies
   "io.github.jmcardon"    %% "tsec-common"          % TsecVersion,
   "io.github.jmcardon"    %% "tsec-password"        % TsecVersion,
-  "io.github.jmcardon"    %% "tsec-symmetric-cipher" % TsecVersion,
   "io.github.jmcardon"    %% "tsec-mac"             % TsecVersion,
   "io.github.jmcardon"    %% "tsec-signatures"      % TsecVersion,
-  "io.github.jmcardon"    %% "tsec-md"              % TsecVersion,
   "io.github.jmcardon"    %% "tsec-jwt-mac"         % TsecVersion,
   "io.github.jmcardon"    %% "tsec-jwt-sig"         % TsecVersion,
   "io.github.jmcardon"    %% "tsec-http4s"          % TsecVersion
