@@ -5,6 +5,7 @@ import java.time.Instant
 import org.scalacheck._
 import org.scalacheck.Arbitrary.arbitrary
 import io.github.pauljamescleary.petstore.domain.orders._
+import io.github.pauljamescleary.petstore.domain.orders.OrderStatus._
 import io.github.pauljamescleary.petstore.domain.{orders, pets}
 import io.github.pauljamescleary.petstore.domain.pets._
 import io.github.pauljamescleary.petstore.domain.pets.PetStatus._

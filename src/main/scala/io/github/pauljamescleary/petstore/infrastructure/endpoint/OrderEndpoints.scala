@@ -3,7 +3,6 @@ package io.github.pauljamescleary.petstore.infrastructure.endpoint
 import cats.effect.Effect
 import io.circe._
 import io.circe.generic.auto._
-import io.circe.generic.extras.semiauto._
 import io.circe.syntax._
 import org.http4s._
 import org.http4s.circe._
@@ -22,8 +21,8 @@ class OrderEndpoints[F[_]: Effect] extends Http4sDsl[F] {
   import cats.implicits._
 
   /* We need to define an enum encoder and decoder since these do not come out of the box with generic derivation */
-  implicit val statusDecoder: Decoder[OrderStatus] = deriveEnumerationDecoder
-  implicit val statusEncoder: Encoder[OrderStatus] = deriveEnumerationEncoder
+  implicit val statusDecoder: Decoder[OrderStatus] = OrderStatus.circeDecoder
+  implicit val statusEncoder: Encoder[OrderStatus] = OrderStatus.circeEncoder
 
   /* Needed to decode entities */
   implicit val orderDecoder = jsonOf[F, Order]

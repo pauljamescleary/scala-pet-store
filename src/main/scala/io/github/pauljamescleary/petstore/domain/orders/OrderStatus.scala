@@ -1,20 +1,12 @@
 package io.github.pauljamescleary.petstore.domain.orders
+import enumeratum._
 
-sealed trait OrderStatus extends Product with Serializable
-case object Approved extends OrderStatus
-case object Delivered extends OrderStatus
-case object Placed extends OrderStatus
+sealed trait OrderStatus extends EnumEntry
 
-object OrderStatus {
-  def apply(name: String): OrderStatus = name match {
-    case "Approved" => Approved
-    case "Delivered" => Delivered
-    case "Placed" => Placed
-  }
+case object OrderStatus extends Enum[OrderStatus] with CirceEnum[OrderStatus] {
+  case object Approved extends OrderStatus
+  case object Delivered extends OrderStatus
+  case object Placed extends OrderStatus
 
-  def nameOf(status: OrderStatus): String = status match {
-    case Approved => "Approved"
-    case Delivered => "Delivered"
-    case Placed => "Placed"
-  }
+  val values = findValues
 }
