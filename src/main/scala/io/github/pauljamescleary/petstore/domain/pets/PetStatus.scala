@@ -1,20 +1,12 @@
 package io.github.pauljamescleary.petstore.domain.pets
+import enumeratum._
 
-sealed trait PetStatus extends Product with Serializable
-case object Available extends PetStatus
-case object Pending extends PetStatus
-case object Adopted extends PetStatus
+sealed trait PetStatus extends EnumEntry
 
-object PetStatus {
-  def apply(name: String): PetStatus = name match {
-    case "Available" => Available
-    case "Pending" => Pending
-    case "Adopted" => Adopted
-  }
+case object PetStatus extends Enum[PetStatus] with CirceEnum[PetStatus] {
+  case object Available extends PetStatus
+  case object Pending extends PetStatus
+  case object Adopted extends PetStatus
 
-  def nameOf(status: PetStatus): String = status match {
-    case Available => "Available"
-    case Pending => "Pending"
-    case Adopted => "Adopted"
-  }
+  val values = findValues
 }

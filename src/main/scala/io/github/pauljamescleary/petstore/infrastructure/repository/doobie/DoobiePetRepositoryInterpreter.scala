@@ -11,7 +11,7 @@ import SQLPagination._
 private object PetSQL {
   /* We require type StatusMeta to handle our ADT Status */
   implicit val StatusMeta: Meta[PetStatus] =
-    Meta[String].xmap(PetStatus.apply, PetStatus.nameOf)
+    Meta[String].xmap(PetStatus.withName, _.entryName)
 
   /* This is used to marshal our sets of strings */
   implicit val SetStringMeta: Meta[Set[String]] = Meta[String]

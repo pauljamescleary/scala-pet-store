@@ -7,6 +7,7 @@ import org.scalacheck.Arbitrary.arbitrary
 import io.github.pauljamescleary.petstore.domain.orders._
 import io.github.pauljamescleary.petstore.domain.{orders, pets}
 import io.github.pauljamescleary.petstore.domain.pets._
+import io.github.pauljamescleary.petstore.domain.pets.PetStatus._
 import io.github.pauljamescleary.petstore.domain.users._
 
 
