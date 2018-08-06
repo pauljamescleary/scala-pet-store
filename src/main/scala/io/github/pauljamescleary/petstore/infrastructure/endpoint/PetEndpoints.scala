@@ -4,7 +4,6 @@ import cats.data.Validated.Valid
 import cats.data._
 import cats.effect.Effect
 import cats.implicits._
-import io.circe._
 import io.circe.generic.auto._
 import io.circe.syntax._
 import org.http4s.circe._
@@ -29,9 +28,6 @@ class PetEndpoints[F[_]: Effect] extends Http4sDsl[F] {
   /* Parses out tag query param, which could be multi-value */
   object TagMatcher extends OptionalMultiQueryParamDecoderMatcher[String]("tags")
 
-  /* We need to define an enum encoder and decoder since these do not come out of the box with generic derivation */
-  implicit val statusDecoder: Decoder[PetStatus] = PetStatus.circeDecoder
-  implicit val statusEncoder: Encoder[PetStatus] = PetStatus.circeEncoder
   implicit val petDecoder: EntityDecoder[F, Pet] = jsonOf[F, Pet]
 
   private def createPetEndpoint(petService: PetService[F]): HttpService[F] =
