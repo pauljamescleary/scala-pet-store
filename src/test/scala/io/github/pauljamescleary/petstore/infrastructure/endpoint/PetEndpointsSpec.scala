@@ -4,10 +4,8 @@ import io.github.pauljamescleary.petstore.domain.pets._
 import io.github.pauljamescleary.petstore.PetStoreArbitraries
 import io.github.pauljamescleary.petstore.infrastructure.repository.inmemory._
 import cats.effect._
-import io.circe._
 import io.circe.syntax._
 import io.circe.generic.auto._
-import io.circe.generic.extras.semiauto._
 import org.http4s._
 import org.http4s.dsl._
 import org.http4s.circe._
@@ -21,9 +19,6 @@ class PetEndpointsSpec
     with PropertyChecks
     with PetStoreArbitraries
     with Http4sDsl[IO] {
-
-  implicit val statusDecoder: Decoder[PetStatus] = deriveEnumerationDecoder
-  implicit val statusEncoder: Encoder[PetStatus] = deriveEnumerationEncoder
 
   test("create pet") {
 

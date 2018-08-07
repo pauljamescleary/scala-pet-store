@@ -4,9 +4,7 @@ import io.github.pauljamescleary.petstore.domain.orders._
 import io.github.pauljamescleary.petstore.PetStoreArbitraries
 import io.github.pauljamescleary.petstore.infrastructure.repository.inmemory.OrderRepositoryInMemoryInterpreter
 import cats.effect._
-import io.circe._
 import io.circe.generic.auto._
-import io.circe.generic.extras.semiauto._
 import io.circe.java8.time._
 import io.circe.syntax._
 import org.http4s._
@@ -22,9 +20,6 @@ class OrderEndpointsSpec
     with PropertyChecks
     with PetStoreArbitraries
     with Http4sDsl[IO] {
-
-  implicit val statusDecoder: Decoder[OrderStatus] = deriveEnumerationDecoder
-  implicit val statusEncoder: Encoder[OrderStatus] = deriveEnumerationEncoder
 
   test("place order") {
 

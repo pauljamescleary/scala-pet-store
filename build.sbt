@@ -5,17 +5,19 @@ scalaVersion    := "2.12.6"
 
 resolvers += Resolver.sonatypeRepo("snapshots")
 
-val CatsVersion       = "1.1.0"
-val CirceVersion      = "0.9.3"
-val DoobieVersion     = "0.5.2"
-val H2Version         = "1.4.196"
-val Http4sVersion     = "0.18.4"
-val LogbackVersion    = "1.2.3"
-val ScalaCheckVersion = "1.14.0"
-val ScalaTestVersion  = "3.0.4"
-val FlywayVersion     = "4.2.0"
-val PureConfigVersion = "0.9.1"
-val TsecVersion       = "0.0.1-M11"
+val CatsVersion            = "1.1.0"
+val CirceVersion           = "0.9.3"
+val DoobieVersion          = "0.5.2"
+val EnumeratumVersion      = "1.5.13"
+val EnumeratumCirceVersion = "1.5.17"
+val H2Version              = "1.4.196"
+val Http4sVersion          = "0.18.4"
+val LogbackVersion         = "1.2.3"
+val ScalaCheckVersion      = "1.14.0"
+val ScalaTestVersion       = "3.0.4"
+val FlywayVersion          = "4.2.0"
+val PureConfigVersion      = "0.9.1"
+val TsecVersion            = "0.0.1-M11"
 
 libraryDependencies ++= Seq(
   "org.typelevel"         %% "cats-core"            % CatsVersion,
@@ -29,6 +31,8 @@ libraryDependencies ++= Seq(
   "org.tpolecat"          %% "doobie-h2"            % DoobieVersion,
   "org.tpolecat"          %% "doobie-scalatest"     % DoobieVersion,
   "org.tpolecat"          %% "doobie-hikari"        % DoobieVersion,
+  "com.beachape"          %% "enumeratum"           % EnumeratumVersion,
+  "com.beachape"          %% "enumeratum-circe"     % EnumeratumCirceVersion,
   "com.h2database"        %  "h2"                   % H2Version,
   "org.http4s"            %% "http4s-blaze-server"  % Http4sVersion,
   "org.http4s"            %% "http4s-circe"         % Http4sVersion,

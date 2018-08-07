@@ -1,9 +1,7 @@
 package io.github.pauljamescleary.petstore.infrastructure.endpoint
 
 import cats.effect.Effect
-import io.circe._
 import io.circe.generic.auto._
-import io.circe.generic.extras.semiauto._
 import io.circe.syntax._
 import org.http4s._
 import org.http4s.circe._
@@ -11,7 +9,7 @@ import org.http4s.dsl.Http4sDsl
 import scala.language.higherKinds
 
 import io.github.pauljamescleary.petstore.domain.OrderNotFoundError
-import io.github.pauljamescleary.petstore.domain.orders.{Order, OrderService, OrderStatus}
+import io.github.pauljamescleary.petstore.domain.orders.{Order, OrderService}
 
 class OrderEndpoints[F[_]: Effect] extends Http4sDsl[F] {
 
@@ -20,10 +18,6 @@ class OrderEndpoints[F[_]: Effect] extends Http4sDsl[F] {
 
   /* Needed for service composition via |+| */
   import cats.implicits._
-
-  /* We need to define an enum encoder and decoder since these do not come out of the box with generic derivation */
-  implicit val statusDecoder: Decoder[OrderStatus] = deriveEnumerationDecoder
-  implicit val statusEncoder: Encoder[OrderStatus] = deriveEnumerationEncoder
 
   /* Needed to decode entities */
   implicit val orderDecoder = jsonOf[F, Order]
