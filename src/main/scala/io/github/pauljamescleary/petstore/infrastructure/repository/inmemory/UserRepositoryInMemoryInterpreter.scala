@@ -31,7 +31,7 @@ class UserRepositoryInMemoryInterpreter[F[_]: Applicative] extends UserRepositor
   def delete(id: Long): F[Option[User]] = cache.remove(id).pure[F]
 
   def findByUserName(userName: String): F[Option[User]] =
-    cache.values.find(u => u.firstName == userName).pure[F]
+    cache.values.find(u => u.userName == userName).pure[F]
 
   def list(pageSize: Int, offset: Int): F[List[User]] =
     cache.values.toList.sortBy(_.lastName).slice(offset, offset + pageSize).pure[F]
