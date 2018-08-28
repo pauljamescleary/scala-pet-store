@@ -3,6 +3,8 @@ Scala Pet Store [![Build Status](https://travis-ci.org/pauljamescleary/scala-pet
 ==============
 An implementation of the java pet store using FP techniques in scala.
 
+# Thank you!
+Special thank you to the many [contributors](AUTHORS.md) who continue to improve the pet store
 
 # Status
 I have most of the endpoints in place.  There are few big pieces remaining in case y'all want to lend a hand:
@@ -47,7 +49,7 @@ interested in learning http4s
 - [Cats](https://typelevel.org/cats/) for FP awesomeness
 - [ScalaCheck](https://www.scalacheck.org/) for property based testing
 - [PureConfig](https://pureconfig.github.io/docs/) for app config
-- Tagless Final for my core domain.
+- Tagless Final for the core domain.
 
 ## Getting Started
 
