@@ -22,7 +22,7 @@ If you see your name on here, and do not want to be mentioned, you can open a PR
 * [HubertTartar](https://github.com/HubertTatar)
 * [Jan Ferko](https://github.com/iref)
 * [ml10](https://github.com/ml10)
-* [https://github.com/RobertLemmens](Robert J. Lemmens)
+* [Robert J. Lemmens](https://github.com/RobertLemmens)
 * [Sergey Lagutin](https://github.com/sergey-lagutin)
 * [Taylor Brown](https://github.com/tbrown1979)
 * [Zak Patterson](https://github.com/zakpatterson)
