@@ -4,7 +4,7 @@ import config.{DatabaseConfig, PetStoreConfig}
 import domain.users._
 import domain.orders._
 import domain.pets._
-import infrastructure.endpoint.{OrderEndpoints, PetEndpoints, UserEndpoints}
+import infrastructure.endpoint.{OrderEndpoints, PetEndpoints, SiteEndpoints, UserEndpoints}
 import infrastructure.repository.doobie.{DoobieOrderRepositoryInterpreter, DoobiePetRepositoryInterpreter, DoobieUserRepositoryInterpreter}
 import cats.effect._
 import fs2.StreamApp.ExitCode
@@ -41,6 +41,7 @@ object Server extends StreamApp[IO] {
         .mountService(PetEndpoints.endpoints[F](petService), "/")
         .mountService(OrderEndpoints.endpoints[F](orderService), "/")
         .mountService(UserEndpoints.endpoints(userService, BCrypt.syncPasswordHasher[F]), "/")
+        .mountService(SiteEndpoints.endpoints[F], "/")
         .serve
     } yield exitCode
 }
