@@ -27,3 +27,4 @@ If you see your name on here, and do not want to be mentioned, you can open a PR
 * [Taylor Brown](https://github.com/tbrown1979)
 * [Zak Patterson](https://github.com/zakpatterson)
 * [Zach McCoy](https://github.com/zmccoy)
+* [Omar A. García](https://github.com/nebtrx)
