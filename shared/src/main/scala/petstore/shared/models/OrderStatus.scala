@@ -1,4 +1,4 @@
-package io.github.pauljamescleary.petstore.domain.orders
+package petstore.shared.models
 import enumeratum._
 
 sealed trait OrderStatus extends EnumEntry

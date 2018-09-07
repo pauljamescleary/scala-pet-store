@@ -6,7 +6,8 @@ import scala.util.Random
 import cats._
 import cats.data.NonEmptyList
 import cats.implicits._
-import io.github.pauljamescleary.petstore.domain.pets.{Pet, PetRepositoryAlgebra, PetStatus}
+import io.github.pauljamescleary.petstore.domain.pets.PetRepositoryAlgebra
+import petstore.shared.models.{Pet, PetStatus}
 
 class PetRepositoryInMemoryInterpreter[F[_]: Applicative] extends PetRepositoryAlgebra[F] {
 

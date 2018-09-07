@@ -5,7 +5,8 @@ import cats.data.OptionT
 import cats.implicits._
 import doobie._
 import doobie.implicits._
-import io.github.pauljamescleary.petstore.domain.users.{User, UserRepositoryAlgebra}
+import petstore.shared.models.User
+import io.github.pauljamescleary.petstore.domain.users.UserRepositoryAlgebra
 import SQLPagination._
 
 private object UserSQL {

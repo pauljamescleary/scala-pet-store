@@ -5,6 +5,7 @@ import scala.language.higherKinds
 import cats._
 import cats.data._
 import io.github.pauljamescleary.petstore.domain.{PetAlreadyExistsError, PetNotFoundError}
+import petstore.shared.models.{Pet, PetStatus}
 
 /**
   * The entry point to our domain, works with repositories and validations to implement behavior

@@ -5,6 +5,7 @@ import scala.language.higherKinds
 import cats.Monad
 import cats.data.EitherT
 import io.github.pauljamescleary.petstore.domain.OrderNotFoundError
+import petstore.shared.models.Order
 
 class OrderService[F[_]](orderRepo: OrderRepositoryAlgebra[F]) {
   import cats.syntax.all._

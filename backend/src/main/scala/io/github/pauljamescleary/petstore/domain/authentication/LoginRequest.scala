@@ -1,7 +1,7 @@
 package io.github.pauljamescleary.petstore
 package domain.authentication
 
-import domain.users.User
+import petstore.shared.models.User
 import tsec.passwordhashers.PasswordHash
 
 final case class LoginRequest(

@@ -8,7 +8,8 @@ import cats.implicits._
 import doobie._
 import doobie.implicits._
 import io.github.pauljamescleary.petstore.domain.orders
-import orders.{OrderRepositoryAlgebra, OrderStatus, Order}
+import petstore.shared.models.{Order, OrderStatus}
+import orders.OrderRepositoryAlgebra
 
 private object OrderSQL {
   /* We require type StatusMeta to handle our ADT Status */

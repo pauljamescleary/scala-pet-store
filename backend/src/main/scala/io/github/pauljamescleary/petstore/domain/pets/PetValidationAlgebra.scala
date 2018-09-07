@@ -4,6 +4,7 @@ import scala.language.higherKinds
 
 import cats.data.EitherT
 import io.github.pauljamescleary.petstore.domain.{PetAlreadyExistsError, PetNotFoundError}
+import petstore.shared.models.Pet
 
 trait PetValidationAlgebra[F[_]] {
 

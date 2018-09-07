@@ -18,7 +18,10 @@ addSbtPlugin("com.47deg"  % "sbt-microsites" % "0.7.18")
 addSbtPlugin("com.typesafe.sbt" % "sbt-ghpages" % "0.6.2")
 
 // ScalaJS plugin
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.24")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.23")
+
+// Cross platform plugin
+addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject" % "0.4.0")
 
 // Assembly plugin
 addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "0.14.6")

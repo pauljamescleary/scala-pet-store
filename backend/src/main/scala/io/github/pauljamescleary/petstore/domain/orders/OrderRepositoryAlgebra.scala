@@ -1,6 +1,7 @@
 package io.github.pauljamescleary.petstore.domain.orders
 
 import scala.language.higherKinds
+import petstore.shared.models.Order
 
 trait OrderRepositoryAlgebra[F[_]] {
 

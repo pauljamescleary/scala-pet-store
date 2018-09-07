@@ -4,6 +4,7 @@ import cats._
 import cats.data.EitherT
 import cats.implicits._
 import io.github.pauljamescleary.petstore.domain.{UserAlreadyExistsError, UserNotFoundError}
+import petstore.shared.models.User
 
 class UserValidationInterpreter[F[_]: Monad](userRepo: UserRepositoryAlgebra[F]) extends UserValidationAlgebra[F] {
   def doesNotExist(user: User) = EitherT {

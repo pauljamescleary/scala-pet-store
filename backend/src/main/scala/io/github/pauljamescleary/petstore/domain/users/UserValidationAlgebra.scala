@@ -3,6 +3,7 @@ package io.github.pauljamescleary.petstore.domain.users
 import scala.language.higherKinds
 import cats.data.EitherT
 import io.github.pauljamescleary.petstore.domain.{UserAlreadyExistsError, UserNotFoundError}
+import petstore.shared.models.User
 
 trait UserValidationAlgebra[F[_]] {
 

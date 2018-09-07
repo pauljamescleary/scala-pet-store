@@ -4,6 +4,7 @@ import cats._
 import cats.data._
 import cats.syntax.functor._
 import io.github.pauljamescleary.petstore.domain.{UserAlreadyExistsError, UserNotFoundError}
+import petstore.shared.models.User
 
 class UserService[F[_]: Monad](userRepo: UserRepositoryAlgebra[F], validation: UserValidationAlgebra[F]) {
 

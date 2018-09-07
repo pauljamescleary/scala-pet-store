@@ -3,6 +3,7 @@ package io.github.pauljamescleary.petstore.domain.pets
 import scala.language.higherKinds
 
 import cats.data.NonEmptyList
+import petstore.shared.models.{Pet, PetStatus}
 
 trait PetRepositoryAlgebra[F[_]] {
 

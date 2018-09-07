@@ -12,7 +12,8 @@ import org.http4s.{EntityDecoder, HttpService, QueryParamDecoder}
 import scala.language.higherKinds
 
 import io.github.pauljamescleary.petstore.domain.{PetAlreadyExistsError, PetNotFoundError}
-import io.github.pauljamescleary.petstore.domain.pets.{Pet, PetService, PetStatus}
+import io.github.pauljamescleary.petstore.domain.pets.PetService
+import petstore.shared.models.{Pet, PetStatus}
 
 class PetEndpoints[F[_]: Effect] extends Http4sDsl[F] {
 

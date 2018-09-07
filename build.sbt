@@ -1,5 +1,15 @@
+import sbtcrossproject.CrossPlugin.autoImport.{crossProject, CrossType}
+
 organization    := "io.github.pauljamescleary"
 name            := "scala-pet-store"
+
+git.remoteRepo := "git@github.com:pauljamescleary/scala-pet-store.git"
+
+micrositeGithubOwner := "pauljamescleary"
+micrositeGithubRepo := "scala-pet-store"
+micrositeName := "Scala Pet Store"
+micrositeDescription := "An example application using FP techniques in Scala"
+micrositeBaseUrl := "scala-pet-store"
 
 resolvers += Resolver.sonatypeRepo("snapshots")
 
@@ -89,8 +99,6 @@ lazy val backend = project.in(file("backend"))
       "org.tpolecat"          %% "doobie-h2"            % DoobieVersion,
       "org.tpolecat"          %% "doobie-scalatest"     % DoobieVersion,
       "org.tpolecat"          %% "doobie-hikari"        % DoobieVersion,
-      "com.beachape"          %% "enumeratum"           % EnumeratumVersion,
-      "com.beachape"          %% "enumeratum-circe"     % EnumeratumCirceVersion,
       "com.h2database"        %  "h2"                   % H2Version,
       "org.http4s"            %% "http4s-blaze-server"  % Http4sVersion,
       "org.http4s"            %% "http4s-circe"         % Http4sVersion,
@@ -118,7 +126,7 @@ lazy val backend = project.in(file("backend"))
       Seq(f1.data, f1SourceMap)
     }.taskValue,
     watchSources ++= (watchSources in frontend).value
-  )
+  ).dependsOn(sharedJVM)
 
 // Frontend project setup
 lazy val frontend = project.in(file("frontend")).enablePlugins(ScalaJSPlugin)
@@ -127,19 +135,20 @@ lazy val frontend = project.in(file("frontend")).enablePlugins(ScalaJSPlugin)
     libraryDependencies ++= Seq(
       "org.scala-js"          %%% "scalajs-dom"          % scalaJsDomVersion,
       "org.querki"            %%% "jquery-facade"        % "1.2",
-      "com.lihaoyi"           %%% "upickle"              % "0.5.1"
+      "com.lihaoyi"           %% "upickle"              % "0.5.1"
     ),
     scalaJSUseMainModuleInitializer := true
+  ).dependsOn(sharedJS)
+
+// Shared sources setup
+lazy val shared = crossProject(JSPlatform, JVMPlatform)
+  .crossType(CrossType.Pure)
+  .settings(
+    libraryDependencies ++= Seq(
+      "com.beachape"          %%% "enumeratum"           % EnumeratumVersion,
+      "com.beachape"          %%% "enumeratum-circe"     % EnumeratumCirceVersion
+    )
   )
 
-git.remoteRepo := "git@github.com:pauljamescleary/scala-pet-store.git"
-
-micrositeGithubOwner := "pauljamescleary"
-
-micrositeGithubRepo := "scala-pet-store"
-
-micrositeName := "Scala Pet Store"
-
-micrositeDescription := "An example application using FP techniques in Scala"
-
-micrositeBaseUrl := "scala-pet-store"
+lazy val sharedJVM = shared.jvm
+lazy val sharedJS = shared.js

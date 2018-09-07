@@ -16,6 +16,7 @@ import domain.users._
 import domain.authentication._
 import tsec.common.Verified
 import tsec.passwordhashers.{PasswordHash, PasswordHasher}
+import petstore.shared.models.User
 
 class UserEndpoints[F[_]: Effect, A, K] extends Http4sDsl[F] {
   import Pagination._

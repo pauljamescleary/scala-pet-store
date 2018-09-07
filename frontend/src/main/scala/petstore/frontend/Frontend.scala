@@ -1,12 +1,14 @@
-package petstore
-
+package petstore.frontend
 import org.scalajs.dom
-import dom.document
+import org.scalajs.dom.document
+import petstore.shared.models.{Pet, PetStatus}
 
 object Frontend {
 
   def main(args: Array[String]): Unit = {
     setTitle("Pet Store")
+    val pet = Pet("", "", "", PetStatus.Available)
+    println(pet)
   }
 
   def addTitle(targetNode: dom.Node, title: String): Unit = {

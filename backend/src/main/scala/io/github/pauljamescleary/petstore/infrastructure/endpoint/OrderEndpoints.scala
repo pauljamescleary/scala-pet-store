@@ -9,7 +9,8 @@ import org.http4s.dsl.Http4sDsl
 import scala.language.higherKinds
 
 import io.github.pauljamescleary.petstore.domain.OrderNotFoundError
-import io.github.pauljamescleary.petstore.domain.orders.{Order, OrderService}
+import io.github.pauljamescleary.petstore.domain.orders.OrderService
+import petstore.shared.models.Order
 
 class OrderEndpoints[F[_]: Effect] extends Http4sDsl[F] {
 

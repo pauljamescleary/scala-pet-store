@@ -4,7 +4,8 @@ import java.util.Random
 
 import cats.implicits._
 import cats.Applicative
-import io.github.pauljamescleary.petstore.domain.users.{User, UserRepositoryAlgebra}
+import io.github.pauljamescleary.petstore.domain.users.UserRepositoryAlgebra
+import petstore.shared.models.User
 
 import scala.collection.concurrent.TrieMap
 

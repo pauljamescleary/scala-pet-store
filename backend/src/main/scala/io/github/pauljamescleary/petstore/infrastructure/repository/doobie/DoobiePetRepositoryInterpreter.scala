@@ -5,7 +5,8 @@ import cats.data._
 import cats.implicits._
 import doobie._
 import doobie.implicits._
-import io.github.pauljamescleary.petstore.domain.pets.{Pet, PetRepositoryAlgebra, PetStatus}
+import petstore.shared.models.{Pet, PetStatus}
+import io.github.pauljamescleary.petstore.domain.pets.PetRepositoryAlgebra
 import SQLPagination._
 
 private object PetSQL {
