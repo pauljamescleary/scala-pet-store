@@ -17,7 +17,7 @@ import domain.authentication._
 import tsec.common.Verified
 import tsec.passwordhashers.{PasswordHash, PasswordHasher}
 
-class UserEndpoints[F[_]: Effect, A, K] extends Http4sDsl[F] {
+class UserEndpoints[F[_]: Effect, A] extends Http4sDsl[F] {
   import Pagination._
   /* Jsonization of our User type */
 
@@ -115,9 +115,9 @@ class UserEndpoints[F[_]: Effect, A, K] extends Http4sDsl[F] {
 }
 
 object UserEndpoints {
-  def endpoints[F[_]: Effect, A, K](
+  def endpoints[F[_]: Effect, A](
     userService: UserService[F],
     cryptService: PasswordHasher[F, A]
   ): HttpService[F] =
-    new UserEndpoints[F, A, K].endpoints(userService, cryptService)
+    new UserEndpoints[F, A].endpoints(userService, cryptService)
 }
