@@ -1,14 +1,15 @@
 package io.github.pauljamescleary.petstore
 
-import config.{DatabaseConfig, PetStoreConfig}
-import domain.users._
-import domain.orders._
-import domain.pets._
-import infrastructure.endpoint.{OrderEndpoints, PetEndpoints, UserEndpoints}
-import infrastructure.repository.doobie.{DoobieOrderRepositoryInterpreter, DoobiePetRepositoryInterpreter, DoobieUserRepositoryInterpreter}
 import cats.effect._
 import fs2.StreamApp.ExitCode
 import fs2.{Stream, StreamApp}
+import io.github.pauljamescleary.petstore.config.{DatabaseConfig, PetStoreConfig}
+import io.github.pauljamescleary.petstore.domain.authentication.AuthenticationService
+import io.github.pauljamescleary.petstore.domain.orders._
+import io.github.pauljamescleary.petstore.domain.pets._
+import io.github.pauljamescleary.petstore.domain.users._
+import io.github.pauljamescleary.petstore.infrastructure.endpoint.{OrderEndpoints, PetEndpoints, UserEndpoints}
+import io.github.pauljamescleary.petstore.infrastructure.repository.doobie.{DoobieOrderRepositoryInterpreter, DoobiePetRepositoryInterpreter, DoobieUserRepositoryInterpreter}
 import org.http4s.server.blaze.BlazeBuilder
 import tsec.mac.jca.HMACSHA256
 import tsec.passwordhashers.jca.BCrypt
@@ -36,6 +37,7 @@ object Server extends StreamApp[IO] {
       userValidation =  UserValidationInterpreter[F](userRepo)
       orderService   =  OrderService[F](orderRepo)
       userService    =  UserService[F](userRepo, userValidation)
+      authService    =  AuthenticationService[F](userService)
       exitCode       <- BlazeBuilder[F]
         .bindHttp(8080, "localhost")
         .mountService(PetEndpoints.endpoints[F](petService), "/")
