@@ -9,9 +9,7 @@ import io.circe.generic.auto._
 import org.http4s._
 import org.http4s.dsl._
 import org.http4s.circe._
-
 import tsec.passwordhashers.jca.BCrypt
-
 import domain.users._
 import domain.authentication._
 import infrastructure.repository.inmemory.UserRepositoryInMemoryInterpreter
@@ -29,7 +27,8 @@ class UserEndpointsSpec
     val userRepo = UserRepositoryInMemoryInterpreter[IO]()
     val userValidation = UserValidationInterpreter[IO](userRepo)
     val userService = UserService[IO](userRepo, userValidation)
-    val userHttpService = UserEndpoints.endpoints(userService, BCrypt.syncPasswordHasher[IO])
+    val authService = AuthenticationService[IO](userService)
+    val userHttpService: HttpService[IO] = UserEndpoints.endpoints(userService, authService, BCrypt.syncPasswordHasher[IO])
 
     forAll { userSignup: SignupRequest =>
       (for {
@@ -48,7 +47,8 @@ class UserEndpointsSpec
     val userRepo = UserRepositoryInMemoryInterpreter[IO]()
     val userValidation = UserValidationInterpreter[IO](userRepo)
     val userService = UserService[IO](userRepo, userValidation)
-    val userHttpService: HttpService[IO] = UserEndpoints.endpoints(userService, BCrypt.syncPasswordHasher[IO])
+    val authService = AuthenticationService[IO](userService)
+    val userHttpService: HttpService[IO] = UserEndpoints.endpoints(userService, authService, BCrypt.syncPasswordHasher[IO])
 
     implicit val userDecoder: EntityDecoder[IO, User] = jsonOf[IO, User]
 
@@ -79,7 +79,8 @@ class UserEndpointsSpec
     val userRepo = UserRepositoryInMemoryInterpreter[IO]()
     val userValidation = UserValidationInterpreter[IO](userRepo)
     val userService = UserService[IO](userRepo, userValidation)
-    val userHttpService: HttpService[IO] = UserEndpoints.endpoints(userService, BCrypt.syncPasswordHasher[IO])
+    val authService = AuthenticationService[IO](userService)
+    val userHttpService: HttpService[IO] = UserEndpoints.endpoints(userService, authService, BCrypt.syncPasswordHasher[IO])
 
     implicit val userDecoder: EntityDecoder[IO, User] = jsonOf[IO, User]
 
@@ -108,7 +109,8 @@ class UserEndpointsSpec
     val userRepo = UserRepositoryInMemoryInterpreter[IO]()
     val userValidation = UserValidationInterpreter[IO](userRepo)
     val userService = UserService[IO](userRepo, userValidation)
-    val userHttpService: HttpService[IO] = UserEndpoints.endpoints(userService, BCrypt.syncPasswordHasher[IO])
+    val authService = AuthenticationService[IO](userService)
+    val userHttpService: HttpService[IO] = UserEndpoints.endpoints(userService, authService, BCrypt.syncPasswordHasher[IO])
 
     implicit val userDecoder: EntityDecoder[IO, User] = jsonOf[IO, User]
 

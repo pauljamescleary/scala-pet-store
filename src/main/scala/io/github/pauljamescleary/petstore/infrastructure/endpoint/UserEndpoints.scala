@@ -6,14 +6,12 @@ import cats.effect.Effect
 import cats.implicits._
 import io.circe.generic.auto._
 import io.circe.syntax._
+import io.github.pauljamescleary.petstore.domain._
+import io.github.pauljamescleary.petstore.domain.authentication._
+import io.github.pauljamescleary.petstore.domain.users._
 import org.http4s.circe._
 import org.http4s.dsl.Http4sDsl
 import org.http4s.{EntityDecoder, HttpService}
-
-import scala.language.higherKinds
-import domain._
-import domain.users._
-import domain.authentication._
 import tsec.common.Verified
 import tsec.passwordhashers.{PasswordHash, PasswordHasher}
 
@@ -26,22 +24,33 @@ class UserEndpoints[F[_]: Effect, A] extends Http4sDsl[F] {
 
   implicit val signupReqDecoder: EntityDecoder[F, SignupRequest] = jsonOf
 
-  private def loginEndpoint(userService: UserService[F], cryptService: PasswordHasher[F, A]): HttpService[F] =
+  private def loginEndpoint(userService: UserService[F],
+                            authService: AuthenticationService[F],
+                            cryptService: PasswordHasher[F, A]): HttpService[F] =
     HttpService[F] {
-      case req @ POST -> Root / "login" =>
-        val action: EitherT[F, UserAuthenticationFailedError, User] = for {
+      case req@POST -> Root / "login" =>
+        val verification: EitherT[F, UserAuthenticationFailedError, User] = for {
           login <- EitherT.liftF(req.as[LoginRequest])
           name = login.userName
           user <- userService.getUserByName(name).leftMap(_ => UserAuthenticationFailedError(name))
           checkResult <- EitherT.liftF(cryptService.checkpw(login.password, PasswordHash[A](user.hash)))
-          resp <-
-            if(checkResult == Verified) EitherT.rightT[F, UserAuthenticationFailedError](user)
-            else EitherT.leftT[F, User](UserAuthenticationFailedError(name))
-        } yield resp
+          verification <-
+            if (checkResult == Verified) {
+              EitherT.rightT[F, UserAuthenticationFailedError](user)
+            } else {
+              EitherT.leftT[F, User](UserAuthenticationFailedError(name))
+            }
+        } yield verification
 
-        action.value.flatMap {
-          case Right(user) => Ok(user.asJson)
-          case Left(UserAuthenticationFailedError(name)) => BadRequest(s"Authentication failed for user $name")
+        verification.value.flatMap {
+          case Right(verifiedUser) => for {
+            authenticator <- authService.jwtStatefulAuth.create(verifiedUser.id.get)
+            userResp <- Ok(verifiedUser.asJson)
+          } yield {
+            authService.jwtStatefulAuth.embed(userResp, authenticator)
+          }
+          case Left(UserAuthenticationFailedError(name)) =>
+            BadRequest(s"Authentication failed for user $name")
         }
     }
 
@@ -95,6 +104,7 @@ class UserEndpoints[F[_]: Effect, A] extends Http4sDsl[F] {
         }
     }
 
+
   private def deleteUserEndpoint(userService: UserService[F]): HttpService[F] =
     HttpService[F] {
       case DELETE -> Root / "users" / userName =>
@@ -105,8 +115,10 @@ class UserEndpoints[F[_]: Effect, A] extends Http4sDsl[F] {
     }
 
 
-  def endpoints(userService: UserService[F], cryptService: PasswordHasher[F, A]): HttpService[F] =
-    loginEndpoint(userService, cryptService) <+>
+  def endpoints(userService: UserService[F],
+                authService: AuthenticationService[F],
+                cryptService: PasswordHasher[F, A]): HttpService[F] =
+    loginEndpoint(userService, authService, cryptService) <+>
     signupEndpoint(userService, cryptService) <+>
     updateEndpoint(userService) <+>
     listEndpoint(userService)   <+>
@@ -116,8 +128,8 @@ class UserEndpoints[F[_]: Effect, A] extends Http4sDsl[F] {
 
 object UserEndpoints {
   def endpoints[F[_]: Effect, A](
-    userService: UserService[F],
-    cryptService: PasswordHasher[F, A]
-  ): HttpService[F] =
-    new UserEndpoints[F, A].endpoints(userService, cryptService)
+      userService: UserService[F],
+      authService: AuthenticationService[F],
+      cryptService: PasswordHasher[F, A]): HttpService[F] =
+    new UserEndpoints[F, A].endpoints(userService, authService, cryptService)
 }

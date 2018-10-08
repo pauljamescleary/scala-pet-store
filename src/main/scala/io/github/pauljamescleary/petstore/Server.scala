@@ -42,7 +42,7 @@ object Server extends StreamApp[IO] {
         .bindHttp(8080, "localhost")
         .mountService(PetEndpoints.endpoints[F](petService), "/")
         .mountService(OrderEndpoints.endpoints[F](orderService), "/")
-        .mountService(UserEndpoints.endpoints(userService, BCrypt.syncPasswordHasher[F]), "/")
+        .mountService(UserEndpoints.endpoints(userService, authService, BCrypt.syncPasswordHasher[F]), "/")
         .serve
     } yield exitCode
 }
