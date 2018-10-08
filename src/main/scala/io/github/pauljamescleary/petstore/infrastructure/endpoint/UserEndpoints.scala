@@ -12,8 +12,10 @@ import io.github.pauljamescleary.petstore.domain.users._
 import org.http4s.circe._
 import org.http4s.dsl.Http4sDsl
 import org.http4s.{EntityDecoder, HttpService}
+import tsec.authentication.{TSecAuthService, _}
 import tsec.common.Verified
 import tsec.passwordhashers.{PasswordHash, PasswordHasher}
+
 
 class UserEndpoints[F[_]: Effect, A] extends Http4sDsl[F] {
   import Pagination._
@@ -71,6 +73,12 @@ class UserEndpoints[F[_]: Effect, A] extends Http4sDsl[F] {
         }
     }
 
+  private def secureEndpoint(authService: AuthenticationService[F]): HttpService[F] =
+    authService.Auth.liftService( TSecAuthService{
+      case  _ @ GET -> Root / "secure"  asAuthed user =>
+        Ok(user.asJson)
+    })
+
   private def updateEndpoint(userService: UserService[F]): HttpService[F] =
     HttpService[F] {
       case req @ PUT -> Root / "users" / name =>
@@ -120,6 +128,7 @@ class UserEndpoints[F[_]: Effect, A] extends Http4sDsl[F] {
                 cryptService: PasswordHasher[F, A]): HttpService[F] =
     loginEndpoint(userService, authService, cryptService) <+>
     signupEndpoint(userService, cryptService) <+>
+    secureEndpoint(authService) <+>
     updateEndpoint(userService) <+>
     listEndpoint(userService)   <+>
     searchByNameEndpoint(userService)   <+>
