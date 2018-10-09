@@ -1,10 +1,11 @@
-package io.github.pauljamescleary.petstore.domain.authentication
+package io.github.pauljamescleary.petstore
+package domain.authentication
 
 import cats.Id
 import cats.data.OptionT
 import cats.effect.{Effect, Sync}
-import io.github.pauljamescleary.petstore.domain.users.{User, UserService}
-import tsec.authentication.{AugmentedJWT, BackingStore, JWTAuthenticator, SecuredRequestHandler, TSecAuthService}
+import domain.users.{User, UserService}
+import tsec.authentication._
 import tsec.common.SecureRandomId
 import tsec.mac.jca.{HMACSHA256, MacSigningKey}
 
