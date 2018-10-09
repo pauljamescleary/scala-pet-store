@@ -14,7 +14,7 @@ import scala.language.higherKinds
 import domain._
 import domain.users._
 import domain.authentication._
-import tsec.authentication._
+//import tsec.authentication._
 import tsec.common.Verified
 import tsec.passwordhashers.{PasswordHash, PasswordHasher}
 
@@ -110,12 +110,12 @@ class UserEndpoints[F[_]: Effect, A] extends Http4sDsl[F] {
           resp <- Ok()
         } yield resp
     }
-
+/*
   private def secureEndpoint(authService: AuthenticationService[F]): HttpService[F] =
     authService.Auth.liftService( TSecAuthService{
       case  _ @ GET -> Root / "secure"  asAuthed user =>
         Ok(user.asJson)
-    })
+    }) */
 
   def endpoints(userService: UserService[F],
                 authService: AuthenticationService[F],
@@ -125,8 +125,8 @@ class UserEndpoints[F[_]: Effect, A] extends Http4sDsl[F] {
     updateEndpoint(userService) <+>
     listEndpoint(userService)   <+>
     searchByNameEndpoint(userService)   <+>
-    deleteUserEndpoint(userService) <+>
-    secureEndpoint(authService)
+    deleteUserEndpoint(userService) /* <+>
+    secureEndpoint(authService)*/
 }
 
 object UserEndpoints {
