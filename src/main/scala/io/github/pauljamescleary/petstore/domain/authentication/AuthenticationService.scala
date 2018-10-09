@@ -73,7 +73,6 @@ class AuthenticationService[F[_] : Effect](userService: UserService[F]) {
 
   val jwtStore = memoryStore[SecureRandomId, AugmentedJWT[HMACSHA256, Long]](s => SecureRandomId.coerce(s.id))
 
-  //FIXME: What am I doing here, id.get?
   val userStore: BackingStore[F, Long, User] = backingStore(_.id.get)
 
   val signingKey: MacSigningKey[HMACSHA256] = HMACSHA256.generateKey[Id]

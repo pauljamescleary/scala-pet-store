@@ -137,4 +137,43 @@ class UserEndpointsSpec
       }).unsafeRunSync
     }
   }
+
+  test("signup login and use secure end point") {
+    val userRepo = UserRepositoryInMemoryInterpreter[IO]()
+    val userValidation = UserValidationInterpreter[IO](userRepo)
+    val userService = UserService[IO](userRepo, userValidation)
+    val authService = AuthenticationService[IO](userService)
+    val userHttpService: HttpService[IO] = UserEndpoints.endpoints(userService, authService, BCrypt.syncPasswordHasher[IO])
+
+    forAll { userSignup: SignupRequest =>
+      (for {
+        createRequest <- Request[IO](Method.POST, Uri.uri("/users"))
+          .withBody(userSignup.asJson)
+        createResponse <- userHttpService
+          .run(createRequest)
+          .getOrElse(fail(s"Request was not handled: $createRequest"))
+        loginRequest <- Request[IO](Method.POST, Uri.uri("/login"))
+          .withBody(LoginRequest(userSignup.userName, userSignup.password).asJson)
+        loginResponse <- userHttpService
+          .run(loginRequest)
+          .getOrElse(fail(s"Login was not handled: $loginRequest"))
+
+        authRequest = Request[IO](Method.GET, Uri.uri("/secure")).withHeaders(loginResponse.headers)
+        authResponse <- userHttpService
+            .run(authRequest)
+            .getOrElse(fail(s"Failed to get auth secure end point: $authRequest"))
+
+        unAuthRequest = Request[IO](Method.GET, Uri.uri("/secure"))
+        unAuthResponse <- userHttpService
+          .run(unAuthRequest)
+          .getOrElse(fail(s"Failed to get unauth secure end point: $unAuthRequest"))
+
+      } yield {
+        createResponse.status shouldEqual Ok
+        loginResponse.status shouldEqual Ok
+        authResponse.status shouldEqual Ok
+        unAuthResponse.status shouldEqual Unauthorized
+      }).unsafeRunSync
+    }
+  }
 }
