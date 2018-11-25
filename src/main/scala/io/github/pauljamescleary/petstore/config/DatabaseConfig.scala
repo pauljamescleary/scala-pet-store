@@ -1,15 +1,20 @@
 package io.github.pauljamescleary.petstore.config
 
-import cats.effect.{Async, Sync}
+import cats.effect.{Async, ContextShift, Resource, Sync}
 import doobie.hikari.HikariTransactor
 import org.flywaydb.core.Flyway
+
+import scala.concurrent.ExecutionContext
 
 case class DatabaseConfig(url: String, driver: String, user: String, password: String)
 
 object DatabaseConfig {
-
-  def dbTransactor[F[_]: Async](dbConfig: DatabaseConfig): F[HikariTransactor[F]] =
-    HikariTransactor.newHikariTransactor[F](dbConfig.driver, dbConfig.url, dbConfig.user, dbConfig.password)
+  def dbTransactor[F[_]: Async : ContextShift](
+    dbc: DatabaseConfig,
+    connEc : ExecutionContext,
+    transEc : ExecutionContext
+  ): Resource[F, HikariTransactor[F]] =
+    HikariTransactor.newHikariTransactor[F](dbc.driver, dbc.url, dbc.user, dbc.password, connEc, transEc)
 
   /**
     * Runs the flyway migrations against the target database

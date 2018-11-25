@@ -11,11 +11,11 @@ import SQLPagination._
 private object PetSQL {
   /* We require type StatusMeta to handle our ADT Status */
   implicit val StatusMeta: Meta[PetStatus] =
-    Meta[String].xmap(PetStatus.withName, _.entryName)
+    Meta[String].imap(PetStatus.withName)(_.entryName)
 
   /* This is used to marshal our sets of strings */
-  implicit val SetStringMeta: Meta[Set[String]] = Meta[String]
-    .xmap(str => str.split(',').toSet, strSet => strSet.mkString(","))
+  implicit val SetStringMeta: Meta[Set[String]] =
+    Meta[String].imap(_.split(',').toSet)(_.mkString(","))
 
   def insert(pet: Pet) : Update0 = sql"""
     INSERT INTO PET (NAME, CATEGORY, BIO, STATUS, TAGS, PHOTO_URLS)
