@@ -8,7 +8,7 @@ package object doobie {
   def getTransactor : IO[Transactor[IO]] = for {
     conf <- PetStoreConfig.load[IO]
     tr <- DatabaseConfig.dbTransactor[IO](conf.db)
-    x <- DatabaseConfig.initializeDb(conf.db, tr)
+    x <- DatabaseConfig.initializeDb[IO](conf.db)
   } yield tr
 
   lazy val testTransactor : Transactor[IO] = getTransactor.unsafeRunSync()

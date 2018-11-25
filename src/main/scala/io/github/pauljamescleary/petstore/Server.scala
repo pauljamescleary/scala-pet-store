@@ -26,8 +26,8 @@ object Server extends StreamApp[IO] {
     for {
       conf           <- Stream.eval(PetStoreConfig.load[F])
       signingKey     <- Stream.eval(keyGen.generateKey[F])
+      _              <- Stream.eval(DatabaseConfig.initializeDb(conf.db))
       xa             <- Stream.eval(DatabaseConfig.dbTransactor(conf.db))
-      _              <- Stream.eval(DatabaseConfig.initializeDb(conf.db, xa))
       petRepo        =  DoobiePetRepositoryInterpreter[F](xa)
       orderRepo      =  DoobieOrderRepositoryInterpreter[F](xa)
       userRepo       =  DoobieUserRepositoryInterpreter[F](xa)

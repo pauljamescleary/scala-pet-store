@@ -17,16 +17,17 @@ object DatabaseConfig {
     * This only gets applied if the database is H2, our local in-memory database.  Otherwise
     * we skip this step
     */
-  def initializeDb[F[_]](dbConfig: DatabaseConfig, xa: HikariTransactor[F])(
-      implicit S: Sync[F]): F[Unit] =
+  def initializeDb[F[_]](dbConfig: DatabaseConfig)(implicit S: Sync[F]): F[Unit] =
     if (dbConfig.url.contains(":h2:")) {
-      xa.configure { ds =>
-        S.delay {
-          val fw = new Flyway()
-          fw.setDataSource(ds)
-          fw.migrate()
-          ()
-        }
+      S.delay {
+        val fw = new Flyway()
+        val ds = new org.h2.jdbcx.JdbcDataSource()
+        ds.setUrl(dbConfig.url)
+        ds.setUser(dbConfig.user)
+        ds.setPassword(dbConfig.password)
+        fw.setDataSource(ds)
+        fw.migrate()
+        ()
       }
     } else {
       S.pure(())
