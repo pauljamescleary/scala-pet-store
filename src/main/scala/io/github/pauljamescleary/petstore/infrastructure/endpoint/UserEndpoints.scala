@@ -8,7 +8,7 @@ import io.circe.generic.auto._
 import io.circe.syntax._
 import org.http4s.circe._
 import org.http4s.dsl.Http4sDsl
-import org.http4s.{EntityDecoder, HttpService}
+import org.http4s.{EntityDecoder, HttpRoutes}
 
 import scala.language.higherKinds
 import domain._
@@ -26,8 +26,8 @@ class UserEndpoints[F[_]: Effect, A] extends Http4sDsl[F] {
 
   implicit val signupReqDecoder: EntityDecoder[F, SignupRequest] = jsonOf
 
-  private def loginEndpoint(userService: UserService[F], cryptService: PasswordHasher[F, A]): HttpService[F] =
-    HttpService[F] {
+  private def loginEndpoint(userService: UserService[F], cryptService: PasswordHasher[F, A]): HttpRoutes[F] =
+    HttpRoutes.of[F] {
       case req @ POST -> Root / "login" =>
         val action: EitherT[F, UserAuthenticationFailedError, User] = for {
           login <- EitherT.liftF(req.as[LoginRequest])
@@ -45,8 +45,8 @@ class UserEndpoints[F[_]: Effect, A] extends Http4sDsl[F] {
         }
     }
 
-  private def signupEndpoint(userService: UserService[F], crypt: PasswordHasher[F, A]): HttpService[F] =
-    HttpService[F] {
+  private def signupEndpoint(userService: UserService[F], crypt: PasswordHasher[F, A]): HttpRoutes[F] =
+    HttpRoutes.of[F] {
       case req @ POST -> Root / "users" =>
         val action = for {
           signup <- req.as[SignupRequest]
@@ -62,8 +62,8 @@ class UserEndpoints[F[_]: Effect, A] extends Http4sDsl[F] {
         }
     }
 
-  private def updateEndpoint(userService: UserService[F]): HttpService[F] =
-    HttpService[F] {
+  private def updateEndpoint(userService: UserService[F]): HttpRoutes[F] =
+    HttpRoutes.of[F] {
       case req @ PUT -> Root / "users" / name =>
         val action = for {
           user <- req.as[User]
@@ -77,8 +77,8 @@ class UserEndpoints[F[_]: Effect, A] extends Http4sDsl[F] {
         }
     }
 
-  private def listEndpoint(userService: UserService[F]): HttpService[F] =
-    HttpService[F] {
+  private def listEndpoint(userService: UserService[F]): HttpRoutes[F] =
+    HttpRoutes.of[F] {
       case GET -> Root / "users" :? PageSizeMatcher(pageSize) :? OffsetMatcher(offset) =>
         for {
           retrived <- userService.list(pageSize, offset)
@@ -86,8 +86,8 @@ class UserEndpoints[F[_]: Effect, A] extends Http4sDsl[F] {
         } yield resp
     }
 
-  private def searchByNameEndpoint(userService: UserService[F]): HttpService[F] =
-    HttpService[F] {
+  private def searchByNameEndpoint(userService: UserService[F]): HttpRoutes[F] =
+    HttpRoutes.of[F] {
       case GET -> Root / "users" / userName =>
         userService.getUserByName(userName).value.flatMap {
           case Right(found) => Ok(found.asJson)
@@ -95,8 +95,8 @@ class UserEndpoints[F[_]: Effect, A] extends Http4sDsl[F] {
         }
     }
 
-  private def deleteUserEndpoint(userService: UserService[F]): HttpService[F] =
-    HttpService[F] {
+  private def deleteUserEndpoint(userService: UserService[F]): HttpRoutes[F] =
+    HttpRoutes.of[F] {
       case DELETE -> Root / "users" / userName =>
         for {
           _ <- userService.deleteByUserName(userName)
@@ -104,8 +104,7 @@ class UserEndpoints[F[_]: Effect, A] extends Http4sDsl[F] {
         } yield resp
     }
 
-
-  def endpoints(userService: UserService[F], cryptService: PasswordHasher[F, A]): HttpService[F] =
+  def endpoints(userService: UserService[F], cryptService: PasswordHasher[F, A]): HttpRoutes[F] =
     loginEndpoint(userService, cryptService) <+>
     signupEndpoint(userService, cryptService) <+>
     updateEndpoint(userService) <+>
@@ -118,6 +117,6 @@ object UserEndpoints {
   def endpoints[F[_]: Effect, A](
     userService: UserService[F],
     cryptService: PasswordHasher[F, A]
-  ): HttpService[F] =
+  ): HttpRoutes[F] =
     new UserEndpoints[F, A].endpoints(userService, cryptService)
 }

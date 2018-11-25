@@ -7,22 +7,18 @@ import domain.pets._
 import infrastructure.endpoint.{OrderEndpoints, PetEndpoints, UserEndpoints}
 import infrastructure.repository.doobie.{DoobieOrderRepositoryInterpreter, DoobiePetRepositoryInterpreter, DoobieUserRepositoryInterpreter}
 import cats.effect._
-import fs2.StreamApp.ExitCode
-import fs2.{Stream, StreamApp}
-import org.http4s.server.blaze.BlazeBuilder
+import cats.implicits._
+import fs2._
+import org.http4s.server.Router
+import org.http4s.server.blaze.BlazeServerBuilder
+import org.http4s.implicits._
 import tsec.mac.jca.HMACSHA256
 import tsec.passwordhashers.jca.BCrypt
 
-object Server extends StreamApp[IO] {
-  import scala.concurrent.ExecutionContext.Implicits.global
-
-  override def stream(args: List[String], shutdown: IO[Unit]): Stream[IO, ExitCode] =
-    createStream[IO](args, shutdown)
-
+object Server extends IOApp {
   private val keyGen = HMACSHA256
 
-  def createStream[F[_]](args: List[String], shutdown: F[Unit])(
-      implicit E: Effect[F]): Stream[F, ExitCode] =
+  def createStream[F[_] : ConcurrentEffect : Timer](args: List[String]): Stream[F, ExitCode] =
     for {
       conf           <- Stream.eval(PetStoreConfig.load[F])
       signingKey     <- Stream.eval(keyGen.generateKey[F])
@@ -36,11 +32,17 @@ object Server extends StreamApp[IO] {
       userValidation =  UserValidationInterpreter[F](userRepo)
       orderService   =  OrderService[F](orderRepo)
       userService    =  UserService[F](userRepo, userValidation)
-      exitCode       <- BlazeBuilder[F]
-        .bindHttp(8080, "localhost")
-        .mountService(PetEndpoints.endpoints[F](petService), "/")
-        .mountService(OrderEndpoints.endpoints[F](orderService), "/")
-        .mountService(UserEndpoints.endpoints(userService, BCrypt.syncPasswordHasher[F]), "/")
-        .serve
+      services       =  PetEndpoints.endpoints[F](petService) <+>
+                        OrderEndpoints.endpoints[F](orderService) <+>
+                        UserEndpoints.endpoints[F, BCrypt](userService, BCrypt.syncPasswordHasher[F])
+      httpApp        =  Router("/" -> services).orNotFound
+      exitCode       <- BlazeServerBuilder[F]
+                          .bindHttp(8080, "localhost")
+                          .withHttpApp(httpApp)
+                          .serve
     } yield exitCode
+
+
+  def run(args : List[String]) : IO[ExitCode] =
+    createStream[IO](args).compile.drain.as(ExitCode.Success)
 }
