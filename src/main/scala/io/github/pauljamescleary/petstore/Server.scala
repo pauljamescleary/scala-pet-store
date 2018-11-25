@@ -8,7 +8,6 @@ import infrastructure.endpoint.{OrderEndpoints, PetEndpoints, UserEndpoints}
 import infrastructure.repository.doobie.{DoobieOrderRepositoryInterpreter, DoobiePetRepositoryInterpreter, DoobieUserRepositoryInterpreter}
 import cats.effect._
 import cats.implicits._
-import fs2._
 import org.http4s.server.Router
 import org.http4s.server.blaze.BlazeServerBuilder
 import org.http4s.implicits._
@@ -19,13 +18,13 @@ import scala.concurrent.ExecutionContext.Implicits.global
 object Server extends IOApp {
   private val keyGen = HMACSHA256
 
-  def createStream[F[_] : ContextShift : ConcurrentEffect : Timer](args: List[String]): Stream[F, ExitCode] =
+  def createStream[F[_] : ContextShift : ConcurrentEffect : Timer]: F[ExitCode] =
     for {
-      conf           <- Stream.eval(PetStoreConfig.load[F])
-      signingKey     <- Stream.eval(keyGen.generateKey[F])
-      _              <- Stream.eval(DatabaseConfig.initializeDb(conf.db))
-      xar            <- Stream(DatabaseConfig.dbTransactor(conf.db, global, global)).covary[F]
-      httpApp        <- Stream.eval(xar.use{ xa =>
+      conf           <- PetStoreConfig.load[F]
+      signingKey     <- keyGen.generateKey[F]
+      _              <- DatabaseConfig.initializeDb(conf.db)
+      xar            =  DatabaseConfig.dbTransactor(conf.db, global, global)
+      exitCode       <- xar.use{ xa =>
         val petRepo        =  DoobiePetRepositoryInterpreter[F](xa)
         val orderRepo      =  DoobieOrderRepositoryInterpreter[F](xa)
         val userRepo       =  DoobieUserRepositoryInterpreter[F](xa)
@@ -37,13 +36,16 @@ object Server extends IOApp {
         val services       =  PetEndpoints.endpoints[F](petService) <+>
                               OrderEndpoints.endpoints[F](orderService) <+>
                               UserEndpoints.endpoints[F, BCrypt](userService, BCrypt.syncPasswordHasher[F])
-        Router("/" -> services).orNotFound.pure[F]
-      })
-      exitCode       <- BlazeServerBuilder[F]
-                          .bindHttp(8080, "localhost")
-                          .withHttpApp(httpApp)
-                          .serve
+        val httpApp = Router("/" -> services).orNotFound
+        BlazeServerBuilder[F]
+        .bindHttp(8080, "localhost")
+        .withHttpApp(httpApp)
+        .serve
+        .compile
+        .drain
+        .as(ExitCode.Success)
+      }
     } yield exitCode
 
-  def run(args : List[String]) : IO[ExitCode] = createStream[IO](args).compile.drain.as(ExitCode.Success)
+  def run(args : List[String]) : IO[ExitCode] = createStream[IO]
 }
