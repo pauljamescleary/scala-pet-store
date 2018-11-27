@@ -4,7 +4,6 @@ import io.github.pauljamescleary.petstore.domain.orders._
 import io.github.pauljamescleary.petstore.PetStoreArbitraries
 import io.github.pauljamescleary.petstore.infrastructure.repository.inmemory.OrderRepositoryInMemoryInterpreter
 import cats.effect._
-//import io.circe.generic.auto._
 import io.circe._
 import io.circe.generic.semiauto._
 import io.circe.java8.time._

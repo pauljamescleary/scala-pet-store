@@ -24,7 +24,7 @@ object Server extends IOApp {
       signingKey     <- keyGen.generateKey[F]
       _              <- DatabaseConfig.initializeDb(conf.db)
       xar            =  DatabaseConfig.dbTransactor(conf.db, global, global)
-      exitCode       <- xar.use{ xa =>
+      exitCode       <- xar.use { xa =>
         val petRepo        =  DoobiePetRepositoryInterpreter[F](xa)
         val orderRepo      =  DoobieOrderRepositoryInterpreter[F](xa)
         val userRepo       =  DoobieUserRepositoryInterpreter[F](xa)

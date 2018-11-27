@@ -7,7 +7,6 @@ import cats.effect._
 
 import io.circe.generic.auto._
 
-//import io.circe.generic.semiauto._
 import org.http4s._
 import org.http4s.implicits._
 import org.http4s.dsl._
@@ -25,8 +24,6 @@ class PetEndpointsSpec
     with Http4sDsl[IO]
     with Http4sClientDsl[IO]{
 
-//  implicit val petEncoder : Encoder[Pet] = deriveEncoder
-//  implicit val petDecoder : Decoder[Pet] = deriveDecoder
   implicit val petEnc : EntityEncoder[IO, Pet] = jsonEncoderOf
   implicit val petDec : EntityDecoder[IO, Pet] = jsonOf
 
