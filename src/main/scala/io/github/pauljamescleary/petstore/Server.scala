@@ -18,11 +18,10 @@ import scala.concurrent.ExecutionContext.Implicits.global
 object Server extends IOApp {
   private val keyGen = HMACSHA256
 
-  def createStream[F[_] : ContextShift : ConcurrentEffect : Timer]: F[ExitCode] =
+  def createServer[F[_] : ContextShift : ConcurrentEffect : Timer]: F[ExitCode] =
     for {
       conf           <- PetStoreConfig.load[F]
       signingKey     <- keyGen.generateKey[F]
-      _              <- DatabaseConfig.initializeDb(conf.db)
       xar            =  DatabaseConfig.dbTransactor(conf.db, global, global)
       exitCode       <- xar.use { xa =>
         val petRepo        =  DoobiePetRepositoryInterpreter[F](xa)
@@ -37,15 +36,20 @@ object Server extends IOApp {
                               OrderEndpoints.endpoints[F](orderService) <+>
                               UserEndpoints.endpoints[F, BCrypt](userService, BCrypt.syncPasswordHasher[F])
         val httpApp = Router("/" -> services).orNotFound
-        BlazeServerBuilder[F]
-        .bindHttp(8080, "localhost")
-        .withHttpApp(httpApp)
-        .serve
-        .compile
-        .drain
-        .as(ExitCode.Success)
+
+        val init : F[Unit] = xa.configure(DatabaseConfig.initializeDb(_))
+
+        val build : F[ExitCode] = BlazeServerBuilder[F]
+          .bindHttp(8080, "localhost")
+          .withHttpApp(httpApp)
+          .serve
+          .compile
+          .drain
+          .as(ExitCode.Success)
+
+        init *> build
       }
     } yield exitCode
 
-  def run(args : List[String]) : IO[ExitCode] = createStream[IO]
+  def run(args : List[String]) : IO[ExitCode] = createServer[IO]
 }
