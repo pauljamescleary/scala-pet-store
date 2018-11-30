@@ -4,9 +4,9 @@ package infrastructure.endpoint
 import org.scalatest._
 import org.scalatest.prop.PropertyChecks
 import cats.effect._
-import io.circe.syntax._
 import io.circe.generic.auto._
 import org.http4s._
+import org.http4s.implicits._
 import org.http4s.dsl._
 import org.http4s.circe._
 
@@ -16,28 +16,33 @@ import domain.users._
 import domain.authentication._
 import infrastructure.repository.inmemory.UserRepositoryInMemoryInterpreter
 
+import org.http4s.client.dsl.Http4sClientDsl
+import org.scalatest._
+import org.scalatest.prop.PropertyChecks
 
 class UserEndpointsSpec
   extends FunSuite
   with Matchers
   with PropertyChecks
   with PetStoreArbitraries
-  with Http4sDsl[IO] {
+  with Http4sDsl[IO]
+  with Http4sClientDsl[IO] {
+
+  implicit val userEnc : EntityEncoder[IO, User] = jsonEncoderOf
+  implicit val userDec : EntityDecoder[IO, User] = jsonOf
+  implicit val signupRequestEnc : EntityEncoder[IO, SignupRequest] = jsonEncoderOf
+  implicit val signupRequestDec : EntityDecoder[IO, SignupRequest] = jsonOf
 
   test("create user") {
-
     val userRepo = UserRepositoryInMemoryInterpreter[IO]()
     val userValidation = UserValidationInterpreter[IO](userRepo)
     val userService = UserService[IO](userRepo, userValidation)
-    val userHttpService = UserEndpoints.endpoints(userService, BCrypt.syncPasswordHasher[IO])
+    val userHttpService = UserEndpoints.endpoints(userService, BCrypt.syncPasswordHasher[IO]).orNotFound
 
     forAll { userSignup: SignupRequest =>
       (for {
-        request <- Request[IO](Method.POST, Uri.uri("/users"))
-          .withBody(userSignup.asJson)
-        response <- userHttpService
-          .run(request)
-          .getOrElse(fail(s"Request was not handled: $request"))
+        request <- POST(userSignup, Uri.uri("/users"))
+        response <- userHttpService.run(request)
       } yield {
         response.status shouldEqual Ok
       }).unsafeRunSync
@@ -48,24 +53,16 @@ class UserEndpointsSpec
     val userRepo = UserRepositoryInMemoryInterpreter[IO]()
     val userValidation = UserValidationInterpreter[IO](userRepo)
     val userService = UserService[IO](userRepo, userValidation)
-    val userHttpService: HttpService[IO] = UserEndpoints.endpoints(userService, BCrypt.syncPasswordHasher[IO])
-
-    implicit val userDecoder: EntityDecoder[IO, User] = jsonOf[IO, User]
+    val userHttpService = UserEndpoints.endpoints(userService, BCrypt.syncPasswordHasher[IO]).orNotFound
 
     forAll { userSignup: SignupRequest =>
       (for {
-        createRequest <- Request[IO](Method.POST, Uri.uri("/users"))
-          .withBody(userSignup.asJson)
-        createResponse <- userHttpService
-          .run(createRequest)
-          .getOrElse(fail(s"Request was not handled: $createRequest"))
+        createRequest <- POST(userSignup, Uri.uri("/users"))
+        createResponse <- userHttpService.run(createRequest)
         createdUser <- createResponse.as[User]
         userToUpdate = createdUser.copy(lastName = createdUser.lastName.reverse)
-        updateRequest <- Request[IO](Method.PUT, Uri.unsafeFromString(s"/users/${createdUser.userName}"))
-          .withBody(userToUpdate.asJson)
-        updateResponse <- userHttpService
-          .run(updateRequest)
-          .getOrElse(fail(s"Request was not handled: $updateRequest"))
+        updateUser <- PUT(userToUpdate, Uri.unsafeFromString(s"/users/${createdUser.userName}"))
+        updateResponse <- userHttpService.run(updateUser)
         updatedUser <- updateResponse.as[User]
       } yield {
         updateResponse.status shouldEqual Ok
@@ -79,22 +76,15 @@ class UserEndpointsSpec
     val userRepo = UserRepositoryInMemoryInterpreter[IO]()
     val userValidation = UserValidationInterpreter[IO](userRepo)
     val userService = UserService[IO](userRepo, userValidation)
-    val userHttpService: HttpService[IO] = UserEndpoints.endpoints(userService, BCrypt.syncPasswordHasher[IO])
-
-    implicit val userDecoder: EntityDecoder[IO, User] = jsonOf[IO, User]
+    val userHttpService = UserEndpoints.endpoints(userService, BCrypt.syncPasswordHasher[IO]).orNotFound
 
     forAll { userSignup: SignupRequest =>
       (for {
-        createRequest <- Request[IO](Method.POST, Uri.uri("/users"))
-          .withBody(userSignup.asJson)
-        createResponse <- userHttpService
-          .run(createRequest)
-          .getOrElse(fail(s"Request was not handled: $createRequest"))
+        createRequest <- POST(userSignup, Uri.uri("/users"))
+        createResponse <- userHttpService.run(createRequest)
         createdUser <- createResponse.as[User]
-        getRequest = Request[IO](Method.GET, Uri.unsafeFromString(s"/users/${createdUser.userName}"))
-        getResponse <- userHttpService
-          .run(getRequest)
-          .getOrElse(fail(s"Get request was not handled"))
+        getRequest <- GET(Uri.unsafeFromString(s"/users/${createdUser.userName}"))
+        getResponse <- userHttpService.run(getRequest)
         getUser <- getResponse.as[User]
       } yield {
         getResponse.status shouldEqual Ok
@@ -108,26 +98,17 @@ class UserEndpointsSpec
     val userRepo = UserRepositoryInMemoryInterpreter[IO]()
     val userValidation = UserValidationInterpreter[IO](userRepo)
     val userService = UserService[IO](userRepo, userValidation)
-    val userHttpService: HttpService[IO] = UserEndpoints.endpoints(userService, BCrypt.syncPasswordHasher[IO])
-
-    implicit val userDecoder: EntityDecoder[IO, User] = jsonOf[IO, User]
+    val userHttpService = UserEndpoints.endpoints(userService, BCrypt.syncPasswordHasher[IO]).orNotFound
 
     forAll { userSignup: SignupRequest =>
       (for {
-        createRequest <- Request[IO](Method.POST, Uri.uri("/users"))
-          .withBody(userSignup.asJson)
-        createResponse <- userHttpService
-          .run(createRequest)
-          .getOrElse(fail(s"Request was not handled: $createRequest"))
+        createRequest <- POST(userSignup, Uri.uri("/users"))
+        createResponse <- userHttpService.run(createRequest)
         createdUser <- createResponse.as[User]
-        deleteRequest = Request[IO](Method.DELETE, Uri.unsafeFromString(s"/users/${createdUser.userName}"))
-        deleteResponse <- userHttpService
-          .run(deleteRequest)
-          .getOrElse(fail(s"Delete request was not handled"))
-        getRequest = Request[IO](Method.GET, Uri.unsafeFromString(s"/users/${createdUser.userName}"))
-        getResponse <- userHttpService
-          .run(getRequest)
-          .getOrElse(fail(s"Get request was not handled"))
+        deleteRequest <- DELETE(Uri.unsafeFromString(s"/users/${createdUser.userName}"))
+        deleteResponse <- userHttpService.run(deleteRequest)
+        getRequest <- GET(Uri.unsafeFromString(s"/users/${createdUser.userName}"))
+        getResponse <- userHttpService.run(getRequest)
       } yield {
         createResponse.status shouldEqual Ok
         deleteResponse.status shouldEqual Ok

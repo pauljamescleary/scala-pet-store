@@ -8,7 +8,7 @@ import io.circe.generic.auto._
 import io.circe.syntax._
 import org.http4s.circe._
 import org.http4s.dsl.Http4sDsl
-import org.http4s.{EntityDecoder, HttpService, QueryParamDecoder}
+import org.http4s.{EntityDecoder, HttpRoutes, QueryParamDecoder}
 import scala.language.higherKinds
 
 import io.github.pauljamescleary.petstore.domain.{PetAlreadyExistsError, PetNotFoundError}
@@ -30,8 +30,8 @@ class PetEndpoints[F[_]: Effect] extends Http4sDsl[F] {
 
   implicit val petDecoder: EntityDecoder[F, Pet] = jsonOf[F, Pet]
 
-  private def createPetEndpoint(petService: PetService[F]): HttpService[F] =
-    HttpService[F] {
+  private def createPetEndpoint(petService: PetService[F]): HttpRoutes[F] =
+    HttpRoutes.of[F] {
       case req @ POST -> Root / "pets" =>
         val action = for {
           pet <- req.as[Pet]
@@ -46,8 +46,8 @@ class PetEndpoints[F[_]: Effect] extends Http4sDsl[F] {
         }
     }
 
-  private def updatePetEndpoint(petService: PetService[F]): HttpService[F] =
-    HttpService[F] {
+  private def updatePetEndpoint(petService: PetService[F]): HttpRoutes[F] =
+    HttpRoutes.of[F] {
       case req @ PUT -> Root / "pets" / LongVar(petId) =>
         val action = for {
           pet <- req.as[Pet]
@@ -61,8 +61,8 @@ class PetEndpoints[F[_]: Effect] extends Http4sDsl[F] {
         }
     }
 
-  private def getPetEndpoint(petService: PetService[F]): HttpService[F] =
-    HttpService[F] {
+  private def getPetEndpoint(petService: PetService[F]): HttpRoutes[F] =
+    HttpRoutes.of[F] {
       case GET -> Root / "pets" / LongVar(id) =>
         petService.get(id).value.flatMap {
           case Right(found) => Ok(found.asJson)
@@ -70,8 +70,8 @@ class PetEndpoints[F[_]: Effect] extends Http4sDsl[F] {
         }
     }
 
-  private def deletePetEndpoint(petService: PetService[F]): HttpService[F] =
-    HttpService[F] {
+  private def deletePetEndpoint(petService: PetService[F]): HttpRoutes[F] =
+    HttpRoutes.of[F] {
       case DELETE -> Root / "pets" / LongVar(id) =>
         for {
           _ <- petService.delete(id)
@@ -79,8 +79,8 @@ class PetEndpoints[F[_]: Effect] extends Http4sDsl[F] {
         } yield resp
     }
 
-  private def listPetsEndpoint(petService: PetService[F]): HttpService[F] =
-    HttpService[F] {
+  private def listPetsEndpoint(petService: PetService[F]): HttpRoutes[F] =
+    HttpRoutes.of[F] {
       case GET -> Root / "pets" :? PageSizeMatcher(pageSize) :? OffsetMatcher(offset) =>
         for {
           retrieved <- petService.list(pageSize, offset)
@@ -88,8 +88,8 @@ class PetEndpoints[F[_]: Effect] extends Http4sDsl[F] {
         } yield resp
     }
 
-  private def findPetsByStatusEndpoint(petService: PetService[F]): HttpService[F] =
-    HttpService[F] {
+  private def findPetsByStatusEndpoint(petService: PetService[F]): HttpRoutes[F] =
+    HttpRoutes.of[F] {
       case GET -> Root / "pets" / "findByStatus" :? StatusMatcher(Valid(Nil)) =>
         // User did not specify any statuses
         BadRequest("status parameter not specified")
@@ -102,8 +102,8 @@ class PetEndpoints[F[_]: Effect] extends Http4sDsl[F] {
         } yield resp
     }
 
-  private def findPetsByTagEndpoint(petService: PetService[F]): HttpService[F] =
-    HttpService[F] {
+  private def findPetsByTagEndpoint(petService: PetService[F]): HttpRoutes[F] =
+    HttpRoutes.of[F] {
       case GET -> Root / "pets" / "findByTags" :? TagMatcher(Valid(Nil)) =>
         BadRequest("tag parameter not specified")
 
@@ -115,7 +115,7 @@ class PetEndpoints[F[_]: Effect] extends Http4sDsl[F] {
 
     }
 
-  def endpoints(petService: PetService[F]): HttpService[F] =
+  def endpoints(petService: PetService[F]): HttpRoutes[F] =
     createPetEndpoint(petService) <+>
       getPetEndpoint(petService) <+>
       deletePetEndpoint(petService) <+>
@@ -126,6 +126,6 @@ class PetEndpoints[F[_]: Effect] extends Http4sDsl[F] {
 }
 
 object PetEndpoints {
-  def endpoints[F[_]: Effect](petService: PetService[F]): HttpService[F] =
+  def endpoints[F[_]: Effect](petService: PetService[F]): HttpRoutes[F] =
     new PetEndpoints[F].endpoints(petService)
 }

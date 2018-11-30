@@ -10,11 +10,11 @@ import doobie.implicits._
   * which seems wrong.
   */
 trait SQLPagination {
-  def limit[A: Composite](lim: Int)(q: Query0[A]): Query0[A] =
-    (q.toFragment ++ sql" LIMIT $lim").query
+  def limit[A: Read](lim: Int)(q: Query0[A]): Query0[A] =
+    (q.toFragment ++ fr"LIMIT $lim").query
 
-  def paginate[A: Composite](lim: Int, offset: Int)(q: Query0[A]): Query0[A] =
-    (q.toFragment ++ sql" LIMIT $lim OFFSET $offset").query
+  def paginate[A: Read](lim: Int, offset: Int)(q: Query0[A]): Query0[A] =
+    (q.toFragment ++ fr"LIMIT $lim OFFSET $offset").query
 }
 
 object SQLPagination extends SQLPagination

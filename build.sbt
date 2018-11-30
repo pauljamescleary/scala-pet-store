@@ -6,15 +6,15 @@ scalaVersion    := "2.12.7"
 resolvers += Resolver.sonatypeRepo("snapshots")
 
 val CatsVersion            = "1.4.0"
-val CirceVersion           = "0.10.0"
-val DoobieVersion          = "0.5.3"
+val CirceVersion           = "0.10.1"
+val DoobieVersion          = "0.6.0"
 val EnumeratumVersion      = "1.5.13"
 val EnumeratumCirceVersion = "1.5.17"
-val H2Version              = "1.4.196"
-val Http4sVersion          = "0.18.19"
+val H2Version              = "1.4.197"
+val Http4sVersion          = "0.20.0-M3"
 val LogbackVersion         = "1.2.3"
 val ScalaCheckVersion      = "1.14.0"
-val ScalaTestVersion       = "3.0.4"
+val ScalaTestVersion       = "3.0.5"
 val FlywayVersion          = "4.2.0"
 val PureConfigVersion      = "0.9.2"
 val TsecVersion            = "0.0.1-M11"
@@ -24,7 +24,6 @@ libraryDependencies ++= Seq(
   "io.circe"              %% "circe-generic"        % CirceVersion,
   "io.circe"              %% "circe-literal"        % CirceVersion,
   "io.circe"              %% "circe-generic-extras" % CirceVersion,
-  "io.circe"              %% "circe-optics"         % CirceVersion,
   "io.circe"              %% "circe-parser"         % CirceVersion,
   "io.circe"              %% "circe-java8"          % CirceVersion,
   "org.tpolecat"          %% "doobie-core"          % DoobieVersion,
@@ -40,6 +39,7 @@ libraryDependencies ++= Seq(
   "ch.qos.logback"        %  "logback-classic"      % LogbackVersion,
   "org.flywaydb"          %  "flyway-core"          % FlywayVersion,
   "com.github.pureconfig" %% "pureconfig"           % PureConfigVersion,
+  "org.http4s"            %% "http4s-blaze-client"  % Http4sVersion     % Test,
   "org.scalacheck"        %% "scalacheck"           % ScalaCheckVersion % Test,
   "org.scalatest"         %% "scalatest"            % ScalaTestVersion  % Test,
 

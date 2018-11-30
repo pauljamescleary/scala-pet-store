@@ -1,15 +1,27 @@
 package io.github.pauljamescleary.petstore.infrastructure.repository
 
-import cats.effect.IO
+import cats.implicits._
+import cats.effect.{Async, ContextShift, Effect, IO}
 import io.github.pauljamescleary.petstore.config.{DatabaseConfig, PetStoreConfig}
 import _root_.doobie.Transactor
 
-package object doobie {
-  def getTransactor : IO[Transactor[IO]] = for {
-    conf <- PetStoreConfig.load[IO]
-    tr <- DatabaseConfig.dbTransactor[IO](conf.db)
-    x <- DatabaseConfig.initializeDb(conf.db, tr)
-  } yield tr
+import scala.concurrent.ExecutionContext
 
-  lazy val testTransactor : Transactor[IO] = getTransactor.unsafeRunSync()
+package object doobie {
+  def getTransactor[F[_] : Async : ContextShift](cfg : DatabaseConfig) : Transactor[F] =
+    Transactor.fromDriverManager[F](
+      cfg.driver, // driver classname
+      cfg.url, // connect URL (driver-specific)
+      cfg.user,              // user
+      cfg.password           // password
+    )
+
+  def initializedTransactor[F[_] : Effect : Async : ContextShift] : F[Transactor[F]] = for {
+    petConfig <- PetStoreConfig.load[F]
+    _ <- DatabaseConfig.initializeDb(petConfig.db)
+  } yield getTransactor(petConfig.db)
+
+  lazy val testEc = ExecutionContext.Implicits.global
+  implicit lazy val testCs = IO.contextShift(testEc)
+  lazy val testTransactor = initializedTransactor[IO].unsafeRunSync()
 }

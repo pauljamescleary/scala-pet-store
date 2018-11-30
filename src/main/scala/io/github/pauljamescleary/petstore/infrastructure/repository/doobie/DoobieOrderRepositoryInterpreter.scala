@@ -13,14 +13,11 @@ import orders.{OrderRepositoryAlgebra, OrderStatus, Order}
 private object OrderSQL {
   /* We require type StatusMeta to handle our ADT Status */
   implicit val StatusMeta: Meta[OrderStatus] =
-    Meta[String].xmap(OrderStatus.withName, _.entryName)
+    Meta[String].imap(OrderStatus.withName)(_.entryName)
 
   /* We require conversion for date time */
   implicit val DateTimeMeta: Meta[Instant] =
-    Meta[java.sql.Timestamp].xmap(
-      ts => ts.toInstant,
-      dt => java.sql.Timestamp.from(dt)
-    )
+    Meta[java.sql.Timestamp].imap(_.toInstant)(java.sql.Timestamp.from _)
 
   def select(orderId: Long): Query0[Order] = sql"""
     SELECT PET_ID, SHIP_DATE, STATUS, COMPLETE, ID

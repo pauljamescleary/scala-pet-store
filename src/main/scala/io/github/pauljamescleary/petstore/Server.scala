@@ -7,40 +7,45 @@ import domain.pets._
 import infrastructure.endpoint.{OrderEndpoints, PetEndpoints, UserEndpoints}
 import infrastructure.repository.doobie.{DoobieOrderRepositoryInterpreter, DoobiePetRepositoryInterpreter, DoobieUserRepositoryInterpreter}
 import cats.effect._
-import fs2.StreamApp.ExitCode
-import fs2.{Stream, StreamApp}
-import org.http4s.server.blaze.BlazeBuilder
+import cats.implicits._
+import org.http4s.server.Router
+import org.http4s.server.blaze.BlazeServerBuilder
+import org.http4s.implicits._
 import tsec.mac.jca.HMACSHA256
 import tsec.passwordhashers.jca.BCrypt
+import scala.concurrent.ExecutionContext.Implicits.global
 
-object Server extends StreamApp[IO] {
-  import scala.concurrent.ExecutionContext.Implicits.global
-
-  override def stream(args: List[String], shutdown: IO[Unit]): Stream[IO, ExitCode] =
-    createStream[IO](args, shutdown)
-
+object Server extends IOApp {
   private val keyGen = HMACSHA256
 
-  def createStream[F[_]](args: List[String], shutdown: F[Unit])(
-      implicit E: Effect[F]): Stream[F, ExitCode] =
+  def createStream[F[_] : ContextShift : ConcurrentEffect : Timer]: F[ExitCode] =
     for {
-      conf           <- Stream.eval(PetStoreConfig.load[F])
-      signingKey     <- Stream.eval(keyGen.generateKey[F])
-      xa             <- Stream.eval(DatabaseConfig.dbTransactor(conf.db))
-      _              <- Stream.eval(DatabaseConfig.initializeDb(conf.db, xa))
-      petRepo        =  DoobiePetRepositoryInterpreter[F](xa)
-      orderRepo      =  DoobieOrderRepositoryInterpreter[F](xa)
-      userRepo       =  DoobieUserRepositoryInterpreter[F](xa)
-      petValidation  =  PetValidationInterpreter[F](petRepo)
-      petService     =  PetService[F](petRepo, petValidation)
-      userValidation =  UserValidationInterpreter[F](userRepo)
-      orderService   =  OrderService[F](orderRepo)
-      userService    =  UserService[F](userRepo, userValidation)
-      exitCode       <- BlazeBuilder[F]
+      conf           <- PetStoreConfig.load[F]
+      signingKey     <- keyGen.generateKey[F]
+      _              <- DatabaseConfig.initializeDb(conf.db)
+      xar            =  DatabaseConfig.dbTransactor(conf.db, global, global)
+      exitCode       <- xar.use { xa =>
+        val petRepo        =  DoobiePetRepositoryInterpreter[F](xa)
+        val orderRepo      =  DoobieOrderRepositoryInterpreter[F](xa)
+        val userRepo       =  DoobieUserRepositoryInterpreter[F](xa)
+        val petValidation  =  PetValidationInterpreter[F](petRepo)
+        val petService     =  PetService[F](petRepo, petValidation)
+        val userValidation =  UserValidationInterpreter[F](userRepo)
+        val orderService   =  OrderService[F](orderRepo)
+        val userService    =  UserService[F](userRepo, userValidation)
+        val services       =  PetEndpoints.endpoints[F](petService) <+>
+                              OrderEndpoints.endpoints[F](orderService) <+>
+                              UserEndpoints.endpoints[F, BCrypt](userService, BCrypt.syncPasswordHasher[F])
+        val httpApp = Router("/" -> services).orNotFound
+        BlazeServerBuilder[F]
         .bindHttp(8080, "localhost")
-        .mountService(PetEndpoints.endpoints[F](petService), "/")
-        .mountService(OrderEndpoints.endpoints[F](orderService), "/")
-        .mountService(UserEndpoints.endpoints(userService, BCrypt.syncPasswordHasher[F]), "/")
+        .withHttpApp(httpApp)
         .serve
+        .compile
+        .drain
+        .as(ExitCode.Success)
+      }
     } yield exitCode
+
+  def run(args : List[String]) : IO[ExitCode] = createStream[IO]
 }
