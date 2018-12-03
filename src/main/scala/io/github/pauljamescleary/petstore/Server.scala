@@ -18,38 +18,34 @@ import scala.concurrent.ExecutionContext.Implicits.global
 object Server extends IOApp {
   private val keyGen = HMACSHA256
 
-  def createServer[F[_] : ContextShift : ConcurrentEffect : Timer]: F[ExitCode] =
+  def createServer[F[_] : ContextShift : ConcurrentEffect : Timer]: Resource[F, ExitCode] =
     for {
-      conf           <- PetStoreConfig.load[F]
-      signingKey     <- keyGen.generateKey[F]
-      xar            =  DatabaseConfig.dbTransactor(conf.db, global, global)
-      exitCode       <- xar.use { xa =>
-        val petRepo        =  DoobiePetRepositoryInterpreter[F](xa)
-        val orderRepo      =  DoobieOrderRepositoryInterpreter[F](xa)
-        val userRepo       =  DoobieUserRepositoryInterpreter[F](xa)
-        val petValidation  =  PetValidationInterpreter[F](petRepo)
-        val petService     =  PetService[F](petRepo, petValidation)
-        val userValidation =  UserValidationInterpreter[F](userRepo)
-        val orderService   =  OrderService[F](orderRepo)
-        val userService    =  UserService[F](userRepo, userValidation)
-        val services       =  PetEndpoints.endpoints[F](petService) <+>
-                              OrderEndpoints.endpoints[F](orderService) <+>
-                              UserEndpoints.endpoints[F, BCrypt](userService, BCrypt.syncPasswordHasher[F])
-        val httpApp = Router("/" -> services).orNotFound
-
-        val init : F[Unit] = xa.configure(DatabaseConfig.initializeDb(_))
-
-        val build : F[ExitCode] = BlazeServerBuilder[F]
-          .bindHttp(8080, "localhost")
-          .withHttpApp(httpApp)
-          .serve
-          .compile
-          .drain
-          .as(ExitCode.Success)
-
-        init *> build
-      }
+      conf           <- Resource.liftF(PetStoreConfig.load[F])
+      signingKey     <- Resource.liftF(keyGen.generateKey[F])
+      xa             <- DatabaseConfig.dbTransactor(conf.db, global, global)
+      petRepo        =  DoobiePetRepositoryInterpreter[F](xa)
+      orderRepo      =  DoobieOrderRepositoryInterpreter[F](xa)
+      userRepo       =  DoobieUserRepositoryInterpreter[F](xa)
+      petValidation  =  PetValidationInterpreter[F](petRepo)
+      petService     =  PetService[F](petRepo, petValidation)
+      userValidation =  UserValidationInterpreter[F](userRepo)
+      orderService   =  OrderService[F](orderRepo)
+      userService    =  UserService[F](userRepo, userValidation)
+      services       =  PetEndpoints.endpoints[F](petService) <+>
+                            OrderEndpoints.endpoints[F](orderService) <+>
+                            UserEndpoints.endpoints[F, BCrypt](userService, BCrypt.syncPasswordHasher[F])
+      httpApp = Router("/" -> services).orNotFound
+      _ <- Resource.liftF(xa.configure(DatabaseConfig.initializeDb(_)))
+      exitCode <- Resource.liftF(
+        BlazeServerBuilder[F]
+        .bindHttp(8080, "localhost")
+        .withHttpApp(httpApp)
+        .serve
+        .compile
+        .drain
+        .as(ExitCode.Success)
+      )
     } yield exitCode
 
-  def run(args : List[String]) : IO[ExitCode] = createServer[IO]
+  def run(args : List[String]) : IO[ExitCode] = createServer.use(IO.pure)
 }
