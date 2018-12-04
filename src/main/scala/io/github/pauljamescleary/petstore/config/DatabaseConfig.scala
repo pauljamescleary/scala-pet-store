@@ -19,8 +19,7 @@ object DatabaseConfig {
   /**
     * Runs the flyway migrations against the target database
     */
-  def
-  initializeDb[F[_]](cfg : DatabaseConfig)(implicit S: Sync[F]): F[Unit] =
+  def initializeDb[F[_]](cfg : DatabaseConfig)(implicit S: Sync[F]): F[Unit] =
     S.delay {
       val fw = new Flyway()
       fw.setDataSource(cfg.url, cfg.user, cfg.password)
