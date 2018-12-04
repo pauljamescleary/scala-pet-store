@@ -35,7 +35,7 @@ object Server extends IOApp {
                             OrderEndpoints.endpoints[F](orderService) <+>
                             UserEndpoints.endpoints[F, BCrypt](userService, BCrypt.syncPasswordHasher[F])
       httpApp = Router("/" -> services).orNotFound
-      _ <- Resource.liftF(xa.configure(DatabaseConfig.initializeDb(_)))
+      _ <- Resource.liftF(DatabaseConfig.initializeDb(conf.db))
       exitCode <- Resource.liftF(
         BlazeServerBuilder[F]
         .bindHttp(8080, "localhost")

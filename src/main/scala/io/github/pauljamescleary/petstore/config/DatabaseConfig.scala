@@ -2,7 +2,6 @@ package io.github.pauljamescleary.petstore.config
 
 import cats.effect.{Async, ContextShift, Resource, Sync}
 import doobie.hikari.HikariTransactor
-import javax.sql.DataSource
 import org.flywaydb.core.Flyway
 
 import scala.concurrent.ExecutionContext
@@ -20,10 +19,11 @@ object DatabaseConfig {
   /**
     * Runs the flyway migrations against the target database
     */
-  def initializeDb[F[_]](ds: DataSource)(implicit S: Sync[F]): F[Unit] =
+  def
+  initializeDb[F[_]](cfg : DatabaseConfig)(implicit S: Sync[F]): F[Unit] =
     S.delay {
       val fw = new Flyway()
-      fw.setDataSource(ds)
+      fw.setDataSource(cfg.url, cfg.user, cfg.password)
       fw.migrate()
       ()
     }
