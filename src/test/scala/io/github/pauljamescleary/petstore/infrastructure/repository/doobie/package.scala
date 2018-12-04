@@ -16,12 +16,17 @@ package object doobie {
       cfg.password           // password
     )
 
+  /*
+   * Provide a transactor for testing once schema has been migrated.
+   */
   def initializedTransactor[F[_] : Effect : Async : ContextShift] : F[Transactor[F]] = for {
     petConfig <- PetStoreConfig.load[F]
     _ <- DatabaseConfig.initializeDb(petConfig.db)
   } yield getTransactor(petConfig.db)
 
   lazy val testEc = ExecutionContext.Implicits.global
+
   implicit lazy val testCs = IO.contextShift(testEc)
+
   lazy val testTransactor = initializedTransactor[IO].unsafeRunSync()
 }
