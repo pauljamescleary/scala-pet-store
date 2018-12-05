@@ -97,6 +97,15 @@ The idea with FP in general is to keep your domain pure, and to push the uglines
 1. Create our `Repositories` and `Services`.  This wires together our domain.  We do not use any kind of dependency injection framework, rather we pass instances where needed using **constructors**
 1. Bind to our port and expose our services.  If the port is unavailable, the app will not start
 
+### What is with this F thing?
+You see in most of the core domain that we use `F[_]` in a lot of places.  This is called a _higher kinded type_, and simply represents a type that holds (or works with) another type.  For example, `List` and `Option` are examples of types that hold other types, like `List[Int]` or `Option[String]`.
+
+We use `F[_]` to mean "some effect type".  We can leave this abstract, and bind to it "at the end of the world" in the `Server` when we bootstrap the application.  This demonstrates the idea of late binding, leave your code abstract and only bind to it when absolutely necessary.
+
+When you see a signature like `def update(pet: Pet)(implicit M: Monad[F]):`, we are saying that the `F[_]` thing must have a `Monad` type class available at the call site.
+
+In this application, we use **cats effect IO** as our effect type, and use **cats** for _Monads_ and other FP type classes and data types.  We could just as easily use **scalazIO** and **scalaz** in an alternative implementation without changing the code dramatically.
+
 ## Getting Started
 
 Start up sbt:
