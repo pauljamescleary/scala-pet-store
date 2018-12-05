@@ -79,10 +79,10 @@ class UserEndpoints[F[_]: Effect, A] extends Http4sDsl[F] {
 
   private def listEndpoint(userService: UserService[F]): HttpRoutes[F] =
     HttpRoutes.of[F] {
-      case GET -> Root / "users" :? PageSizeMatcher(pageSize) :? OffsetMatcher(offset) =>
+      case GET -> Root / "users" :? OptionalPageSizeMatcher(pageSize) :? OptionalOffsetMatcher(offset) =>
         for {
-          retrived <- userService.list(pageSize, offset)
-          resp <- Ok(retrived.asJson)
+          retrieved <- userService.list(pageSize.getOrElse(10), offset.getOrElse(0))
+          resp <- Ok(retrieved.asJson)
         } yield resp
     }
 
