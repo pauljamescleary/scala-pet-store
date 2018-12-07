@@ -9,6 +9,17 @@ from urlparse import urlparse
 from urlparse import parse_qs
 from urlparse import urlsplit
 
+def map_to_query_params(m, *args):
+    mm = list(filter(lambda k: k[0] in args, m.items()))
+    if len(mm) > 0:
+        return "?" + "&".join(["{0}={1}".format(k, v) for k,v in mm])
+    else:
+        return ""
+
+def paginate(m):
+    return map_to_query_params(m, "pageSize", "offset")
+
+
 class PetStoreClient(object):
     def __init__(self, url='http://localhost:8080'):
         self.index_url = url
@@ -54,12 +65,12 @@ class PetStoreClient(object):
 
         return self.session.request('GET', url, self.headers)
 
-    def list_pets(self, page_size=10, offset=0):
+    def list_pets(self, **kwargs):
         """
-        Returns a list of pets
+        Returns a list of pets, taking optional keyword argument page_size and offset for pagination
         :return:
         """
-        url = urljoin(self.index_url, "/pets?pageSize={0}&offset={1}".format(page_size, offset))
+        url = urljoin(self.index_url, "/pets" + paginate(kwargs))
 
         return self.session.request('GET', url, self.headers)
 
@@ -150,12 +161,12 @@ class PetStoreClient(object):
 
         return self.session.request('PUT', url, self.headers, json.dumps(user))
 
-    def list_users(self, page_size=10, offset=0):
+    def list_users(self, **kwargs):
         """
         Returns a list of users
         :return:
         """
-        url = urljoin(self.index_url, "/users?pageSize={0}&offset={1}".format(page_size, offset))
+        url = urljoin(self.index_url, "/users" + paginate(kwargs))
 
         return self.session.request('GET', url, self.headers)
 
