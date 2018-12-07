@@ -57,6 +57,13 @@ def test_list_users(pet_context, pet_store_client):
 
     assert_that(users[0]['firstName'], is_('John'))
 
+def test_list_users_paginated(pet_context, pet_store_client):
+    response = pet_store_client.list_users(pageSize=10, offset=0)
+
+    users = response.json()
+
+    assert_that(users[0]['firstName'], is_('John'))
+
 def test_update_user(pet_context, pet_store_client):
     new_last_name = "Wicked"
     response_lookup = pet_store_client.find_user_by_name(user2['userName'])

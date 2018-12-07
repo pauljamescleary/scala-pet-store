@@ -12,9 +12,18 @@ def test_get_pet(pet_context, pet_store_client):
     assert_that(pet['id'], is_(pet_context['id']))
 
 
-def test_list_pets(pet_context, pet_store_client):
+def test_list_pets_default_pagination(pet_context, pet_store_client):
     response = pet_store_client.list_pets()
 
+    pets = response.json()
+    assert_that(pets, has_length(1))
+
+    assert_that(pets[0]['name'], is_('Harry'))
+
+
+def test_list_pets_paginated(pet_context, pet_store_client):
+    response = pet_store_client.list_pets(pageSize=10,offset=0)
+    
     pets = response.json()
     assert_that(pets, has_length(1))
 
