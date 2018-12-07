@@ -54,14 +54,14 @@ class PetStoreClient(object):
 
         return self.session.request('GET', url, self.headers)
 
-    def list_pets(self, page_size=10, offset=0):
+    def list_pets(self, **kwargs):
         """
-        Returns a list of pets
+        Returns a list of pets, taking optional keyword argument page_size and offset for pagination
         :return:
         """
-        url = urljoin(self.index_url, "/pets?pageSize={0}&offset={1}".format(page_size, offset))
+        url = urljoin(self.index_url, "/pets")
 
-        return self.session.request('GET', url, self.headers)
+        return self.session.request(method='GET', url=url, headers=self.headers, params=kwargs)
 
     def find_pets_by_status(self, statuses):
         """
@@ -150,14 +150,14 @@ class PetStoreClient(object):
 
         return self.session.request('PUT', url, self.headers, json.dumps(user))
 
-    def list_users(self, page_size=10, offset=0):
+    def list_users(self, **kwargs):
         """
         Returns a list of users
         :return:
         """
-        url = urljoin(self.index_url, "/users?pageSize={0}&offset={1}".format(page_size, offset))
+        url = urljoin(self.index_url, "/users")
 
-        return self.session.request('GET', url, self.headers)
+        return self.session.request(method='GET', url=url, headers=self.headers, params=kwargs)
 
 
     def find_user_by_name(self, userName):

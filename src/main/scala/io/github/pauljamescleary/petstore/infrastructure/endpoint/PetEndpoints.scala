@@ -81,9 +81,9 @@ class PetEndpoints[F[_]: Effect] extends Http4sDsl[F] {
 
   private def listPetsEndpoint(petService: PetService[F]): HttpRoutes[F] =
     HttpRoutes.of[F] {
-      case GET -> Root / "pets" :? PageSizeMatcher(pageSize) :? OffsetMatcher(offset) =>
+      case GET -> Root / "pets" :? OptionalPageSizeMatcher(pageSize) :? OptionalOffsetMatcher(offset) =>
         for {
-          retrieved <- petService.list(pageSize, offset)
+          retrieved <- petService.list(pageSize.getOrElse(10), offset.getOrElse(0))
           resp <- Ok(retrieved.asJson)
         } yield resp
     }
