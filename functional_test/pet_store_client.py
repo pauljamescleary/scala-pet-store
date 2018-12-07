@@ -9,17 +9,6 @@ from urlparse import urlparse
 from urlparse import parse_qs
 from urlparse import urlsplit
 
-def map_to_query_params(m, *args):
-    mm = list(filter(lambda k: k[0] in args, m.items()))
-    if len(mm) > 0:
-        return "?" + "&".join(["{0}={1}".format(k, v) for k,v in mm])
-    else:
-        return ""
-
-def paginate(m):
-    return map_to_query_params(m, "pageSize", "offset")
-
-
 class PetStoreClient(object):
     def __init__(self, url='http://localhost:8080'):
         self.index_url = url
@@ -70,9 +59,9 @@ class PetStoreClient(object):
         Returns a list of pets, taking optional keyword argument page_size and offset for pagination
         :return:
         """
-        url = urljoin(self.index_url, "/pets" + paginate(kwargs))
+        url = urljoin(self.index_url, "/pets")
 
-        return self.session.request('GET', url, self.headers)
+        return self.session.request(method='GET', url=url, headers=self.headers, params=kwargs)
 
     def find_pets_by_status(self, statuses):
         """
@@ -166,9 +155,9 @@ class PetStoreClient(object):
         Returns a list of users
         :return:
         """
-        url = urljoin(self.index_url, "/users" + paginate(kwargs))
+        url = urljoin(self.index_url, "/users")
 
-        return self.session.request('GET', url, self.headers)
+        return self.session.request(method='GET', url=url, headers=self.headers, params=kwargs)
 
 
     def find_user_by_name(self, userName):
