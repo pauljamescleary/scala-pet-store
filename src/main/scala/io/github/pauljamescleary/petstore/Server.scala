@@ -8,7 +8,7 @@ import infrastructure.endpoint.{OrderEndpoints, PetEndpoints, UserEndpoints}
 import infrastructure.repository.doobie.{DoobieOrderRepositoryInterpreter, DoobiePetRepositoryInterpreter, DoobieUserRepositoryInterpreter}
 import cats.effect._
 import cats.implicits._
-import org.http4s.server.Router
+import org.http4s.server.{Server => H4Server, Router}
 import org.http4s.server.blaze.BlazeServerBuilder
 import org.http4s.implicits._
 import tsec.mac.jca.HMACSHA256
@@ -18,7 +18,7 @@ import scala.concurrent.ExecutionContext.Implicits.global
 object Server extends IOApp {
   private val keyGen = HMACSHA256
 
-  def createServer[F[_] : ContextShift : ConcurrentEffect : Timer]: Resource[F, ExitCode] =
+  def createServer[F[_] : ContextShift : ConcurrentEffect : Timer]: Resource[F, H4Server[F]] =
     for {
       conf           <- Resource.liftF(PetStoreConfig.load[F])
       signingKey     <- Resource.liftF(keyGen.generateKey[F])
@@ -36,16 +36,12 @@ object Server extends IOApp {
                             UserEndpoints.endpoints[F, BCrypt](userService, BCrypt.syncPasswordHasher[F])
       httpApp = Router("/" -> services).orNotFound
       _ <- Resource.liftF(DatabaseConfig.initializeDb(conf.db))
-      exitCode <- Resource.liftF(
+      server <-
         BlazeServerBuilder[F]
         .bindHttp(8080, "localhost")
         .withHttpApp(httpApp)
-        .serve
-        .compile
-        .drain
-        .as(ExitCode.Success)
-      )
-    } yield exitCode
+        .resource
+    } yield server
 
-  def run(args : List[String]) : IO[ExitCode] = createServer.use(IO.pure)
+  def run(args : List[String]) : IO[ExitCode] = createServer.use(_ => IO.never).as(ExitCode.Success)
 }
