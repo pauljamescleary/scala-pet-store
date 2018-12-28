@@ -4,7 +4,7 @@ Scala Pet Store [![Build Status](https://travis-ci.org/pauljamescleary/scala-pet
 An implementation of the java pet store using FP techniques in scala.
 
 # Thank you!
-Special thank you to the many [contributors](AUTHORS.md) who continue to improve the pet store
+Special thank you to [Zak Patterson](https://github.com/zakpatterson) who also maintains this project; as well as the many [contributors](AUTHORS.md) who continue to improve the pet store
 
 # Status
 I have most of the endpoints in place.  There are few big pieces remaining in case y'all want to lend a hand:
