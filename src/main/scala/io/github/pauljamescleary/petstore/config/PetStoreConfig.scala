@@ -4,7 +4,8 @@ import cats.effect.Sync
 import cats.implicits._
 import pureconfig.error.ConfigReaderException
 
-case class PetStoreConfig(db: DatabaseConfig)
+final case class ServerConfig(host: String, port: Int)
+final case class PetStoreConfig(db: DatabaseConfig, server: ServerConfig)
 
 object PetStoreConfig {
 
