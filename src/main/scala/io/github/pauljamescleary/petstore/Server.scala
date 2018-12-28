@@ -38,7 +38,7 @@ object Server extends IOApp {
       _ <- Resource.liftF(DatabaseConfig.initializeDb(conf.db))
       server <-
         BlazeServerBuilder[F]
-        .bindHttp(8080, "localhost")
+        .bindHttp(conf.server.port, conf.server.host)
         .withHttpApp(httpApp)
         .resource
     } yield server
