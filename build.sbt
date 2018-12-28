@@ -16,41 +16,42 @@ val LogbackVersion         = "1.2.3"
 val ScalaCheckVersion      = "1.14.0"
 val ScalaTestVersion       = "3.0.5"
 val FlywayVersion          = "4.2.0"
-val PureConfigVersion      = "0.9.2"
+val PureConfigVersion      = "0.10.1"
 val TsecVersion            = "0.0.1-M11"
 
 libraryDependencies ++= Seq(
-  "org.typelevel"         %% "cats-core"            % CatsVersion,
-  "io.circe"              %% "circe-generic"        % CirceVersion,
-  "io.circe"              %% "circe-literal"        % CirceVersion,
-  "io.circe"              %% "circe-generic-extras" % CirceVersion,
-  "io.circe"              %% "circe-parser"         % CirceVersion,
-  "io.circe"              %% "circe-java8"          % CirceVersion,
-  "org.tpolecat"          %% "doobie-core"          % DoobieVersion,
-  "org.tpolecat"          %% "doobie-h2"            % DoobieVersion,
-  "org.tpolecat"          %% "doobie-scalatest"     % DoobieVersion,
-  "org.tpolecat"          %% "doobie-hikari"        % DoobieVersion,
-  "com.beachape"          %% "enumeratum"           % EnumeratumVersion,
-  "com.beachape"          %% "enumeratum-circe"     % EnumeratumCirceVersion,
-  "com.h2database"        %  "h2"                   % H2Version,
-  "org.http4s"            %% "http4s-blaze-server"  % Http4sVersion,
-  "org.http4s"            %% "http4s-circe"         % Http4sVersion,
-  "org.http4s"            %% "http4s-dsl"           % Http4sVersion,
-  "ch.qos.logback"        %  "logback-classic"      % LogbackVersion,
-  "org.flywaydb"          %  "flyway-core"          % FlywayVersion,
-  "com.github.pureconfig" %% "pureconfig"           % PureConfigVersion,
-  "org.http4s"            %% "http4s-blaze-client"  % Http4sVersion     % Test,
-  "org.scalacheck"        %% "scalacheck"           % ScalaCheckVersion % Test,
-  "org.scalatest"         %% "scalatest"            % ScalaTestVersion  % Test,
+  "org.typelevel"         %% "cats-core"             % CatsVersion,
+  "io.circe"              %% "circe-generic"          % CirceVersion,
+  "io.circe"              %% "circe-literal"          % CirceVersion,
+  "io.circe"              %% "circe-generic-extras"   % CirceVersion,
+  "io.circe"              %% "circe-parser"           % CirceVersion,
+  "io.circe"              %% "circe-java8"            % CirceVersion,
+  "org.tpolecat"          %% "doobie-core"            % DoobieVersion,
+  "org.tpolecat"          %% "doobie-h2"              % DoobieVersion,
+  "org.tpolecat"          %% "doobie-scalatest"       % DoobieVersion,
+  "org.tpolecat"          %% "doobie-hikari"          % DoobieVersion,
+  "com.beachape"          %% "enumeratum"             % EnumeratumVersion,
+  "com.beachape"          %% "enumeratum-circe"       % EnumeratumCirceVersion,
+  "com.h2database"        %  "h2"                     % H2Version,
+  "org.http4s"            %% "http4s-blaze-server"    % Http4sVersion,
+  "org.http4s"            %% "http4s-circe"           % Http4sVersion,
+  "org.http4s"            %% "http4s-dsl"             % Http4sVersion,
+  "ch.qos.logback"        %  "logback-classic"        % LogbackVersion,
+  "org.flywaydb"          %  "flyway-core"            % FlywayVersion,
+  "com.github.pureconfig" %% "pureconfig"             % PureConfigVersion,
+  "com.github.pureconfig" %% "pureconfig-cats-effect" % PureConfigVersion,
+  "org.http4s"            %% "http4s-blaze-client"    % Http4sVersion     % Test,
+  "org.scalacheck"        %% "scalacheck"             % ScalaCheckVersion % Test,
+  "org.scalatest"         %% "scalatest"              % ScalaTestVersion  % Test,
 
   // Authentication dependencies
-  "io.github.jmcardon"    %% "tsec-common"          % TsecVersion,
-  "io.github.jmcardon"    %% "tsec-password"        % TsecVersion,
-  "io.github.jmcardon"    %% "tsec-mac"             % TsecVersion,
-  "io.github.jmcardon"    %% "tsec-signatures"      % TsecVersion,
-  "io.github.jmcardon"    %% "tsec-jwt-mac"         % TsecVersion,
-  "io.github.jmcardon"    %% "tsec-jwt-sig"         % TsecVersion,
-  "io.github.jmcardon"    %% "tsec-http4s"          % TsecVersion
+  "io.github.jmcardon"    %% "tsec-common"            % TsecVersion,
+  "io.github.jmcardon"    %% "tsec-password"          % TsecVersion,
+  "io.github.jmcardon"    %% "tsec-mac"               % TsecVersion,
+  "io.github.jmcardon"    %% "tsec-signatures"        % TsecVersion,
+  "io.github.jmcardon"    %% "tsec-jwt-mac"           % TsecVersion,
+  "io.github.jmcardon"    %% "tsec-jwt-sig"           % TsecVersion,
+  "io.github.jmcardon"    %% "tsec-http4s"            % TsecVersion
 )
 
 
@@ -121,3 +122,6 @@ micrositeName := "Scala Pet Store"
 micrositeDescription := "An example application using FP techniques in Scala"
 
 micrositeBaseUrl := "scala-pet-store"
+
+// Note: This fixes error with sbt run not loading config properly
+fork in run := true
