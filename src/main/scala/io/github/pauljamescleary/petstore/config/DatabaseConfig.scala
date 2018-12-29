@@ -1,5 +1,6 @@
 package io.github.pauljamescleary.petstore.config
 
+import cats.syntax.functor._
 import cats.effect.{Async, ContextShift, Resource, Sync}
 import doobie.hikari.HikariTransactor
 import org.flywaydb.core.Flyway
@@ -21,9 +22,12 @@ object DatabaseConfig {
     */
   def initializeDb[F[_]](cfg : DatabaseConfig)(implicit S: Sync[F]): F[Unit] =
     S.delay {
-      val fw = new Flyway()
-      fw.setDataSource(cfg.url, cfg.user, cfg.password)
+      val fw: Flyway = {
+        Flyway
+        .configure()
+        .dataSource(cfg.url, cfg.user, cfg.password)
+        .load()
+      }
       fw.migrate()
-      ()
-    }
+    }.as(())
 }
