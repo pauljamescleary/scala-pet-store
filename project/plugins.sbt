@@ -8,7 +8,7 @@ addSbtPlugin("io.spray" % "sbt-revolver" % "0.9.0")
 addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.3.15")
 
 // Database migrations
-addSbtPlugin("org.flywaydb" % "flyway-sbt" % "4.2.0")
+addSbtPlugin("org.flywaydb" % "flyway-sbt" % "5.2.4")
 
 // Documentation plugins
 addSbtPlugin("org.tpolecat" % "tut-plugin" % "0.6.4")

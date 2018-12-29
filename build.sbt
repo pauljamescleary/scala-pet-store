@@ -15,7 +15,7 @@ val Http4sVersion          = "0.20.0-M3"
 val LogbackVersion         = "1.2.3"
 val ScalaCheckVersion      = "1.14.0"
 val ScalaTestVersion       = "3.0.5"
-val FlywayVersion          = "4.2.0"
+val FlywayVersion          = "5.2.4"
 val PureConfigVersion      = "0.10.1"
 val TsecVersion            = "0.0.1-M11"
 
