@@ -11,7 +11,7 @@ addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.3.15")
 addSbtPlugin("org.flywaydb" % "flyway-sbt" % "4.2.0")
 
 // Documentation plugins
-addSbtPlugin("org.tpolecat" % "tut-plugin" % "0.6.4")
+addSbtPlugin("org.tpolecat" % "tut-plugin" % "0.6.10")
 
 addSbtPlugin("com.47deg"  % "sbt-microsites" % "0.7.18")
 
