@@ -7,6 +7,9 @@ import io.circe.Decoder
 import io.circe.config.syntax._
 
 package object config {
+  def loadConfigF[F[_], C : Decoder](implicit ev: ApplicativeError[F, Throwable]) : F[C] =
+    ConfigFactory.load().as[C].leftWiden[Throwable].raiseOrPure[F]
+
   def loadConfigF[F[_], C : Decoder](name: String = "")(implicit ev: ApplicativeError[F, Throwable]) : F[C] =
     ConfigFactory.load().as[C](name).leftWiden[Throwable].raiseOrPure[F]
 }
