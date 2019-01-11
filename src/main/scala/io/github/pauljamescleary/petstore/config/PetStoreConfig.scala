@@ -8,7 +8,7 @@ final case class PetStoreConfig(db: DatabaseConfig, server: ServerConfig)
 
 object PetStoreConfig {
   /**
-    * Loads the pet store config using PureConfig.  If configuration is invalid we will
+    * Loads the pet store config.  If configuration is invalid we will
     * return an error.  This should halt the application from starting up.
     */
   def load[F[_]](implicit ev: ApplicativeError[F, Throwable]): F[PetStoreConfig] =
