@@ -1,5 +1,4 @@
-Scala Pet Store [![Build Status](https://travis-ci.org/pauljamescleary/scala-pet-store.svg?branch=master)](https://travis-ci.org/pauljamescleary/scala-pet-store)
-[![Chat](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/scala-pet-store/scala-pet-store)
+Scala Pet Store [![Build Status][build-badge]][build-link] [![Chat][gitter-badge]][gitter-link]
 ==============
 An implementation of the java pet store using FP techniques in scala.
 
@@ -149,4 +148,7 @@ Then, in a separate terminal, run the test suite:
 ```
 
 
-
+[build-badge]: https://travis-ci.org/pauljamescleary/scala-pet-store.svg?branch=master
+[build-link]: https://travis-ci.org/pauljamescleary/scala-pet-store
+[gitter-badge]: https://badges.gitter.im/Join%20Chat.svg
+[gitter-link]: https://gitter.im/scala-pet-store/scala-pet-store
