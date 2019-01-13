@@ -148,7 +148,7 @@ Then, in a separate terminal, run the test suite:
 ```
 
 
-[build-badge]: https://travis-ci.org/pauljamescleary/scala-pet-store.svg?branch=master
-[build-link]: https://travis-ci.org/pauljamescleary/scala-pet-store
+[build-badge]: https://travis-ci.com/pauljamescleary/scala-pet-store.svg?branch=master
+[build-link]: https://travis-ci.com/pauljamescleary/scala-pet-store
 [gitter-badge]: https://badges.gitter.im/Join%20Chat.svg
 [gitter-link]: https://gitter.im/scala-pet-store/scala-pet-store
