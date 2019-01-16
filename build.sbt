@@ -6,13 +6,13 @@ scalaVersion    := "2.12.8"
 resolvers += Resolver.sonatypeRepo("snapshots")
 
 val CatsVersion            = "1.5.0"
-val CirceVersion           = "0.11.0"
+val CirceVersion           = "0.11.1"
 val CirceConfigVersion     = "0.6.0"
 val DoobieVersion          = "0.6.0"
 val EnumeratumVersion      = "1.5.13"
 val EnumeratumCirceVersion = "1.5.19"
 val H2Version              = "1.4.197"
-val Http4sVersion          = "0.20.0-M4"
+val Http4sVersion          = "0.20.0-M5"
 val LogbackVersion         = "1.2.3"
 val ScalaCheckVersion      = "1.14.0"
 val ScalaTestVersion       = "3.0.5"
@@ -97,7 +97,7 @@ scalacOptions ++= Seq(
   "-Ywarn-unused:implicits",           // Warn if an implicit parameter is unused.
   "-Ywarn-unused:imports",             // Warn if an import selector is not referenced.
   "-Ywarn-unused:locals",              // Warn if a local definition is unused.
-  // "-Ywarn-unused:params",           // Warn if a value parameter is unused.
+  "-Ywarn-unused:params",              // Warn if a value parameter is unused.
   "-Ywarn-unused:patvars",             // Warn if a variable bound in a pattern is unused.
   "-Ywarn-unused:privates",            // Warn if a private member is unused.
   "-Ywarn-value-discard"               // Warn when non-Unit expression results are unused.
