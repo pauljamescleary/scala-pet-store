@@ -6,7 +6,7 @@ scalaVersion    := "2.12.8"
 resolvers += Resolver.sonatypeRepo("snapshots")
 
 val CatsVersion            = "1.5.0"
-val CirceVersion           = "0.11.0"
+val CirceVersion           = "0.11.1"
 val DoobieVersion          = "0.6.0"
 val EnumeratumVersion      = "1.5.13"
 val EnumeratumCirceVersion = "1.5.19"
