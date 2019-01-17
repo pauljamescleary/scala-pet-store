@@ -7,6 +7,7 @@ resolvers += Resolver.sonatypeRepo("snapshots")
 
 val CatsVersion            = "1.5.0"
 val CirceVersion           = "0.11.1"
+val CirceConfigVersion     = "0.6.0"
 val DoobieVersion          = "0.6.0"
 val EnumeratumVersion      = "1.5.13"
 val EnumeratumCirceVersion = "1.5.19"
@@ -16,16 +17,16 @@ val LogbackVersion         = "1.2.3"
 val ScalaCheckVersion      = "1.14.0"
 val ScalaTestVersion       = "3.0.5"
 val FlywayVersion          = "5.2.4"
-val PureConfigVersion      = "0.10.1"
 val TsecVersion            = "0.0.1-RC1"
 
 libraryDependencies ++= Seq(
-  "org.typelevel"         %% "cats-core"             % CatsVersion,
+  "org.typelevel"         %% "cats-core"              % CatsVersion,
   "io.circe"              %% "circe-generic"          % CirceVersion,
   "io.circe"              %% "circe-literal"          % CirceVersion,
   "io.circe"              %% "circe-generic-extras"   % CirceVersion,
   "io.circe"              %% "circe-parser"           % CirceVersion,
   "io.circe"              %% "circe-java8"            % CirceVersion,
+  "io.circe"              %% "circe-config"           % CirceConfigVersion,
   "org.tpolecat"          %% "doobie-core"            % DoobieVersion,
   "org.tpolecat"          %% "doobie-h2"              % DoobieVersion,
   "org.tpolecat"          %% "doobie-scalatest"       % DoobieVersion,
@@ -38,8 +39,6 @@ libraryDependencies ++= Seq(
   "org.http4s"            %% "http4s-dsl"             % Http4sVersion,
   "ch.qos.logback"        %  "logback-classic"        % LogbackVersion,
   "org.flywaydb"          %  "flyway-core"            % FlywayVersion,
-  "com.github.pureconfig" %% "pureconfig"             % PureConfigVersion,
-  "com.github.pureconfig" %% "pureconfig-cats-effect" % PureConfigVersion,
   "org.http4s"            %% "http4s-blaze-client"    % Http4sVersion     % Test,
   "org.scalacheck"        %% "scalacheck"             % ScalaCheckVersion % Test,
   "org.scalatest"         %% "scalatest"              % ScalaTestVersion  % Test,

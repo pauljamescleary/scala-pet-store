@@ -47,7 +47,7 @@ interested in learning http4s
 - [Doobie](https://github.com/tpolecat/doobie) for database access
 - [Cats](https://typelevel.org/cats/) for FP awesomeness
 - [ScalaCheck](https://www.scalacheck.org/) for property based testing
-- [PureConfig](https://pureconfig.github.io/docs/) for app config
+- [Circe Config](https://github.com/circe/circe-config) for app config
 - Tagless Final for the core domain.
 
 ## What is going on here!?
