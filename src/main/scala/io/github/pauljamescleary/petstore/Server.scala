@@ -1,6 +1,6 @@
 package io.github.pauljamescleary.petstore
 
-import config.{DatabaseConfig, PetStoreConfig}
+import config._
 import domain.users._
 import domain.orders._
 import domain.pets._
@@ -13,11 +13,12 @@ import org.http4s.server.blaze.BlazeServerBuilder
 import org.http4s.implicits._
 import tsec.passwordhashers.jca.BCrypt
 import scala.concurrent.ExecutionContext.Implicits.global
+import io.circe.config.parser
 
 object Server extends IOApp {
   def createServer[F[_] : ContextShift : ConcurrentEffect : Timer]: Resource[F, H4Server[F]] =
     for {
-      conf           <- Resource.liftF(PetStoreConfig.load[F])
+      conf           <- Resource.liftF(parser.decodePathF[F, PetStoreConfig]("petstore"))
       xa             <- DatabaseConfig.dbTransactor(conf.db, global, global)
       petRepo        =  DoobiePetRepositoryInterpreter[F](xa)
       orderRepo      =  DoobieOrderRepositoryInterpreter[F](xa)
