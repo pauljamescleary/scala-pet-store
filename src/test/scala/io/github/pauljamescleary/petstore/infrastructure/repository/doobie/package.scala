@@ -2,8 +2,9 @@ package io.github.pauljamescleary.petstore.infrastructure.repository
 
 import cats.implicits._
 import cats.effect.{Async, ContextShift, Effect, IO}
-import io.github.pauljamescleary.petstore.config.{DatabaseConfig, PetStoreConfig}
+import io.github.pauljamescleary.petstore.config._
 import _root_.doobie.Transactor
+import io.circe.config.parser
 
 import scala.concurrent.ExecutionContext
 
@@ -20,7 +21,7 @@ package object doobie {
    * Provide a transactor for testing once schema has been migrated.
    */
   def initializedTransactor[F[_] : Effect : Async : ContextShift] : F[Transactor[F]] = for {
-    petConfig <- PetStoreConfig.load[F]
+    petConfig <- parser.decodePathF[F, PetStoreConfig]("petstore")
     _ <- DatabaseConfig.initializeDb(petConfig.db)
   } yield getTransactor(petConfig.db)
 
