@@ -17,7 +17,7 @@ val LogbackVersion         = "1.2.3"
 val ScalaCheckVersion      = "1.14.0"
 val ScalaTestVersion       = "3.0.5"
 val FlywayVersion          = "5.2.4"
-val TsecVersion            = "0.0.1-RC1"
+val TsecVersion            = "0.1.0-M2"
 
 libraryDependencies ++= Seq(
   "org.typelevel"         %% "cats-core"              % CatsVersion,
