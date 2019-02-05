@@ -9,7 +9,6 @@ val CatsVersion            = "1.6.0"
 val CirceVersion           = "0.11.1"
 val CirceConfigVersion     = "0.6.1"
 val DoobieVersion          = "0.6.0"
-val EnumeratumVersion      = "1.5.13"
 val EnumeratumCirceVersion = "1.5.19"
 val H2Version              = "1.4.197"
 val Http4sVersion          = "0.20.0-M5"
@@ -31,7 +30,6 @@ libraryDependencies ++= Seq(
   "org.tpolecat"          %% "doobie-h2"              % DoobieVersion,
   "org.tpolecat"          %% "doobie-scalatest"       % DoobieVersion,
   "org.tpolecat"          %% "doobie-hikari"          % DoobieVersion,
-  "com.beachape"          %% "enumeratum"             % EnumeratumVersion,
   "com.beachape"          %% "enumeratum-circe"       % EnumeratumCirceVersion,
   "com.h2database"        %  "h2"                     % H2Version,
   "org.http4s"            %% "http4s-blaze-server"    % Http4sVersion,
