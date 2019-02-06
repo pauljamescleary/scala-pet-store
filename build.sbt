@@ -1,7 +1,8 @@
-organization    := "io.github.pauljamescleary"
-name            := "scala-pet-store"
-version         := "0.0.1-SNAPSHOT"
-scalaVersion    := "2.12.8"
+organization        := "io.github.pauljamescleary"
+name                := "scala-pet-store"
+version             := "0.0.1-SNAPSHOT"
+scalaVersion        := "2.12.8"
+crossScalaVersions  := Seq("2.12.8", "2.13.0-M5")
 
 resolvers += Resolver.sonatypeRepo("snapshots")
 
@@ -108,6 +109,7 @@ scalacOptions in (Compile, console) ~= (_.filterNot(badConsoleFlags.contains(_))
 
 enablePlugins(ScalafmtPlugin, JavaAppPackaging, GhpagesPlugin, MicrositesPlugin, TutPlugin)
 
+// Microsite settings
 git.remoteRepo := "git@github.com:pauljamescleary/scala-pet-store.git"
 
 micrositeGithubOwner := "pauljamescleary"
