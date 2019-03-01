@@ -8,7 +8,7 @@ import org.flywaydb.core.Flyway
 import scala.concurrent.ExecutionContext
 
 case class DatabaseConnectionsConfig(poolSize: Int)
-case class DatabaseConfig(url: String, driver: String, user: String, password: String)
+case class DatabaseConfig(url: String, driver: String, user: String, password: String, connections: DatabaseConnectionsConfig)
 
 object DatabaseConfig {
   def dbTransactor[F[_]: Async : ContextShift](
