@@ -7,6 +7,7 @@ import org.flywaydb.core.Flyway
 
 import scala.concurrent.ExecutionContext
 
+case class DatabaseConnectionsConfig(poolSize: Int)
 case class DatabaseConfig(url: String, driver: String, user: String, password: String)
 
 object DatabaseConfig {
