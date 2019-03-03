@@ -12,14 +12,16 @@ import org.http4s.server.{Server => H4Server, Router}
 import org.http4s.server.blaze.BlazeServerBuilder
 import org.http4s.implicits._
 import tsec.passwordhashers.jca.BCrypt
-import scala.concurrent.ExecutionContext.Implicits.global
+import doobie.util.ExecutionContexts
 import io.circe.config.parser
 
 object Server extends IOApp {
   def createServer[F[_] : ContextShift : ConcurrentEffect : Timer]: Resource[F, H4Server[F]] =
     for {
       conf           <- Resource.liftF(parser.decodePathF[F, PetStoreConfig]("petstore"))
-      xa             <- DatabaseConfig.dbTransactor(conf.db, global, global)
+      connEc         <- ExecutionContexts.fixedThreadPool[F](conf.db.connections.poolSize)
+      txnEc          <- ExecutionContexts.cachedThreadPool[F]
+      xa             <- DatabaseConfig.dbTransactor(conf.db, connEc, txnEc)
       petRepo        =  DoobiePetRepositoryInterpreter[F](xa)
       orderRepo      =  DoobieOrderRepositoryInterpreter[F](xa)
       userRepo       =  DoobieUserRepositoryInterpreter[F](xa)
