@@ -3,6 +3,10 @@ name            := "scala-pet-store"
 version         := "0.0.1-SNAPSHOT"
 scalaVersion    := "2.12.8"
 
+PB.targets in Compile := Seq(
+  scalapb.gen(flatPackage = true) -> (sourceManaged in Compile).value
+)
+
 resolvers += Resolver.sonatypeRepo("snapshots")
 
 val CatsVersion            = "1.6.0"
@@ -37,6 +41,8 @@ libraryDependencies ++= Seq(
   "org.http4s"            %% "http4s-dsl"             % Http4sVersion,
   "ch.qos.logback"        %  "logback-classic"        % LogbackVersion,
   "org.flywaydb"          %  "flyway-core"            % FlywayVersion,
+  "io.grpc"               % "grpc-netty"              % scalapb.compiler.Version.grpcJavaVersion,
+  "com.thesamet.scalapb"  %% "scalapb-runtime-grpc"   % scalapb.compiler.Version.scalapbVersion,
   "org.http4s"            %% "http4s-blaze-client"    % Http4sVersion     % Test,
   "org.scalacheck"        %% "scalacheck"             % ScalaCheckVersion % Test,
   "org.scalatest"         %% "scalatest"              % ScalaTestVersion  % Test,

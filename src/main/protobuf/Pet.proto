@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package io.github.pauljamescleary.petstore.proto;
+
+service PetService {
+    rpc CreatePet (CreatePetRequest) returns (Pet);
+    rpc UpdatePet (UpdatePetRequest) returns (Pet);
+    rpc GetPet (GetPetRequest) returns (Pet);
+    rpc ListPets (ListPetsRequest) returns (ListPetsResponse);
+    rpc ListPetsByStatus (ListPetsByStatusRequest) returns (ListPetsResponse);
+    rpc ListPetsByTag (ListPetsByTagRequest) returns (ListPetsResponse);
+}
+
+message CreatePetRequest {
+    Pet pet = 1;
+}
+
+message UpdatePetRequest {
+    Pet pet = 1;
+}
+
+message GetPetRequest {
+    string id = 1;
+}
+
+message ListPetsRequest {
+    int32 page_size = 1;
+    int32 offset    = 2;
+}
+
+message ListPetsByStatusRequest {
+    ListPetsRequest request     = 1;
+    Pet.Status  pet_status      = 2;
+}
+
+message ListPetsByTagRequest {
+    ListPetsRequest request     = 1;
+    string          tag         = 2;
+}
+
+message ListPetsResponse {
+    repeated Pet pets  = 1;
+}
+
+message Pet {
+    enum Status {
+        Available = 0;
+        Pending   = 1;
+        Adopted   = 2;
+    }
+    string          name         = 1;
+    string          category     = 2;
+    string          bio          = 3;
+    Status          pet_status   = 4;
+    repeated string tags         = 5;
+    repeated string photo_urls   = 6;
+    int64           id           = 7;//TODO: Use wrapper to manage as a Option
+}

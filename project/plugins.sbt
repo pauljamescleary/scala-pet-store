@@ -17,6 +17,10 @@ addSbtPlugin("com.47deg"  % "sbt-microsites" % "0.7.18")
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-ghpages" % "0.6.3")
 
+addSbtPlugin("com.thesamet" % "sbt-protoc" % "0.99.20")
+
+libraryDependencies += "com.thesamet.scalapb" %% "compilerplugin" % "0.8.1"
+
 resolvers += "Flyway".at("https://davidmweber.github.io/flyway-sbt.repo")
 
 resolvers += "jgit-repo" at "http://download.eclipse.org/jgit/maven"
