@@ -2,7 +2,6 @@ package io.github.pauljamescleary.petstore
 package infrastructure.endpoint
 
 import org.scalatest._
-import org.scalatest.prop.PropertyChecks
 import cats.effect._
 import io.circe.generic.auto._
 import org.http4s._
@@ -18,12 +17,12 @@ import infrastructure.repository.inmemory.UserRepositoryInMemoryInterpreter
 
 import org.http4s.client.dsl.Http4sClientDsl
 import org.scalatest._
-import org.scalatest.prop.PropertyChecks
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
 class UserEndpointsSpec
   extends FunSuite
   with Matchers
-  with PropertyChecks
+  with ScalaCheckPropertyChecks
   with PetStoreArbitraries
   with Http4sDsl[IO]
   with Http4sClientDsl[IO] {

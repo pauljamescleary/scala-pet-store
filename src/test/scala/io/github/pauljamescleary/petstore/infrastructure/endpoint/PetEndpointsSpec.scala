@@ -13,13 +13,13 @@ import org.http4s.dsl._
 import org.http4s.circe._
 import org.http4s.client.dsl.Http4sClientDsl
 import org.scalatest._
-import org.scalatest.prop.PropertyChecks
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
 
 class PetEndpointsSpec
     extends FunSuite
     with Matchers
-    with PropertyChecks
+    with ScalaCheckPropertyChecks
     with PetStoreArbitraries
     with Http4sDsl[IO]
     with Http4sClientDsl[IO]{
