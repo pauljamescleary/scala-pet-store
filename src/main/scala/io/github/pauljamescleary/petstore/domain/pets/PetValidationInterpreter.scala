@@ -8,7 +8,7 @@ import io.github.pauljamescleary.petstore.domain.{PetAlreadyExistsError, PetNotF
 class PetValidationInterpreter[F[_]: Monad](repository: PetRepositoryAlgebra[F])
     extends PetValidationAlgebra[F] {
   
-  def doesNotExist(pet: Pet): EitherT[F, PetAlreadyExistsError, Unit] = EitherT {
+  def doesNotExist(pet: Pet)(implicit b: B): EitherT[F, PetAlreadyExistsError, Unit] = EitherT {
     repository.findByNameAndCategory(pet.name, pet.category).map { matches =>
       if (matches.forall(possibleMatch => possibleMatch.bio != pet.bio)) {
         Right(())
@@ -18,7 +18,7 @@ class PetValidationInterpreter[F[_]: Monad](repository: PetRepositoryAlgebra[F])
     }
   }
 
-  def exists(petId: Option[Long]): EitherT[F, PetNotFoundError.type, Unit] =
+  def exists(petId: Option[Long])(implicit b: B): EitherT[F, PetNotFoundError.type, Unit] =
     EitherT {
       petId match {
         case Some(id) =>
