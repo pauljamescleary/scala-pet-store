@@ -1,7 +1,5 @@
 package io.github.pauljamescleary.petstore.domain.orders
 
-import scala.language.higherKinds
-
 import cats.Monad
 import cats.data.EitherT
 import io.github.pauljamescleary.petstore.domain.OrderNotFoundError

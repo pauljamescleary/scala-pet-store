@@ -6,7 +6,6 @@ import io.circe.syntax._
 import org.http4s._
 import org.http4s.circe._
 import org.http4s.dsl.Http4sDsl
-import scala.language.higherKinds
 
 import io.github.pauljamescleary.petstore.domain.OrderNotFoundError
 import io.github.pauljamescleary.petstore.domain.orders.{Order, OrderService}

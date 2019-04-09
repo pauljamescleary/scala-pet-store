@@ -1,6 +1,5 @@
 package io.github.pauljamescleary.petstore.domain.users
 
-import scala.language.higherKinds
 import cats.data.EitherT
 import io.github.pauljamescleary.petstore.domain.{UserAlreadyExistsError, UserNotFoundError}
 

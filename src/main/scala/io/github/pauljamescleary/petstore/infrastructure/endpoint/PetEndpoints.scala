@@ -9,7 +9,6 @@ import io.circe.syntax._
 import org.http4s.circe._
 import org.http4s.dsl.Http4sDsl
 import org.http4s.{EntityDecoder, HttpRoutes, QueryParamDecoder}
-import scala.language.higherKinds
 
 import io.github.pauljamescleary.petstore.domain.{PetAlreadyExistsError, PetNotFoundError}
 import io.github.pauljamescleary.petstore.domain.pets.{Pet, PetService, PetStatus}

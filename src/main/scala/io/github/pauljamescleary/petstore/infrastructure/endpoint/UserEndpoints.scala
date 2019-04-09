@@ -10,7 +10,6 @@ import org.http4s.circe._
 import org.http4s.dsl.Http4sDsl
 import org.http4s.{EntityDecoder, HttpRoutes}
 
-import scala.language.higherKinds
 import domain._
 import domain.users._
 import domain.authentication._

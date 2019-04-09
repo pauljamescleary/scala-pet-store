@@ -1,7 +1,5 @@
 package io.github.pauljamescleary.petstore.domain.pets
 
-import scala.language.higherKinds
-
 import cats.data.EitherT
 import io.github.pauljamescleary.petstore.domain.{PetAlreadyExistsError, PetNotFoundError}
 
