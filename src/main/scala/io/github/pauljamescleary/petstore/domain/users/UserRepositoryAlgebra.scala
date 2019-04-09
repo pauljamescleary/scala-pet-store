@@ -1,17 +1,21 @@
 package io.github.pauljamescleary.petstore.domain.users
 
+import cats.effect.Bracket
+
 trait UserRepositoryAlgebra[F[_]] {
-  def create(user: User): F[User]
+  type B = Bracket[F, Throwable]
 
-  def update(user: User): F[Option[User]]
+  def create(user: User)(implicit b: B): F[User]
 
-  def get(userId: Long): F[Option[User]]
+  def update(user: User)(implicit b: B): F[Option[User]]
 
-  def delete(userId: Long): F[Option[User]]
+  def get(userId: Long)(implicit b: B): F[Option[User]]
 
-  def findByUserName(userName: String): F[Option[User]]
+  def delete(userId: Long)(implicit b: B): F[Option[User]]
 
-  def deleteByUserName(userName: String): F[Option[User]]
+  def findByUserName(userName: String)(implicit b: B): F[Option[User]]
 
-  def list(pageSize: Int, offset: Int): F[List[User]]
+  def deleteByUserName(userName: String)(implicit b: B): F[Option[User]]
+
+  def list(pageSize: Int, offset: Int)(implicit b: B): F[List[User]]
 }

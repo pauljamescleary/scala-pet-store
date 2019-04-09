@@ -8,7 +8,7 @@ import cats.implicits._
 import doobie._
 import doobie.implicits._
 import io.github.pauljamescleary.petstore.domain.orders
-import orders.{OrderRepositoryAlgebra, OrderStatus, Order}
+import orders.{Order, OrderRepositoryAlgebra, OrderStatus}
 
 private object OrderSQL {
   /* We require type StatusMeta to handle our ADT Status */
@@ -36,16 +36,16 @@ private object OrderSQL {
   """.update
 }
 
-class DoobieOrderRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
-    extends OrderRepositoryAlgebra[F] {
+class DoobieOrderRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F]) extends OrderRepositoryAlgebra[F] {
   import OrderSQL._
 
-  def create(order: Order): F[Order] =
+  def create(order: Order)(implicit b: B): F[Order] =
     insert(order).withUniqueGeneratedKeys[Long]("ID").map(id => order.copy(id = id.some)).transact(xa)
 
-  def get(orderId: Long): F[Option[Order]] = OrderSQL.select(orderId).option.transact(xa)
+  def get(orderId: Long)(implicit b: B): F[Option[Order]] =
+    OrderSQL.select(orderId).option.transact(xa)
 
-  def delete(orderId: Long): F[Option[Order]] =
+  def delete(orderId: Long)(implicit b: B): F[Option[Order]] =
     OptionT(get(orderId)).semiflatMap(order =>
       OrderSQL.delete(orderId).run.transact(xa).as(order)
     ).value
