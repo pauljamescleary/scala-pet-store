@@ -5,8 +5,8 @@ import cats.effect.Bracket
 import cats.implicits._
 import io.github.pauljamescleary.petstore.domain.{PetAlreadyExistsError, PetNotFoundError}
 
-class PetValidationInterpreter[F[_]](repository: PetRepositoryAlgebra[F])(
-  implicit B: Bracket[F, Throwable]
+class PetValidationInterpreter[F[_]: Bracket[?[_], Throwable]](
+  repository: PetRepositoryAlgebra[F]
 ) extends PetValidationAlgebra[F] {
   
   def doesNotExist(pet: Pet): EitherT[F, PetAlreadyExistsError, Unit] = EitherT {
@@ -36,6 +36,6 @@ class PetValidationInterpreter[F[_]](repository: PetRepositoryAlgebra[F])(
 }
 
 object PetValidationInterpreter {
-  def apply[F[_]](repository: PetRepositoryAlgebra[F])(implicit B: Bracket[F, Throwable]) =
+  def apply[F[_]: Bracket[?[_], Throwable]](repository: PetRepositoryAlgebra[F]) =
     new PetValidationInterpreter[F](repository)
 }

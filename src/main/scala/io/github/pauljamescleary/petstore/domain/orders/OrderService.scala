@@ -4,7 +4,7 @@ import cats.data.EitherT
 import cats.effect.Bracket
 import io.github.pauljamescleary.petstore.domain.OrderNotFoundError
 
-class OrderService[F[_]](orderRepo: OrderRepositoryAlgebra[F])(implicit B: Bracket[F, Throwable]) {
+class OrderService[F[_]: Bracket[?[_], Throwable]](orderRepo: OrderRepositoryAlgebra[F]) {
   import cats.syntax.all._
 
   def placeOrder(order: Order): F[Order] = orderRepo.create(order)
@@ -18,8 +18,6 @@ class OrderService[F[_]](orderRepo: OrderRepositoryAlgebra[F])(implicit B: Brack
 }
 
 object OrderService {
-  def apply[F[_]](orderRepo: OrderRepositoryAlgebra[F])(
-  	implicit B: Bracket[F, Throwable]
-  ): OrderService[F] =
+  def apply[F[_]: Bracket[?[_], Throwable]](orderRepo: OrderRepositoryAlgebra[F]): OrderService[F] =
     new OrderService(orderRepo)
 }

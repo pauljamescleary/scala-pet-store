@@ -5,8 +5,9 @@ import cats.effect.Bracket
 import cats.syntax.functor._
 import io.github.pauljamescleary.petstore.domain.{UserAlreadyExistsError, UserNotFoundError}
 
-class UserService[F[_]](userRepo: UserRepositoryAlgebra[F], validation: UserValidationAlgebra[F])(
-  implicit B: Bracket[F, Throwable]
+class UserService[F[_]: Bracket[?[_], Throwable]](
+  userRepo: UserRepositoryAlgebra[F], 
+  validation: UserValidationAlgebra[F]
 ) {
   def createUser(user: User): EitherT[F, UserAlreadyExistsError, User] =
     for {
@@ -36,9 +37,9 @@ class UserService[F[_]](userRepo: UserRepositoryAlgebra[F], validation: UserVali
 }
 
 object UserService {
-  def apply[F[_]](
+  def apply[F[_]: Bracket[?[_], Throwable]](
     repository: UserRepositoryAlgebra[F], 
     validation: UserValidationAlgebra[F]
-  )(implicit B: Bracket[F, Throwable]): UserService[F] =
+  ): UserService[F] =
     new UserService[F](repository, validation)
 }

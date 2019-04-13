@@ -12,10 +12,10 @@ import io.github.pauljamescleary.petstore.domain.{PetAlreadyExistsError, PetNotF
   * @tparam F - this is the container for the things we work with, could be scala.concurrent.Future, Option, anything
   *           as long as it is a Monad
   */
-class PetService[F[_]](
+class PetService[F[_]: Bracket[?[_], Throwable]](
   repository: PetRepositoryAlgebra[F],
   validation: PetValidationAlgebra[F]
-)(implicit B: Bracket[F, Throwable]) {
+) {
 
   def create(pet: Pet): EitherT[F, PetAlreadyExistsError, Pet] = for {
     _ <- validation.doesNotExist(pet)
@@ -46,9 +46,9 @@ class PetService[F[_]](
 }
 
 object PetService {
-  def apply[F[_]](
-    repository: PetRepositoryAlgebra[F],
+  def apply[F[_]: Bracket[?[_], Throwable]](
+    repository: PetRepositoryAlgebra[F], 
     validation: PetValidationAlgebra[F]
-  )(implicit B: Bracket[F, Throwable]) =
+  ) =
     new PetService[F](repository, validation)
 }

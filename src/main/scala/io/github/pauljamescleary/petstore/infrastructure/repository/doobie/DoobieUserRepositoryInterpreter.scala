@@ -42,7 +42,7 @@ private object UserSQL {
   """.query
 }
 
-class DoobieUserRepositoryInterpreter[F[_]](val xa: Transactor[F])(implicit B: Bracket[F, Throwable])
+class DoobieUserRepositoryInterpreter[F[_]: Bracket[?[_], Throwable]](val xa: Transactor[F])
 extends UserRepositoryAlgebra[F] {
 
   import UserSQL._
@@ -70,9 +70,7 @@ extends UserRepositoryAlgebra[F] {
 }
 
 object DoobieUserRepositoryInterpreter {
-  def apply[F[_]](xa: Transactor[F])(
-    implicit B: Bracket[F, Throwable]
-  ): DoobieUserRepositoryInterpreter[F] =
+  def apply[F[_]: Bracket[?[_], Throwable]](xa: Transactor[F]): DoobieUserRepositoryInterpreter[F] =
     new DoobieUserRepositoryInterpreter(xa)
 }
 

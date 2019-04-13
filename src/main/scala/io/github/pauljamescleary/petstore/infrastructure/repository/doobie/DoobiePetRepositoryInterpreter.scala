@@ -70,7 +70,7 @@ private object PetSQL {
   }
 }
 
-class DoobiePetRepositoryInterpreter[F[_]](val xa: Transactor[F])(implicit B: Bracket[F, Throwable])
+class DoobiePetRepositoryInterpreter[F[_]: Bracket[?[_], Throwable]](val xa: Transactor[F])
 extends PetRepositoryAlgebra[F] {
   import PetSQL._
 
@@ -101,8 +101,6 @@ extends PetRepositoryAlgebra[F] {
 }
 
 object DoobiePetRepositoryInterpreter {
-  def apply[F[_]](xa: Transactor[F])(
-    implicit B: Bracket[F, Throwable]
-  ): DoobiePetRepositoryInterpreter[F] =
+  def apply[F[_]: Bracket[?[_], Throwable]](xa: Transactor[F]): DoobiePetRepositoryInterpreter[F] =
     new DoobiePetRepositoryInterpreter(xa)
 }
