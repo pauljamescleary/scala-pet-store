@@ -1,7 +1,7 @@
 package io.github.pauljamescleary.petstore.infrastructure.repository.doobie
 
-import cats._
 import cats.data.OptionT
+import cats.effect.Bracket
 import cats.implicits._
 import doobie._
 import doobie.implicits._
@@ -42,35 +42,37 @@ private object UserSQL {
   """.query
 }
 
-class DoobieUserRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
-  extends UserRepositoryAlgebra[F] {
+class DoobieUserRepositoryInterpreter[F[_]](val xa: Transactor[F])(implicit B: Bracket[F, Throwable])
+extends UserRepositoryAlgebra[F] {
 
   import UserSQL._
 
-  def create(user: User)(implicit b: B): F[User] =
+  def create(user: User): F[User] =
     insert(user).withUniqueGeneratedKeys[Long]("ID").map(id => user.copy(id = id.some)).transact(xa)
 
-  def update(user: User)(implicit b: B): F[Option[User]] = OptionT.fromOption[F](user.id).semiflatMap { id =>
+  def update(user: User): F[Option[User]] = OptionT.fromOption[F](user.id).semiflatMap { id =>
     UserSQL.update(user, id).run.transact(xa).as(user)
   }.value
 
-  def get(userId: Long)(implicit b: B): F[Option[User]] = select(userId).option.transact(xa)
+  def get(userId: Long): F[Option[User]] = select(userId).option.transact(xa)
 
-  def findByUserName(userName: String)(implicit b: B): F[Option[User]] = byUserName(userName).option.transact(xa)
+  def findByUserName(userName: String): F[Option[User]] = byUserName(userName).option.transact(xa)
 
-  def delete(userId: Long)(implicit b: B): F[Option[User]] = OptionT(get(userId)).semiflatMap(user =>
+  def delete(userId: Long): F[Option[User]] = OptionT(get(userId)).semiflatMap(user =>
     UserSQL.delete(userId).run.transact(xa).as(user)
   ).value
 
-  def deleteByUserName(userName: String)(implicit b: B): F[Option[User]] =
+  def deleteByUserName(userName: String): F[Option[User]] =
     OptionT(findByUserName(userName)).mapFilter(_.id).flatMapF(delete).value
 
-  def list(pageSize: Int, offset: Int)(implicit b: B): F[List[User]] =
+  def list(pageSize: Int, offset: Int): F[List[User]] =
     paginate(pageSize, offset)(selectAll).to[List].transact(xa)
 }
 
 object DoobieUserRepositoryInterpreter {
-  def apply[F[_]: Monad](xa: Transactor[F]): DoobieUserRepositoryInterpreter[F] =
+  def apply[F[_]](xa: Transactor[F])(
+    implicit B: Bracket[F, Throwable]
+  ): DoobieUserRepositoryInterpreter[F] =
     new DoobieUserRepositoryInterpreter(xa)
 }
 

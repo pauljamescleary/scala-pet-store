@@ -1,12 +1,12 @@
 package io.github.pauljamescleary.petstore.infrastructure.repository.doobie
 
-import cats._
 import cats.data._
 import cats.implicits._
 import doobie._
 import doobie.implicits._
 import io.github.pauljamescleary.petstore.domain.pets.{Pet, PetRepositoryAlgebra, PetStatus}
 import SQLPagination._
+import cats.effect.Bracket
 
 private object PetSQL {
   /* We require type StatusMeta to handle our ADT Status */
@@ -70,37 +70,39 @@ private object PetSQL {
   }
 }
 
-class DoobiePetRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
-    extends PetRepositoryAlgebra[F] {
+class DoobiePetRepositoryInterpreter[F[_]](val xa: Transactor[F])(implicit B: Bracket[F, Throwable])
+extends PetRepositoryAlgebra[F] {
   import PetSQL._
 
-  def create(pet: Pet)(implicit b: B): F[Pet] =
+  def create(pet: Pet): F[Pet] =
     insert(pet).withUniqueGeneratedKeys[Long]("ID").map(id => pet.copy(id = id.some)).transact(xa)
 
-  def update(pet: Pet)(implicit b: B): F[Option[Pet]] = OptionT.fromOption[ConnectionIO](pet.id).semiflatMap(id =>
+  def update(pet: Pet): F[Option[Pet]] = OptionT.fromOption[ConnectionIO](pet.id).semiflatMap(id =>
     PetSQL.update(pet, id).run.as(pet)
   ).value.transact(xa)
 
-  def get(id: Long)(implicit b: B): F[Option[Pet]] = select(id).option.transact(xa)
+  def get(id: Long): F[Option[Pet]] = select(id).option.transact(xa)
 
-  def delete(id: Long)(implicit b: B): F[Option[Pet]] = OptionT(get(id)).semiflatMap(pet =>
+  def delete(id: Long): F[Option[Pet]] = OptionT(get(id)).semiflatMap(pet =>
     PetSQL.delete(id).run.transact(xa).as(pet)
   ).value
 
-  def findByNameAndCategory(name: String, category: String)(implicit b: B): F[Set[Pet]] =
+  def findByNameAndCategory(name: String, category: String): F[Set[Pet]] =
     selectByNameAndCategory(name, category).to[List].transact(xa).map(_.toSet)
 
-  def list(pageSize: Int, offset: Int)(implicit b: B): F[List[Pet]] =
+  def list(pageSize: Int, offset: Int): F[List[Pet]] =
     paginate(pageSize, offset)(selectAll).to[List].transact(xa)
 
-  def findByStatus(statuses: NonEmptyList[PetStatus])(implicit b: B): F[List[Pet]] =
+  def findByStatus(statuses: NonEmptyList[PetStatus]): F[List[Pet]] =
     selectByStatus(statuses).to[List].transact(xa)
 
-  def findByTag(tags: NonEmptyList[String])(implicit b: B): F[List[Pet]] =
+  def findByTag(tags: NonEmptyList[String]): F[List[Pet]] =
     selectTagLikeString(tags).to[List].transact(xa)
 }
 
 object DoobiePetRepositoryInterpreter {
-  def apply[F[_]: Monad](xa: Transactor[F]): DoobiePetRepositoryInterpreter[F] =
+  def apply[F[_]](xa: Transactor[F])(
+    implicit B: Bracket[F, Throwable]
+  ): DoobiePetRepositoryInterpreter[F] =
     new DoobiePetRepositoryInterpreter(xa)
 }
