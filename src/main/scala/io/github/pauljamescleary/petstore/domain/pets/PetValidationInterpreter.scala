@@ -1,9 +1,9 @@
-package io.github.pauljamescleary.petstore.domain.pets
+package io.github.pauljamescleary.petstore.domain
+package pets
 
 import cats._
 import cats.data.EitherT
 import cats.implicits._
-import io.github.pauljamescleary.petstore.domain.{PetAlreadyExistsError, PetNotFoundError}
 
 class PetValidationInterpreter[F[_]: Monad](repository: PetRepositoryAlgebra[F])
     extends PetValidationAlgebra[F] {

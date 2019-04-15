@@ -1,11 +1,12 @@
-package io.github.pauljamescleary.petstore.infrastructure.repository.doobie
+package io.github.pauljamescleary.petstore
+package infrastructure.repository.doobie
 
 import cats._
 import cats.data.OptionT
 import cats.implicits._
 import doobie._
 import doobie.implicits._
-import io.github.pauljamescleary.petstore.domain.users.{User, UserRepositoryAlgebra}
+import domain.users.{User, UserRepositoryAlgebra}
 import SQLPagination._
 
 private object UserSQL {

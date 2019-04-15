@@ -1,4 +1,5 @@
-package io.github.pauljamescleary.petstore.infrastructure.repository.inmemory
+package io.github.pauljamescleary.petstore
+package infrastructure.repository.inmemory
 
 import scala.collection.concurrent.TrieMap
 import scala.util.Random
@@ -6,7 +7,7 @@ import scala.util.Random
 import cats._
 import cats.data.NonEmptyList
 import cats.implicits._
-import io.github.pauljamescleary.petstore.domain.pets.{Pet, PetRepositoryAlgebra, PetStatus}
+import domain.pets.{Pet, PetRepositoryAlgebra, PetStatus}
 
 class PetRepositoryInMemoryInterpreter[F[_]: Applicative] extends PetRepositoryAlgebra[F] {
 
