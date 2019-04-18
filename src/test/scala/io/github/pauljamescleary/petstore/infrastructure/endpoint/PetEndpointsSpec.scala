@@ -79,15 +79,15 @@ class PetEndpointsSpec
     val auth = new AuthTest[IO](userRepo)
     val petHttpService = PetEndpoints.endpoints[IO, HMACSHA256](petService, auth.securedRqHandler).orNotFound
 
-    forAll { (pet: Pet, user: User) =>
+    forAll { (pet: Pet, user: AdminUser) =>
       (for {
         createRequest <- POST(pet, Uri.uri("/pets"))
-          .flatMap(auth.embedToken(user, _))
+          .flatMap(auth.embedToken(user.value, _))
         createResponse <- petHttpService.run(createRequest)
         createdPet <- createResponse.as[Pet]
         petToUpdate = createdPet.copy(name = createdPet.name.reverse)
         updateRequest <- PUT(petToUpdate, Uri.unsafeFromString(s"/pets/${petToUpdate.id.get}"))
-          .flatMap(auth.embedToken(user, _))
+          .flatMap(auth.embedToken(user.value, _))
         updateResponse <- petHttpService.run(updateRequest)
         updatedPet <- updateResponse.as[Pet]
       } yield {

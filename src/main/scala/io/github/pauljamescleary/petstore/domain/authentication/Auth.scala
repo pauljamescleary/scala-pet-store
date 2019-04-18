@@ -1,8 +1,11 @@
 package io.github.pauljamescleary.petstore.domain.authentication
 
+import cats.MonadError
 import cats.effect._
-import io.github.pauljamescleary.petstore.domain.users.User
-import tsec.authentication.{AugmentedJWT, BackingStore, IdentityStore, JWTAuthenticator}
+import io.github.pauljamescleary.petstore.domain.users.{Role, User}
+import org.http4s.Response
+import tsec.authentication.{AugmentedJWT, BackingStore, IdentityStore, JWTAuthenticator, SecuredRequest, TSecAuthService}
+import tsec.authorization.BasicRBAC
 import tsec.common.SecureRandomId
 import tsec.jws.mac.JWSMacCV
 import tsec.jwt.algorithms.JWTMacAlgo
@@ -23,4 +26,26 @@ object Auth {
       identityStore = userRepo,
       signingKey = key
     )
+
+  private def _allRoles[F[_], Auth](implicit F: MonadError[F, Throwable]): BasicRBAC[F, Role, User, Auth] =
+    BasicRBAC.all[F, Role, User, Auth]
+
+  def allRoles[F[_], Auth](pf: PartialFunction[SecuredRequest[F, User, AugmentedJWT[Auth, Long]], F[Response[F]]])
+                          (implicit F: MonadError[F, Throwable]): TSecAuthService[User, AugmentedJWT[Auth, Long], F] = {
+    TSecAuthService.withAuthorization(_allRoles[F, AugmentedJWT[Auth, Long]])(pf)
+  }
+
+  def allRolesHandler[F[_], Auth](pf: PartialFunction[SecuredRequest[F, User, AugmentedJWT[Auth, Long]], F[Response[F]]])
+                                 (onNotAuthorized: TSecAuthService[User, AugmentedJWT[Auth, Long], F])
+                                 (implicit F: MonadError[F, Throwable]): TSecAuthService[User, AugmentedJWT[Auth, Long], F] = {
+    TSecAuthService.withAuthorizationHandler(_allRoles[F, AugmentedJWT[Auth, Long]])(pf, onNotAuthorized.run)
+  }
+
+  private def _adminOnly[F[_], Auth](implicit F: MonadError[F, Throwable]): BasicRBAC[F, Role, User, Auth] =
+    BasicRBAC[F, Role, User, Auth](Role.Admin)
+
+  def adminOnly[F[_], Auth](pf: PartialFunction[SecuredRequest[F, User, AugmentedJWT[Auth, Long]], F[Response[F]]])
+                          (implicit F: MonadError[F, Throwable]): TSecAuthService[User, AugmentedJWT[Auth, Long], F] = {
+    TSecAuthService.withAuthorization(_adminOnly[F, AugmentedJWT[Auth, Long]])(pf)
+  }
 }

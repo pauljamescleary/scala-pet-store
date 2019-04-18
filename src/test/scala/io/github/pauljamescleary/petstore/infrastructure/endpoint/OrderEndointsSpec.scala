@@ -1,6 +1,5 @@
 package io.github.pauljamescleary.petstore.infrastructure.endpoint
 
-import io.github.pauljamescleary.petstore.domain.users._
 import io.github.pauljamescleary.petstore.domain.orders._
 import io.github.pauljamescleary.petstore.PetStoreArbitraries
 import io.github.pauljamescleary.petstore.infrastructure.repository.inmemory._
@@ -30,24 +29,60 @@ class OrderEndpointsSpec
 
  implicit val orderEncoder : Encoder[Order] = deriveEncoder
  implicit val orderEnc : EntityEncoder[IO, Order] = jsonEncoderOf
+ implicit val orderDecoder: Decoder[Order] = deriveDecoder
+ implicit val orderDec: EntityDecoder[IO, Order] = jsonOf
 
- test("place order") {
+ test("place and get order") {
 
    val userRepo = UserRepositoryInMemoryInterpreter[IO]()
    val auth = new AuthTest[IO](userRepo)
    val orderService = OrderService(OrderRepositoryInMemoryInterpreter[IO]())
    val orderHttpService = OrderEndpoints.endpoints[IO, HMACSHA256](orderService, auth.securedRqHandler).orNotFound
 
-   forAll { (order: Order, user: User) =>
+   forAll { (order: Order, user: AdminUser) =>
      (for {
-       request <- POST(order, Uri.uri("/orders"))
-       authRequest <- auth.embedToken(user, request)
-       response <- orderHttpService.run(authRequest)
+       createRq <- POST(order, Uri.uri("/orders"))
+       createRqAuth <- auth.embedToken(user.value, createRq)
+       createResp <- orderHttpService.run(createRqAuth)
+       orderResp <- createResp.as[Order]
+       getOrderRq <- GET(Uri.unsafeFromString(s"/orders/${orderResp.id.get}"))
+       getOrderRqAuth <- auth.embedToken(user.value, getOrderRq)
+       getOrderResp <- orderHttpService.run(getOrderRqAuth)
+       orderResp2 <- getOrderResp.as[Order]
      } yield {
-       response.status shouldEqual Ok
+       createResp.status shouldEqual Ok
+       orderResp.petId shouldBe order.petId
+       getOrderResp.status shouldEqual Ok
+       orderResp2.userId should be ('defined)
      }).unsafeRunSync
    }
-
  }
 
+  test("user roles") {
+
+    val userRepo = UserRepositoryInMemoryInterpreter[IO]()
+    val auth = new AuthTest[IO](userRepo)
+    val orderService = OrderService(OrderRepositoryInMemoryInterpreter[IO]())
+    val orderHttpService = OrderEndpoints.endpoints[IO, HMACSHA256](orderService, auth.securedRqHandler).orNotFound
+
+    forAll { user: CustomerUser =>
+      (for {
+        deleteRq <- DELETE(Uri.unsafeFromString(s"/orders/1"))
+          .flatMap(auth.embedToken(user.value, _))
+        deleteResp <- orderHttpService.run(deleteRq)
+      } yield {
+        deleteResp.status shouldEqual Unauthorized
+      }).unsafeRunSync
+    }
+
+    forAll { user: AdminUser =>
+      (for {
+        deleteRq <- DELETE(Uri.unsafeFromString(s"/orders/1"))
+          .flatMap(auth.embedToken(user.value, _))
+        deleteResp <- orderHttpService.run(deleteRq)
+      } yield {
+        deleteResp.status shouldEqual Ok
+      }).unsafeRunSync
+    }
+  }
 }

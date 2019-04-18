@@ -11,7 +11,7 @@ import io.github.pauljamescleary.petstore.domain.orders.OrderStatus._
 import io.github.pauljamescleary.petstore.domain.{orders, pets}
 import io.github.pauljamescleary.petstore.domain.pets._
 import io.github.pauljamescleary.petstore.domain.pets.PetStatus._
-import io.github.pauljamescleary.petstore.domain.users._
+import io.github.pauljamescleary.petstore.domain.users.{Role, _}
 import tsec.common.SecureRandomId
 import tsec.jwt.JWTClaims
 import tsec.authentication.AugmentedJWT
@@ -33,15 +33,17 @@ trait PetStoreArbitraries {
     Gen.oneOf(Approved, Delivered, Placed)
   }
 
-  implicit val order = Arbitrary[Order] {
+  def order(userId: Option[Long]): Arbitrary[Order] = Arbitrary[Order] {
     for {
       petId <- Gen.posNum[Long]
       shipDate <- Gen.option(instant.arbitrary)
       status <- arbitrary[OrderStatus]
       complete <- arbitrary[Boolean]
       id <- Gen.option(Gen.posNum[Long])
-    } yield orders.Order(petId, shipDate, status, complete, id)
+    } yield orders.Order(petId, shipDate, status, complete, id, userId)
   }
+
+  implicit val orderNoUser: Arbitrary[Order] = order(None)
 
   implicit val petStatus = Arbitrary[PetStatus] {
     Gen.oneOf(Available, Pending, Adopted)
@@ -63,6 +65,8 @@ trait PetStoreArbitraries {
     } yield pets.Pet(name, category, bio, status, tags, photoUrls, id)
   }
 
+  implicit val role = Arbitrary[Role](Gen.oneOf(Role.values))
+
   implicit val user = Arbitrary[User] {
     for {
       userName <- userNameGen
@@ -72,7 +76,23 @@ trait PetStoreArbitraries {
       password <- arbitrary[String]
       phone <- arbitrary[String]
       id <- Gen.option(Gen.posNum[Long])
-    } yield User(userName, firstName, lastName, email, password, phone, id)
+      role <- arbitrary[Role]
+    } yield User(userName, firstName, lastName, email, password, phone, id, role)
+  }
+
+  case class AdminUser(value: User)
+  case class CustomerUser(value: User)
+
+  implicit val adminUser: Arbitrary[AdminUser] = Arbitrary {
+    user.arbitrary.map { user =>
+      AdminUser(user.copy(role = Role.Admin))
+    }
+  }
+
+  implicit val customerUser: Arbitrary[CustomerUser] = Arbitrary {
+    user.arbitrary.map { user =>
+      CustomerUser(user.copy(role = Role.Customer))
+    }
   }
 
   implicit val userSignup = Arbitrary[SignupRequest] {
@@ -83,7 +103,8 @@ trait PetStoreArbitraries {
       email <- arbitrary[String]
       password <- arbitrary[String]
       phone <- arbitrary[String]
-    } yield SignupRequest(userName, firstName, lastName, email, password, phone)
+      role <- arbitrary[Role]
+    } yield SignupRequest(userName, firstName, lastName, email, password, phone, role)
   }
 
   implicit val secureRandomId = Arbitrary[SecureRandomId] {

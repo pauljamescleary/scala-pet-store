@@ -60,6 +60,17 @@ class UserEndpointsSpec
       user -> loginResp.headers.get(Authorization)
     }
 
+  def signUpAndLogInAsAdmin(userSignUp: SignupRequest,
+                     userEndpoint: Kleisli[IO, Request[IO], Response[IO]]
+                    ): IO[(User, Option[Authorization])] =
+    signUpAndLogIn(userSignUp.copy(role = Role.Admin), userEndpoint)
+
+  def signUpAndLogInAsCustomer(userSignUp: SignupRequest,
+                            userEndpoint: Kleisli[IO, Request[IO], Response[IO]]
+                           ): IO[(User, Option[Authorization])] =
+    signUpAndLogIn(userSignUp.copy(role = Role.Customer), userEndpoint)
+
+
  test("create user and log in") {
    val userEndpoint = userHttpService()
 
@@ -74,7 +85,7 @@ class UserEndpointsSpec
 
    forAll { userSignup: SignupRequest =>
      (for {
-       loginResp <- signUpAndLogIn(userSignup, userEndpoint)
+       loginResp <- signUpAndLogInAsAdmin(userSignup, userEndpoint)
        (createdUser, authorization) = loginResp
        userToUpdate = createdUser.copy(lastName = createdUser.lastName.reverse)
        updateUser <- PUT(userToUpdate, Uri.unsafeFromString(s"/users/${createdUser.userName}"))
@@ -94,7 +105,7 @@ class UserEndpointsSpec
 
    forAll { userSignup: SignupRequest =>
      (for {
-       loginResp <- signUpAndLogIn(userSignup, userEndpoint)
+       loginResp <- signUpAndLogInAsAdmin(userSignup, userEndpoint)
        (createdUser, authorization) = loginResp
        getRequest <- GET(Uri.unsafeFromString(s"/users/${createdUser.userName}"))
        getRequestAuth = getRequest.putHeaders(authorization.get)
@@ -113,7 +124,19 @@ class UserEndpointsSpec
 
    forAll { userSignup: SignupRequest =>
      (for {
-       loginResp <- signUpAndLogIn(userSignup, userEndpoint)
+       loginResp <- signUpAndLogInAsCustomer(userSignup, userEndpoint)
+       (createdUser, Some(authorization)) = loginResp
+       deleteRequest <- DELETE(Uri.unsafeFromString(s"/users/${createdUser.userName}"))
+       deleteRequestAuth = deleteRequest.putHeaders(authorization)
+       deleteResponse <- userEndpoint.run(deleteRequestAuth)
+     } yield {
+       deleteResponse.status shouldEqual Unauthorized
+     }).unsafeRunSync
+   }
+
+   forAll { userSignup: SignupRequest =>
+     (for {
+       loginResp <- signUpAndLogInAsAdmin(userSignup, userEndpoint)
        (createdUser, Some(authorization)) = loginResp
        deleteRequest <- DELETE(Uri.unsafeFromString(s"/users/${createdUser.userName}"))
        deleteRequestAuth = deleteRequest.putHeaders(authorization)

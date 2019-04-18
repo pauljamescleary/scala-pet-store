@@ -8,7 +8,7 @@ import io.circe.generic.auto._
 import io.circe.syntax._
 import org.http4s.circe._
 import org.http4s.dsl.Http4sDsl
-import org.http4s.{EntityDecoder, HttpRoutes}
+import org.http4s.{EntityDecoder, HttpRoutes, Response}
 
 import scala.language.higherKinds
 import domain._
@@ -21,14 +21,16 @@ import tsec.authentication._
 
 class UserEndpoints[F[_]: Effect, A,  Auth: JWTMacAlgo] extends Http4sDsl[F] {
   import Pagination._
+
+  type AuthService = TSecAuthService[User, AugmentedJWT[Auth, Long], F]
+  type AuthEndpoint = PartialFunction[SecuredRequest[F, User, AugmentedJWT[Auth, Long]], F[Response[F]]]
+
   /* Jsonization of our User type */
 
   implicit val userDecoder: EntityDecoder[F, User] = jsonOf
   implicit val loginReqDecoder: EntityDecoder[F, LoginRequest] = jsonOf
 
   implicit val signupReqDecoder: EntityDecoder[F, SignupRequest] = jsonOf
-
-  type AuthService = TSecAuthService[User, AugmentedJWT[Auth, Long], F]
 
   private def loginEndpoint(userService: UserService[F],
                             cryptService: PasswordHasher[F, A],
@@ -72,57 +74,55 @@ class UserEndpoints[F[_]: Effect, A,  Auth: JWTMacAlgo] extends Http4sDsl[F] {
         }
     }
 
-  private def updateEndpoint(userService: UserService[F]): AuthService =
-    TSecAuthService {
-      case req @ PUT -> Root / "users" / name asAuthed _ =>
-        val action = for {
-          user <- req.request.as[User]
-          updated = user.copy(userName = name)
-          result <- userService.update(updated).value
-        } yield result
+  private def updateEndpoint(userService: UserService[F]): AuthEndpoint = {
+    case req @ PUT -> Root / "users" / name asAuthed _ =>
+      val action = for {
+        user <- req.request.as[User]
+        updated = user.copy(userName = name)
+        result <- userService.update(updated).value
+      } yield result
 
-        action.flatMap {
-          case Right(saved) => Ok(saved.asJson)
-          case Left(UserNotFoundError) => NotFound("User not found")
-        }
-    }
+      action.flatMap {
+        case Right(saved) => Ok(saved.asJson)
+        case Left(UserNotFoundError) => NotFound("User not found")
+      }
+  }
 
-  private def listEndpoint(userService: UserService[F]): AuthService =
-    TSecAuthService {
-      case GET -> Root / "users" :? OptionalPageSizeMatcher(pageSize) :? OptionalOffsetMatcher(offset) asAuthed _ =>
-        for {
-          retrieved <- userService.list(pageSize.getOrElse(10), offset.getOrElse(0))
-          resp <- Ok(retrieved.asJson)
-        } yield resp
-    }
+  private def listEndpoint(userService: UserService[F]): AuthEndpoint = {
+    case GET -> Root / "users" :? OptionalPageSizeMatcher(pageSize) :? OptionalOffsetMatcher(offset) asAuthed _ =>
+      for {
+        retrieved <- userService.list(pageSize.getOrElse(10), offset.getOrElse(0))
+        resp <- Ok(retrieved.asJson)
+      } yield resp
+  }
 
-  private def searchByNameEndpoint(userService: UserService[F]): AuthService =
-    TSecAuthService {
-      case GET -> Root / "users" / userName asAuthed _ =>
-        userService.getUserByName(userName).value.flatMap {
-          case Right(found) => Ok(found.asJson)
-          case Left(UserNotFoundError) => NotFound("The user was not found")
-        }
-    }
+  private def searchByNameEndpoint(userService: UserService[F]): AuthEndpoint = {
+    case GET -> Root / "users" / userName asAuthed _ =>
+      userService.getUserByName(userName).value.flatMap {
+        case Right(found) => Ok(found.asJson)
+        case Left(UserNotFoundError) => NotFound("The user was not found")
+      }
+  }
 
-  private def deleteUserEndpoint(userService: UserService[F]): AuthService =
-    TSecAuthService {
-      case DELETE -> Root / "users" / userName asAuthed _ =>
-        for {
-          _ <- userService.deleteByUserName(userName)
-          resp <- Ok()
-        } yield resp
-    }
+  private def deleteUserEndpoint(userService: UserService[F]): AuthEndpoint = {
+    case DELETE -> Root / "users" / userName asAuthed _ =>
+      for {
+        _ <- userService.deleteByUserName(userName)
+        resp <- Ok()
+      } yield resp
+  }
 
   def endpoints(userService: UserService[F],
                 cryptService: PasswordHasher[F, A],
                 auth: SecuredRequestHandler[F, Long, User, AugmentedJWT[Auth, Long]]): HttpRoutes[F] = {
     val authEndpoints: AuthService =
-      updateEndpoint(userService) <+>
-        listEndpoint(userService) <+>
-        searchByNameEndpoint(userService) <+>
-        deleteUserEndpoint(userService)
-  
+      Auth.adminOnly {
+        updateEndpoint(userService) orElse
+          listEndpoint(userService) orElse
+          searchByNameEndpoint(userService) orElse
+          deleteUserEndpoint(userService)
+      }
+
     val unauthEndpoints =
       loginEndpoint(userService, cryptService, auth.authenticator) <+>
         signupEndpoint(userService, cryptService)
