@@ -14,7 +14,7 @@ class UserService[F[_]: Monad](userRepo: UserRepositoryAlgebra[F], validation: U
     } yield saved
 
   def getUser(userId: Long): EitherT[F, UserNotFoundError.type, User] =
-    EitherT.fromOptionF(userRepo.get(userId), UserNotFoundError)
+    EitherT.fromOptionF(userRepo.get(userId).value, UserNotFoundError)
 
   def getUserByName(userName: String): EitherT[F, UserNotFoundError.type, User] =
     EitherT.fromOptionF(userRepo.findByUserName(userName), UserNotFoundError)

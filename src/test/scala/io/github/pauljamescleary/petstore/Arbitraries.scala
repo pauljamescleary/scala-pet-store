@@ -2,6 +2,7 @@ package io.github.pauljamescleary.petstore
 
 import java.time.Instant
 
+import cats.effect.IO
 import io.github.pauljamescleary.petstore.domain.authentication.SignupRequest
 import org.scalacheck._
 import org.scalacheck.Arbitrary.arbitrary
@@ -11,7 +12,11 @@ import io.github.pauljamescleary.petstore.domain.{orders, pets}
 import io.github.pauljamescleary.petstore.domain.pets._
 import io.github.pauljamescleary.petstore.domain.pets.PetStatus._
 import io.github.pauljamescleary.petstore.domain.users._
-
+import tsec.common.SecureRandomId
+import tsec.jwt.JWTClaims
+import tsec.authentication.AugmentedJWT
+import tsec.jws.mac._
+import tsec.mac.jca._
 
 trait PetStoreArbitraries {
 
@@ -44,7 +49,7 @@ trait PetStoreArbitraries {
 
   implicit val pet = Arbitrary[Pet] {
     for {
-      name <- arbitrary[String]
+      name <- Gen.nonEmptyListOf(Gen.asciiPrintableChar).map(_.mkString)
       category <- arbitrary[String]
       bio <- arbitrary[String]
       status <- arbitrary[PetStatus]
@@ -80,6 +85,28 @@ trait PetStoreArbitraries {
       phone <- arbitrary[String]
     } yield SignupRequest(userName, firstName, lastName, email, password, phone)
   }
+
+  implicit val secureRandomId = Arbitrary[SecureRandomId] {
+    arbitrary[String].map(SecureRandomId.apply)
+  }
+
+  implicit val jwtMac: Arbitrary[JWTMac[HMACSHA256]] = Arbitrary {
+    for {
+      key <- Gen.const(HMACSHA256.unsafeGenerateKey)
+      claims <- Gen.finiteDuration.map(exp => JWTClaims.withDuration[IO](expiration = Some(exp)).unsafeRunSync())
+    } yield JWTMacImpure.build[HMACSHA256](claims, key).getOrElse(throw new Exception("Inconceivable"))
+  }
+
+  implicit def augmentedJWT[A, I](implicit arb1: Arbitrary[JWTMac[A]], arb2: Arbitrary[I]): Arbitrary[AugmentedJWT[A, I]] =
+    Arbitrary {
+      for {
+        id <- arbitrary[SecureRandomId]
+        jwt <- arb1.arbitrary
+        identity <- arb2.arbitrary
+        expiry <- arbitrary[Instant]
+        lastTouched <- Gen.option(arbitrary[Instant])
+      } yield AugmentedJWT(id, jwt, identity, expiry, lastTouched)
+    }
 }
 
 object PetStoreArbitraries extends PetStoreArbitraries

@@ -1,11 +1,13 @@
 package io.github.pauljamescleary.petstore.domain.users
 
+import cats.data.OptionT
+
 trait UserRepositoryAlgebra[F[_]] {
   def create(user: User): F[User]
 
   def update(user: User): F[Option[User]]
 
-  def get(userId: Long): F[Option[User]]
+  def get(userId: Long): OptionT[F, User]
 
   def delete(userId: Long): F[Option[User]]
 

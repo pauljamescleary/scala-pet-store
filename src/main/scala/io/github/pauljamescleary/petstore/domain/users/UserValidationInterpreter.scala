@@ -4,6 +4,7 @@ import cats._
 import cats.data.EitherT
 import cats.implicits._
 import io.github.pauljamescleary.petstore.domain.{UserAlreadyExistsError, UserNotFoundError}
+import Function._
 
 class UserValidationInterpreter[F[_]: Monad](userRepo: UserRepositoryAlgebra[F]) extends UserValidationAlgebra[F] {
   def doesNotExist(user: User) = EitherT {
@@ -16,10 +17,11 @@ class UserValidationInterpreter[F[_]: Monad](userRepo: UserRepositoryAlgebra[F])
   def exists(userId: Option[Long]): EitherT[F, UserNotFoundError.type, Unit] =
     EitherT {
       userId.map { id =>
-        userRepo.get(id).map {
-          case Some(_) => Right(())
-          case _ => Left(UserNotFoundError)
-        }
+        userRepo
+          .get(id)
+          .fold(UserNotFoundError.asLeft[Unit]) {
+            const(Right(()))
+          }
       }.getOrElse(
         Either.left[UserNotFoundError.type, Unit](UserNotFoundError).pure[F]
       )

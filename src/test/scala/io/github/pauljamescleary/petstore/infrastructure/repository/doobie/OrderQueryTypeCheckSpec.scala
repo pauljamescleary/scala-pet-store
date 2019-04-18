@@ -17,7 +17,7 @@ class OrderQueryTypeCheckSpec extends FunSuite with Matchers with IOChecker {
     check(delete(1L))
     check(select(1L))
 
-    order.arbitrary.sample.map{ o =>
+    order.arbitrary.sample.map { o =>
       check(insert(o))
     }
   }

@@ -6,7 +6,8 @@ import cats.implicits._
 import doobie._
 import doobie.implicits._
 import io.github.pauljamescleary.petstore.domain.users.{User, UserRepositoryAlgebra}
-import SQLPagination._
+import io.github.pauljamescleary.petstore.infrastructure.repository.doobie.SQLPagination._
+import tsec.authentication.IdentityStore
 
 private object UserSQL {
   def insert(user: User): Update0 = sql"""
@@ -42,8 +43,9 @@ private object UserSQL {
   """.query
 }
 
-class DoobieUserRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
-  extends UserRepositoryAlgebra[F] {
+class DoobieUserRepositoryInterpreter[F[_]](val xa: Transactor[F])(implicit M: MonadError[F, Throwable])
+  extends UserRepositoryAlgebra[F]
+  with IdentityStore[F, Long, User] { self =>
 
   import UserSQL._
 
@@ -54,11 +56,11 @@ class DoobieUserRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
     UserSQL.update(user, id).run.transact(xa).as(user)
   }.value
 
-  def get(userId: Long): F[Option[User]] = select(userId).option.transact(xa)
+  def get(userId: Long): OptionT[F, User] = OptionT(select(userId).option.transact(xa))
 
   def findByUserName(userName: String): F[Option[User]] = byUserName(userName).option.transact(xa)
 
-  def delete(userId: Long): F[Option[User]] = OptionT(get(userId)).semiflatMap(user =>
+  def delete(userId: Long): F[Option[User]] = get(userId).semiflatMap(user =>
     UserSQL.delete(userId).run.transact(xa).as(user)
   ).value
 
@@ -70,7 +72,7 @@ class DoobieUserRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
 }
 
 object DoobieUserRepositoryInterpreter {
-  def apply[F[_]: Monad](xa: Transactor[F]): DoobieUserRepositoryInterpreter[F] =
+  def apply[F[_]](xa: Transactor[F])(implicit M: MonadError[F, Throwable]): DoobieUserRepositoryInterpreter[F]=
     new DoobieUserRepositoryInterpreter(xa)
 }
 

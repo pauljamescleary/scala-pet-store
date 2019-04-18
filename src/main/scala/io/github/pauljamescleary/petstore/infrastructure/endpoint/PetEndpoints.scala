@@ -9,12 +9,15 @@ import io.circe.syntax._
 import org.http4s.circe._
 import org.http4s.dsl.Http4sDsl
 import org.http4s.{EntityDecoder, HttpRoutes, QueryParamDecoder}
-import scala.language.higherKinds
 
+import scala.language.higherKinds
 import io.github.pauljamescleary.petstore.domain.{PetAlreadyExistsError, PetNotFoundError}
 import io.github.pauljamescleary.petstore.domain.pets.{Pet, PetService, PetStatus}
+import io.github.pauljamescleary.petstore.domain.users.User
+import tsec.jwt.algorithms.JWTMacAlgo
+import tsec.authentication._
 
-class PetEndpoints[F[_]: Effect] extends Http4sDsl[F] {
+class PetEndpoints[F[_]: Effect, Auth: JWTMacAlgo] extends Http4sDsl[F] {
 
   import Pagination._
 
@@ -30,11 +33,13 @@ class PetEndpoints[F[_]: Effect] extends Http4sDsl[F] {
 
   implicit val petDecoder: EntityDecoder[F, Pet] = jsonOf[F, Pet]
 
-  private def createPetEndpoint(petService: PetService[F]): HttpRoutes[F] =
-    HttpRoutes.of[F] {
-      case req @ POST -> Root / "pets" =>
+  type AuthService = TSecAuthService[User, AugmentedJWT[Auth, Long], F]
+
+  private def createPetEndpoint(petService: PetService[F]): AuthService =
+    TSecAuthService {
+      case req @ POST -> Root / "pets" asAuthed _ =>
         val action = for {
-          pet <- req.as[Pet]
+          pet <- req.request.as[Pet]
           result <- petService.create(pet).value
         } yield result
 
@@ -46,12 +51,11 @@ class PetEndpoints[F[_]: Effect] extends Http4sDsl[F] {
         }
     }
 
-  private def updatePetEndpoint(petService: PetService[F]): HttpRoutes[F] =
-    HttpRoutes.of[F] {
-      case req @ PUT -> Root / "pets" / LongVar(petId) =>
+  private def updatePetEndpoint(petService: PetService[F]): AuthService =
+    TSecAuthService {
+      case req @ PUT -> Root / "pets" / LongVar(_) asAuthed _ =>
         val action = for {
-          pet <- req.as[Pet]
-          updated = pet.copy(id = Some(petId))
+          pet <- req.request.as[Pet]
           result <- petService.update(pet).value
         } yield result
 
@@ -61,40 +65,40 @@ class PetEndpoints[F[_]: Effect] extends Http4sDsl[F] {
         }
     }
 
-  private def getPetEndpoint(petService: PetService[F]): HttpRoutes[F] =
-    HttpRoutes.of[F] {
-      case GET -> Root / "pets" / LongVar(id) =>
+  private def getPetEndpoint(petService: PetService[F]): AuthService =
+    TSecAuthService {
+      case GET -> Root / "pets" / LongVar(id) asAuthed _=>
         petService.get(id).value.flatMap {
           case Right(found) => Ok(found.asJson)
           case Left(PetNotFoundError) => NotFound("The pet was not found")
         }
     }
 
-  private def deletePetEndpoint(petService: PetService[F]): HttpRoutes[F] =
-    HttpRoutes.of[F] {
-      case DELETE -> Root / "pets" / LongVar(id) =>
+  private def deletePetEndpoint(petService: PetService[F]): AuthService =
+    TSecAuthService {
+      case DELETE -> Root / "pets" / LongVar(id) asAuthed _ =>
         for {
           _ <- petService.delete(id)
           resp <- Ok()
         } yield resp
     }
 
-  private def listPetsEndpoint(petService: PetService[F]): HttpRoutes[F] =
-    HttpRoutes.of[F] {
-      case GET -> Root / "pets" :? OptionalPageSizeMatcher(pageSize) :? OptionalOffsetMatcher(offset) =>
+  private def listPetsEndpoint(petService: PetService[F]): AuthService =
+    TSecAuthService {
+      case GET -> Root / "pets" :? OptionalPageSizeMatcher(pageSize) :? OptionalOffsetMatcher(offset) asAuthed _=>
         for {
           retrieved <- petService.list(pageSize.getOrElse(10), offset.getOrElse(0))
           resp <- Ok(retrieved.asJson)
         } yield resp
     }
 
-  private def findPetsByStatusEndpoint(petService: PetService[F]): HttpRoutes[F] =
-    HttpRoutes.of[F] {
-      case GET -> Root / "pets" / "findByStatus" :? StatusMatcher(Valid(Nil)) =>
+  private def findPetsByStatusEndpoint(petService: PetService[F]): AuthService =
+    TSecAuthService {
+      case GET -> Root / "pets" / "findByStatus" :? StatusMatcher(Valid(Nil)) asAuthed _=>
         // User did not specify any statuses
         BadRequest("status parameter not specified")
 
-      case GET -> Root / "pets" / "findByStatus" :? StatusMatcher(Valid(statuses)) =>
+      case GET -> Root / "pets" / "findByStatus" :? StatusMatcher(Valid(statuses)) asAuthed _=>
         // We have a list of valid statuses, find them and return
         for {
           retrieved <- petService.findByStatus(NonEmptyList.fromListUnsafe(statuses))
@@ -102,12 +106,12 @@ class PetEndpoints[F[_]: Effect] extends Http4sDsl[F] {
         } yield resp
     }
 
-  private def findPetsByTagEndpoint(petService: PetService[F]): HttpRoutes[F] =
-    HttpRoutes.of[F] {
-      case GET -> Root / "pets" / "findByTags" :? TagMatcher(Valid(Nil)) =>
+  private def findPetsByTagEndpoint(petService: PetService[F]): AuthService =
+    TSecAuthService {
+      case GET -> Root / "pets" / "findByTags" :? TagMatcher(Valid(Nil)) asAuthed _=>
         BadRequest("tag parameter not specified")
 
-      case GET -> Root / "pets" / "findByTags" :? TagMatcher(Valid(tags)) =>
+      case GET -> Root / "pets" / "findByTags" :? TagMatcher(Valid(tags)) asAuthed _=>
         for {
           retrieved <- petService.findByTag(NonEmptyList.fromListUnsafe(tags))
           resp <- Ok(retrieved.asJson)
@@ -115,17 +119,25 @@ class PetEndpoints[F[_]: Effect] extends Http4sDsl[F] {
 
     }
 
-  def endpoints(petService: PetService[F]): HttpRoutes[F] =
-    createPetEndpoint(petService) <+>
-      getPetEndpoint(petService) <+>
-      deletePetEndpoint(petService) <+>
-      listPetsEndpoint(petService) <+>
-      findPetsByStatusEndpoint(petService) <+>
-      updatePetEndpoint(petService) <+>
-      findPetsByTagEndpoint(petService)
+
+
+  def endpoints(petService: PetService[F], auth: SecuredRequestHandler[F, Long, User, AugmentedJWT[Auth, Long]]): HttpRoutes[F] = {
+    val authEndpoints: AuthService =
+      createPetEndpoint(petService) <+>
+        updatePetEndpoint(petService) <+>
+        getPetEndpoint(petService) <+>
+        deletePetEndpoint(petService) <+>
+        listPetsEndpoint(petService) <+>
+        findPetsByStatusEndpoint(petService) <+>
+        findPetsByTagEndpoint(petService)
+
+    auth.liftService(authEndpoints)
+  }
 }
 
 object PetEndpoints {
-  def endpoints[F[_]: Effect](petService: PetService[F]): HttpRoutes[F] =
-    new PetEndpoints[F].endpoints(petService)
+  def endpoints[F[_]: Effect, Auth: JWTMacAlgo](petService: PetService[F],
+                                                auth: SecuredRequestHandler[F, Long, User, AugmentedJWT[Auth, Long]]
+                                               ): HttpRoutes[F] =
+    new PetEndpoints[F, Auth].endpoints(petService, auth)
 }

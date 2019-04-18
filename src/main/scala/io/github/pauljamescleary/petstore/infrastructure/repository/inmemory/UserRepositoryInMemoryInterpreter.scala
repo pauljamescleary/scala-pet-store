@@ -4,11 +4,15 @@ import java.util.Random
 
 import cats.implicits._
 import cats.Applicative
+import cats.data.OptionT
 import io.github.pauljamescleary.petstore.domain.users.{User, UserRepositoryAlgebra}
+import tsec.authentication.IdentityStore
 
 import scala.collection.concurrent.TrieMap
 
-class UserRepositoryInMemoryInterpreter[F[_]: Applicative] extends UserRepositoryAlgebra[F] {
+class UserRepositoryInMemoryInterpreter[F[_]: Applicative]
+  extends UserRepositoryAlgebra[F]
+    with IdentityStore[F, Long, User] {
 
   private val cache = new TrieMap[Long, User]
 
@@ -26,7 +30,7 @@ class UserRepositoryInMemoryInterpreter[F[_]: Applicative] extends UserRepositor
     user.pure[F]
   }
 
-  def get(id: Long): F[Option[User]] = cache.get(id).pure[F]
+  def get(id: Long): OptionT[F, User] = OptionT.fromOption(cache.get(id))
 
   def delete(id: Long): F[Option[User]] = cache.remove(id).pure[F]
 
