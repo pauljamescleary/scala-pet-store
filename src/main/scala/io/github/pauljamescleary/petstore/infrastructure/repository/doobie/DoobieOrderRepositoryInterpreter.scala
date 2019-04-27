@@ -1,4 +1,5 @@
-package io.github.pauljamescleary.petstore.infrastructure.repository.doobie
+package io.github.pauljamescleary.petstore
+package infrastructure.repository.doobie
 
 import java.time.Instant
 
@@ -7,8 +8,7 @@ import cats.effect.Bracket
 import cats.implicits._
 import doobie._
 import doobie.implicits._
-import io.github.pauljamescleary.petstore.domain.orders
-import orders.{Order, OrderRepositoryAlgebra, OrderStatus}
+import domain.orders.{OrderRepositoryAlgebra, OrderStatus, Order}
 
 private object OrderSQL {
   /* We require type StatusMeta to handle our ADT Status */
@@ -36,7 +36,7 @@ private object OrderSQL {
   """.update
 }
 
-class DoobieOrderRepositoryInterpreter[F[_]: Bracket[?[_], Throwable]](val xa: Transactor[F]) 
+class DoobieOrderRepositoryInterpreter[F[_]: Bracket[?[_], Throwable]](val xa: Transactor[F])
 extends OrderRepositoryAlgebra[F] {
   import OrderSQL._
 

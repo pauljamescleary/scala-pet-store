@@ -1,8 +1,8 @@
-package io.github.pauljamescleary.petstore.domain.orders
+package io.github.pauljamescleary.petstore.domain
+package orders
 
 import cats.data.EitherT
 import cats.effect.Bracket
-import io.github.pauljamescleary.petstore.domain.OrderNotFoundError
 
 class OrderService[F[_]: Bracket[?[_], Throwable]](orderRepo: OrderRepositoryAlgebra[F]) {
   import cats.syntax.all._

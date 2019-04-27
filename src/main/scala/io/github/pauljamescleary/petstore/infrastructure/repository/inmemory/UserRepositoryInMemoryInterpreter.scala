@@ -1,10 +1,11 @@
-package io.github.pauljamescleary.petstore.infrastructure.repository.inmemory
+package io.github.pauljamescleary.petstore
+package infrastructure.repository.inmemory
 
 import java.util.Random
 
 import cats.implicits._
 import cats.Applicative
-import io.github.pauljamescleary.petstore.domain.users.{User, UserRepositoryAlgebra}
+import domain.users.{User, UserRepositoryAlgebra}
 
 import scala.collection.concurrent.TrieMap
 

@@ -1,16 +1,15 @@
 package io.github.pauljamescleary.petstore
 
+import domain.authentication.SignupRequest
+import domain.orders._
+import domain.orders.OrderStatus._
+import domain.{orders, pets}
+import domain.pets._
+import domain.pets.PetStatus._
+import domain.users._
 import java.time.Instant
-
-import io.github.pauljamescleary.petstore.domain.authentication.SignupRequest
 import org.scalacheck._
 import org.scalacheck.Arbitrary.arbitrary
-import io.github.pauljamescleary.petstore.domain.orders._
-import io.github.pauljamescleary.petstore.domain.orders.OrderStatus._
-import io.github.pauljamescleary.petstore.domain.{orders, pets}
-import io.github.pauljamescleary.petstore.domain.pets._
-import io.github.pauljamescleary.petstore.domain.pets.PetStatus._
-import io.github.pauljamescleary.petstore.domain.users._
 
 
 trait PetStoreArbitraries {

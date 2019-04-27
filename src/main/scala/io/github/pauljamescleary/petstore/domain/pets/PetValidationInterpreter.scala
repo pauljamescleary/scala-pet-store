@@ -1,9 +1,9 @@
-package io.github.pauljamescleary.petstore.domain.pets
+package io.github.pauljamescleary.petstore.domain
+package pets
 
 import cats.data.EitherT
 import cats.effect.Bracket
 import cats.implicits._
-import io.github.pauljamescleary.petstore.domain.{PetAlreadyExistsError, PetNotFoundError}
 
 class PetValidationInterpreter[F[_]: Bracket[?[_], Throwable]](
   repository: PetRepositoryAlgebra[F]

@@ -1,9 +1,9 @@
-package io.github.pauljamescleary.petstore.domain.users
+package io.github.pauljamescleary.petstore.domain
+package users
 
 import cats.data._
 import cats.effect.Bracket
 import cats.syntax.functor._
-import io.github.pauljamescleary.petstore.domain.{UserAlreadyExistsError, UserNotFoundError}
 
 class UserService[F[_]: Bracket[?[_], Throwable]](
   userRepo: UserRepositoryAlgebra[F], 

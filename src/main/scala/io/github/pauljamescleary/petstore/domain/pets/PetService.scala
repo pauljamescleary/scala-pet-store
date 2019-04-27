@@ -1,9 +1,9 @@
-package io.github.pauljamescleary.petstore.domain.pets
+package io.github.pauljamescleary.petstore.domain
+package pets
 
 import cats.data._
-import cats.effect.Bracket
 import cats.syntax.all._
-import io.github.pauljamescleary.petstore.domain.{PetAlreadyExistsError, PetNotFoundError}
+import cats.effect.Bracket
 
 /**
   * The entry point to our domain, works with repositories and validations to implement behavior
@@ -47,7 +47,7 @@ class PetService[F[_]: Bracket[?[_], Throwable]](
 
 object PetService {
   def apply[F[_]: Bracket[?[_], Throwable]](
-    repository: PetRepositoryAlgebra[F], 
+    repository: PetRepositoryAlgebra[F],
     validation: PetValidationAlgebra[F]
   ) =
     new PetService[F](repository, validation)

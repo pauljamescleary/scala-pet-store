@@ -1,7 +1,7 @@
-package io.github.pauljamescleary.petstore.domain.pets
+package io.github.pauljamescleary.petstore.domain
+package pets
 
 import cats.data.EitherT
-import io.github.pauljamescleary.petstore.domain.{PetAlreadyExistsError, PetNotFoundError}
 
 trait PetValidationAlgebra[F[_]] {
   /* Fails with a PetAlreadyExistsError */

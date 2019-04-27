@@ -1,4 +1,5 @@
-package io.github.pauljamescleary.petstore.infrastructure.endpoint
+package io.github.pauljamescleary.petstore
+package infrastructure.endpoint
 
 import cats.data.Validated.Valid
 import cats.data._
@@ -10,8 +11,8 @@ import org.http4s.circe._
 import org.http4s.dsl.Http4sDsl
 import org.http4s.{EntityDecoder, HttpRoutes, QueryParamDecoder}
 
-import io.github.pauljamescleary.petstore.domain.{PetAlreadyExistsError, PetNotFoundError}
-import io.github.pauljamescleary.petstore.domain.pets.{Pet, PetService, PetStatus}
+import domain.{PetAlreadyExistsError, PetNotFoundError}
+import domain.pets.{Pet, PetService, PetStatus}
 
 class PetEndpoints[F[_]: Effect] extends Http4sDsl[F] {
 
