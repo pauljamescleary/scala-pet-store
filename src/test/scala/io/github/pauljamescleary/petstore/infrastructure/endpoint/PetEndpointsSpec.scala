@@ -1,8 +1,8 @@
-package io.github.pauljamescleary.petstore.infrastructure.endpoint
+package io.github.pauljamescleary.petstore
+package infrastructure.endpoint
 
-import io.github.pauljamescleary.petstore.domain.pets._
-import io.github.pauljamescleary.petstore.PetStoreArbitraries
-import io.github.pauljamescleary.petstore.infrastructure.repository.inmemory._
+import domain.pets._
+import infrastructure.repository.inmemory._
 import cats.effect._
 
 import io.circe.generic.auto._
