@@ -1,4 +1,5 @@
-package io.github.pauljamescleary.petstore.infrastructure.endpoint
+package io.github.pauljamescleary.petstore
+package infrastructure.endpoint
 
 import cats.data.Validated.Valid
 import cats.data._
@@ -12,8 +13,8 @@ import org.http4s.dsl.Http4sDsl
 import org.http4s.{EntityDecoder, HttpRoutes, QueryParamDecoder, Response}
 
 import scala.language.higherKinds
-import io.github.pauljamescleary.petstore.domain.{PetAlreadyExistsError, PetNotFoundError}
-import io.github.pauljamescleary.petstore.domain.pets.{Pet, PetService, PetStatus}
+import domain.{PetAlreadyExistsError, PetNotFoundError}
+import domain.pets.{Pet, PetService, PetStatus}
 import io.github.pauljamescleary.petstore.domain.users.User
 import tsec.jwt.algorithms.JWTMacAlgo
 import tsec.authentication._

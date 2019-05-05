@@ -11,12 +11,12 @@ val CirceConfigVersion     = "0.6.1"
 val DoobieVersion          = "0.6.0"
 val EnumeratumCirceVersion = "1.5.21"
 val H2Version              = "1.4.199"
-val Http4sVersion          = "0.20.0-M7"
+val Http4sVersion          = "0.20.0"
 val LogbackVersion         = "1.2.3"
 val ScalaCheckVersion      = "1.14.0"
 val ScalaTestVersion       = "3.0.7"
 val FlywayVersion          = "5.2.4"
-val TsecVersion            = "0.1.0-M3"
+val TsecVersion            = "0.1.0"
 
 libraryDependencies ++= Seq(
   "org.typelevel"         %% "cats-core"              % CatsVersion,

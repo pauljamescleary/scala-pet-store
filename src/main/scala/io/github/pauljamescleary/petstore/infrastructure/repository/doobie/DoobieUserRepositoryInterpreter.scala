@@ -1,4 +1,5 @@
-package io.github.pauljamescleary.petstore.infrastructure.repository.doobie
+package io.github.pauljamescleary.petstore
+package infrastructure.repository.doobie
 
 import cats._
 import cats.data.OptionT
@@ -7,7 +8,7 @@ import doobie._
 import doobie.implicits._
 import io.circe.parser.decode
 import io.circe.syntax._
-import io.github.pauljamescleary.petstore.domain.users.{Role, User, UserRepositoryAlgebra}
+import domain.users.{Role, User, UserRepositoryAlgebra}
 import io.github.pauljamescleary.petstore.infrastructure.repository.doobie.SQLPagination._
 import tsec.authentication.IdentityStore
 

@@ -1,11 +1,12 @@
-package io.github.pauljamescleary.petstore.infrastructure.repository.doobie
+package io.github.pauljamescleary.petstore
+package infrastructure.repository.doobie
 
 import cats._
 import cats.data._
 import cats.implicits._
 import doobie._
 import doobie.implicits._
-import io.github.pauljamescleary.petstore.domain.pets.{Pet, PetRepositoryAlgebra, PetStatus}
+import domain.pets.{Pet, PetRepositoryAlgebra, PetStatus}
 import SQLPagination._
 
 private object PetSQL {

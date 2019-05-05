@@ -1,7 +1,7 @@
 package io.github.pauljamescleary.petstore.domain
 
-import io.github.pauljamescleary.petstore.domain.pets.Pet
-import io.github.pauljamescleary.petstore.domain.users.User
+import pets.Pet
+import users.User
 
 sealed trait ValidationError extends Product with Serializable
 case class PetAlreadyExistsError(pet: Pet) extends ValidationError

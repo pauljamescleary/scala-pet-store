@@ -1,9 +1,9 @@
-package io.github.pauljamescleary.petstore.domain.users
+package io.github.pauljamescleary.petstore.domain
+package users
 
 import cats._
 import cats.data._
 import cats.syntax.functor._
-import io.github.pauljamescleary.petstore.domain.{UserAlreadyExistsError, UserNotFoundError}
 
 class UserService[F[_]: Monad](userRepo: UserRepositoryAlgebra[F], validation: UserValidationAlgebra[F]) {
 

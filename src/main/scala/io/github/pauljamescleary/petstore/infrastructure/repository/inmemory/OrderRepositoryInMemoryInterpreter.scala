@@ -1,11 +1,12 @@
-package io.github.pauljamescleary.petstore.infrastructure.repository.inmemory
+package io.github.pauljamescleary.petstore
+package infrastructure.repository.inmemory
 
 import scala.collection.concurrent.TrieMap
 import scala.util.Random
 
 import cats._
 import cats.implicits._
-import io.github.pauljamescleary.petstore.domain.orders.{Order, OrderRepositoryAlgebra}
+import domain.orders.{Order, OrderRepositoryAlgebra}
 
 class OrderRepositoryInMemoryInterpreter[F[_]: Applicative] extends OrderRepositoryAlgebra[F] {
 

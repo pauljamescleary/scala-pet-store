@@ -1,4 +1,5 @@
-package io.github.pauljamescleary.petstore.domain.users
+package io.github.pauljamescleary.petstore.domain
+package users
 
 import cats._
 import cats.data.EitherT

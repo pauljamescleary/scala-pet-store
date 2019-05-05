@@ -1,4 +1,5 @@
-package io.github.pauljamescleary.petstore.infrastructure.endpoint
+package io.github.pauljamescleary.petstore
+package infrastructure.endpoint
 
 import cats.effect.Effect
 import io.circe.generic.auto._
@@ -8,9 +9,9 @@ import org.http4s.circe._
 import org.http4s.dsl.Http4sDsl
 
 import scala.language.higherKinds
-import io.github.pauljamescleary.petstore.domain.OrderNotFoundError
+import domain.OrderNotFoundError
 import io.github.pauljamescleary.petstore.domain.authentication.Auth
-import io.github.pauljamescleary.petstore.domain.orders.{Order, OrderService}
+import domain.orders.{Order, OrderService}
 import io.github.pauljamescleary.petstore.domain.users.User
 import tsec.authentication.{AugmentedJWT, SecuredRequest, SecuredRequestHandler, TSecAuthService, asAuthed}
 import tsec.jwt.algorithms.JWTMacAlgo
