@@ -1,14 +1,6 @@
 package io.github.pauljamescleary.petstore
 
-import domain.authentication.SignupRequest
-import domain.orders._
-import domain.orders.OrderStatus._
-import domain.{orders, pets}
-import domain.pets._
-import domain.pets.PetStatus._
-import domain.users._
 import java.time.Instant
-
 import cats.effect.IO
 import io.github.pauljamescleary.petstore.domain.authentication.SignupRequest
 import org.scalacheck._

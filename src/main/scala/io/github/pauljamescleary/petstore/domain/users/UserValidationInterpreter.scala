@@ -4,7 +4,6 @@ package users
 import cats._
 import cats.data.EitherT
 import cats.implicits._
-import io.github.pauljamescleary.petstore.domain.{UserAlreadyExistsError, UserNotFoundError}
 import Function._
 
 class UserValidationInterpreter[F[_]: Monad](userRepo: UserRepositoryAlgebra[F]) extends UserValidationAlgebra[F] {

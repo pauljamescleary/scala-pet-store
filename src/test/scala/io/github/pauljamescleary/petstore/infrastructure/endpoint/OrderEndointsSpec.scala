@@ -6,7 +6,6 @@ import infrastructure.repository.inmemory._
 import cats.effect._
 import io.circe._
 import io.circe.generic.semiauto._
-import io.circe.java8.time._
 import org.http4s._
 import org.http4s.implicits._
 import org.http4s.dsl._
