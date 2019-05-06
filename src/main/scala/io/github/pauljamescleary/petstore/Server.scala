@@ -4,7 +4,8 @@ import config._
 import domain.users._
 import domain.orders._
 import domain.pets._
-import infrastructure.endpoint.{OrderEndpoints, PetEndpoints, UserEndpoints}
+//import infrastructure.endpoint.{OrderEndpoints, PetEndpoints, UserEndpoints}
+import infrastructure.endpoint.{UserEndpoints}
 import infrastructure.repository.doobie.{DoobieAuthRepositoryInterpreter, DoobieOrderRepositoryInterpreter, DoobiePetRepositoryInterpreter, DoobieUserRepositoryInterpreter}
 import cats.effect._
 import cats.implicits._
@@ -37,10 +38,11 @@ object Server extends IOApp {
       userService    =  UserService[F](userRepo, userValidation)
       authenticator  =  Auth.jwtAuthenticator[F, HMACSHA256](key, authRepo, userRepo)
       routeAuth      =  SecuredRequestHandler(authenticator)
-      services       =  PetEndpoints.endpoints[F, HMACSHA256](petService, routeAuth) <+>
-                            OrderEndpoints.endpoints[F, HMACSHA256](orderService, routeAuth) <+>
-                            UserEndpoints.endpoints[F, BCrypt, HMACSHA256](userService, BCrypt.syncPasswordHasher[F], routeAuth)
-      httpApp = Router("/" -> services).orNotFound
+      httpApp = Router(
+        "/users" -> UserEndpoints.endpoints[F, BCrypt, HMACSHA256](userService, BCrypt.syncPasswordHasher[F], routeAuth),
+//        "/pets" -> PetEndpoints.endpoints[F, HMACSHA256](petService, routeAuth),
+//        "/orders" -> OrderEndpoints.endpoints[F, HMACSHA256](orderService, routeAuth),
+      ).orNotFound
       _ <- Resource.liftF(DatabaseConfig.initializeDb(conf.db))
       server <-
         BlazeServerBuilder[F]

@@ -4,7 +4,7 @@ import cats._
 import cats.implicits._
 import tsec.authorization.{AuthGroup, SimpleAuthEnum}
 
-sealed case class Role(roleRepr: String)
+final case class Role(roleRepr: String)
 
 object Role extends SimpleAuthEnum[Role, String] {
 

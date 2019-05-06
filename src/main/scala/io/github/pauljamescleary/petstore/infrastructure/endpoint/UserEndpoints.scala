@@ -8,7 +8,7 @@ import io.circe.generic.auto._
 import io.circe.syntax._
 import org.http4s.circe._
 import org.http4s.dsl.Http4sDsl
-import org.http4s.{EntityDecoder, HttpRoutes, Response}
+import org.http4s.{EntityDecoder, HttpRoutes}
 
 import scala.language.higherKinds
 import domain._
@@ -20,10 +20,9 @@ import tsec.passwordhashers.{PasswordHash, PasswordHasher}
 import tsec.authentication._
 
 class UserEndpoints[F[_]: Effect, A,  Auth: JWTMacAlgo] extends Http4sDsl[F] {
-  import Pagination._
 
-  type AuthService = TSecAuthService[User, AugmentedJWT[Auth, Long], F]
-  type AuthEndpoint = PartialFunction[SecuredRequest[F, User, AugmentedJWT[Auth, Long]], F[Response[F]]]
+  import Pagination._
+  import alias._
 
   /* Jsonization of our User type */
 
@@ -59,7 +58,7 @@ class UserEndpoints[F[_]: Effect, A,  Auth: JWTMacAlgo] extends Http4sDsl[F] {
 
   private def signupEndpoint(userService: UserService[F], crypt: PasswordHasher[F, A]): HttpRoutes[F] =
     HttpRoutes.of[F] {
-      case req @ POST -> Root / "users" =>
+      case req @ POST -> Root / "foo" =>
         val action = for {
           signup <- req.as[SignupRequest]
           hash <- crypt.hashpw(signup.password)
@@ -74,8 +73,8 @@ class UserEndpoints[F[_]: Effect, A,  Auth: JWTMacAlgo] extends Http4sDsl[F] {
         }
     }
 
-  private def updateEndpoint(userService: UserService[F]): AuthEndpoint = {
-    case req @ PUT -> Root / "users" / name asAuthed _ =>
+  private def updateEndpoint(userService: UserService[F]): AuthEndpoint[F, Auth] = {
+    case req @ PUT -> Root / name asAuthed _ =>
       val action = for {
         user <- req.request.as[User]
         updated = user.copy(userName = name)
@@ -88,24 +87,24 @@ class UserEndpoints[F[_]: Effect, A,  Auth: JWTMacAlgo] extends Http4sDsl[F] {
       }
   }
 
-  private def listEndpoint(userService: UserService[F]): AuthEndpoint = {
-    case GET -> Root / "users" :? OptionalPageSizeMatcher(pageSize) :? OptionalOffsetMatcher(offset) asAuthed _ =>
+  private def listEndpoint(userService: UserService[F]): AuthEndpoint[F, Auth] = {
+    case GET -> Root :? OptionalPageSizeMatcher(pageSize) :? OptionalOffsetMatcher(offset) asAuthed _ =>
       for {
         retrieved <- userService.list(pageSize.getOrElse(10), offset.getOrElse(0))
         resp <- Ok(retrieved.asJson)
       } yield resp
   }
 
-  private def searchByNameEndpoint(userService: UserService[F]): AuthEndpoint = {
-    case GET -> Root / "users" / userName asAuthed _ =>
+  private def searchByNameEndpoint(userService: UserService[F]): AuthEndpoint[F, Auth] = {
+    case GET -> Root / userName asAuthed _ =>
       userService.getUserByName(userName).value.flatMap {
         case Right(found) => Ok(found.asJson)
         case Left(UserNotFoundError) => NotFound("The user was not found")
       }
   }
 
-  private def deleteUserEndpoint(userService: UserService[F]): AuthEndpoint = {
-    case DELETE -> Root / "users" / userName asAuthed _ =>
+  private def deleteUserEndpoint(userService: UserService[F]): AuthEndpoint[F, Auth] = {
+    case DELETE -> Root / userName asAuthed _ =>
       for {
         _ <- userService.deleteByUserName(userName)
         resp <- Ok()
@@ -115,7 +114,7 @@ class UserEndpoints[F[_]: Effect, A,  Auth: JWTMacAlgo] extends Http4sDsl[F] {
   def endpoints(userService: UserService[F],
                 cryptService: PasswordHasher[F, A],
                 auth: SecuredRequestHandler[F, Long, User, AugmentedJWT[Auth, Long]]): HttpRoutes[F] = {
-    val authEndpoints: AuthService =
+    val authEndpoints: AuthService[F, Auth] =
       Auth.adminOnly {
         updateEndpoint(userService) orElse
           listEndpoint(userService) orElse

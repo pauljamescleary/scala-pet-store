@@ -136,7 +136,7 @@ class PetStoreClient(object):
         """
         Logs in a new user
         """
-        url = urljoin(self.index_url, '/login')
+        url = urljoin(self.index_url, '/users/login')
 
         return self.session.request('POST', url, self.headers, json.dumps(user))
 

@@ -50,11 +50,12 @@ class UserEndpointsSpec
                      userEndpoint: Kleisli[IO, Request[IO], Response[IO]]
                     ): IO[(User, Option[Authorization])] =
     for {
-      signUpRq <- POST(userSignUp, Uri.uri("/users"))
+      signUpRq <- POST(userSignUp, Uri.uri("/users/foo"))
       signUpResp <- userEndpoint.run(signUpRq)
+      _ <- IO(println(signUpResp.status))
       user <- signUpResp.as[User]
       loginBody = LoginRequest(userSignUp.userName, userSignUp.password)
-      loginRq <- POST(loginBody, Uri.uri("/login"))
+      loginRq <- POST(loginBody, Uri.uri("/users/login"))
       loginResp <- userEndpoint.run(loginRq)
     } yield {
       user -> loginResp.headers.get(Authorization)

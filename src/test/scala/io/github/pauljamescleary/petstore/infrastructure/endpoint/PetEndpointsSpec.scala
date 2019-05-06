@@ -1,7 +1,7 @@
 package io.github.pauljamescleary.petstore
 package infrastructure.endpoint
 
-import io.github.pauljamescleary.petstore.domain.users._
+import domain.users._
 import domain.pets._
 import infrastructure.repository.inmemory._
 import cats.effect._

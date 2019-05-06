@@ -26,30 +26,35 @@ class UserRepositoryInMemoryInterpreter[F[_]: Applicative]
     toSave.pure[F]
   }
 
-  def update(user: User): F[Option[User]] = user.id.traverse{ id =>
-    cache.update(id, user)
-    user.pure[F]
+  def update(user: User): OptionT[F, User] = OptionT {
+    user.id.traverse{ id =>
+      cache.update(id, user)
+      user.pure[F]
+    }
   }
 
-  def get(id: Long): OptionT[F, User] = OptionT.fromOption(cache.get(id))
+  def get(id: Long): OptionT[F, User] =
+    OptionT.fromOption(cache.get(id))
 
-  def delete(id: Long): F[Option[User]] = cache.remove(id).pure[F]
+  def delete(id: Long): OptionT[F, User] =
+    OptionT.fromOption(cache.remove(id))
 
-  def findByUserName(userName: String): F[Option[User]] =
-    cache.values.find(u => u.userName == userName).pure[F]
+  def findByUserName(userName: String): OptionT[F, User] =
+    OptionT.fromOption(cache.values.find(u => u.userName == userName))
 
   def list(pageSize: Int, offset: Int): F[List[User]] =
     cache.values.toList.sortBy(_.lastName).slice(offset, offset + pageSize).pure[F]
 
-  def deleteByUserName(userName: String): F[Option[User]] = {
-    val deleted = for {
-      user <- cache.values.find(u => u.userName == userName)
-      removed <- cache.remove(user.id.get)
-    } yield removed
-    deleted.pure[F]
-  }
+  def deleteByUserName(userName: String): OptionT[F, User] =
+    OptionT.fromOption(
+      for {
+        user <- cache.values.find(u => u.userName == userName)
+        removed <- cache.remove(user.id.get)
+      } yield removed
+    )
 }
 
 object UserRepositoryInMemoryInterpreter {
-  def apply[F[_]: Applicative]() = new UserRepositoryInMemoryInterpreter[F]
+  def apply[F[_]: Applicative]() =
+    new UserRepositoryInMemoryInterpreter[F]
 }

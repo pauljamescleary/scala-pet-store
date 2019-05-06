@@ -62,20 +62,22 @@ class DoobieUserRepositoryInterpreter[F[_]](val xa: Transactor[F])(implicit M: M
   def create(user: User): F[User] =
     insert(user).withUniqueGeneratedKeys[Long]("ID").map(id => user.copy(id = id.some)).transact(xa)
 
-  def update(user: User): F[Option[User]] = OptionT.fromOption[F](user.id).semiflatMap { id =>
-    UserSQL.update(user, id).run.transact(xa).as(user)
-  }.value
+  def update(user: User): OptionT[F, User] =
+    OptionT.fromOption[F](user.id).semiflatMap { id =>
+      UserSQL.update(user, id).run.transact(xa).as(user)
+    }
 
   def get(userId: Long): OptionT[F, User] = OptionT(select(userId).option.transact(xa))
 
-  def findByUserName(userName: String): F[Option[User]] = byUserName(userName).option.transact(xa)
+  def findByUserName(userName: String): OptionT[F, User] =
+    OptionT(byUserName(userName).option.transact(xa))
 
-  def delete(userId: Long): F[Option[User]] = get(userId).semiflatMap(user =>
+  def delete(userId: Long): OptionT[F, User] = get(userId).semiflatMap(user =>
     UserSQL.delete(userId).run.transact(xa).as(user)
-  ).value
+  )
 
-  def deleteByUserName(userName: String): F[Option[User]] =
-    OptionT(findByUserName(userName)).mapFilter(_.id).flatMapF(delete).value
+  def deleteByUserName(userName: String): OptionT[F, User] =
+    findByUserName(userName).mapFilter(_.id).flatMap(delete)
 
   def list(pageSize: Int, offset: Int): F[List[User]] =
     paginate(pageSize, offset)(selectAll).to[List].transact(xa)
