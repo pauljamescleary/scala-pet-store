@@ -4,8 +4,9 @@ import config._
 import domain.users._
 import domain.orders._
 import domain.pets._
+import io.github.pauljamescleary.petstore.infrastructure.endpoint.PetEndpoints
 //import infrastructure.endpoint.{OrderEndpoints, PetEndpoints, UserEndpoints}
-import infrastructure.endpoint.{UserEndpoints}
+import infrastructure.endpoint._
 import infrastructure.repository.doobie.{DoobieAuthRepositoryInterpreter, DoobieOrderRepositoryInterpreter, DoobiePetRepositoryInterpreter, DoobieUserRepositoryInterpreter}
 import cats.effect._
 import cats.implicits._
@@ -40,8 +41,8 @@ object Server extends IOApp {
       routeAuth      =  SecuredRequestHandler(authenticator)
       httpApp = Router(
         "/users" -> UserEndpoints.endpoints[F, BCrypt, HMACSHA256](userService, BCrypt.syncPasswordHasher[F], routeAuth),
-//        "/pets" -> PetEndpoints.endpoints[F, HMACSHA256](petService, routeAuth),
-//        "/orders" -> OrderEndpoints.endpoints[F, HMACSHA256](orderService, routeAuth),
+        "/pets" -> PetEndpoints.endpoints[F, HMACSHA256](petService, routeAuth),
+        "/orders" -> OrderEndpoints.endpoints[F, HMACSHA256](orderService, routeAuth),
       ).orNotFound
       _ <- Resource.liftF(DatabaseConfig.initializeDb(conf.db))
       server <-

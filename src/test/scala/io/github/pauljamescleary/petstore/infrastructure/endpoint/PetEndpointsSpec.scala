@@ -11,6 +11,7 @@ import org.http4s.implicits._
 import org.http4s.dsl._
 import org.http4s.circe._
 import org.http4s.client.dsl.Http4sClientDsl
+import org.http4s.server.Router
 import org.scalatest._
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import tsec.mac.jca.HMACSHA256
@@ -26,19 +27,25 @@ class PetEndpointsSpec
   implicit val petEnc : EntityEncoder[IO, Pet] = jsonEncoderOf
   implicit val petDec : EntityDecoder[IO, Pet] = jsonOf
 
-  test("create pet") {
-
+  def getTestResources(): (AuthTest[IO], HttpApp[IO]) = {
     val userRepo = UserRepositoryInMemoryInterpreter[IO]()
     val petRepo = PetRepositoryInMemoryInterpreter[IO]()
     val petValidation = PetValidationInterpreter[IO](petRepo)
     val petService = PetService[IO](petRepo, petValidation)
     val auth = new AuthTest[IO](userRepo)
-    val petHttpService = PetEndpoints.endpoints[IO, HMACSHA256](petService, auth.securedRqHandler).orNotFound
+    val petEndpoint = PetEndpoints.endpoints[IO, HMACSHA256](petService, auth.securedRqHandler)
+    val petRoutes = Router(("/pets", petEndpoint)).orNotFound
+    (auth, petRoutes)
+  }
+
+  test("create pet") {
+
+    val (auth, petRoutes) = getTestResources()
 
     forAll { pet: Pet =>
       (for {
         request <- POST(pet, Uri.uri("/pets"))
-        response <- petHttpService.run(request)
+        response <- petRoutes.run(request)
       } yield {
         response.status shouldEqual Unauthorized
       }).unsafeRunSync
@@ -48,7 +55,7 @@ class PetEndpointsSpec
       (for {
         request <- POST(pet, Uri.uri("/pets"))
           .flatMap(auth.embedToken(user, _))
-        response <- petHttpService.run(request)
+        response <- petRoutes.run(request)
       } yield {
         response.status shouldEqual Ok
       }).unsafeRunSync
@@ -58,11 +65,11 @@ class PetEndpointsSpec
       (for {
         createRq <- POST(pet, Uri.uri("/pets"))
           .flatMap(auth.embedToken(user, _))
-        response <- petHttpService.run(createRq)
+        response <- petRoutes.run(createRq)
         createdPet <- response.as[Pet]
         getRq <- GET(Uri.unsafeFromString(s"/pets/${createdPet.id.get}"))
           .flatMap(auth.embedToken(user, _))
-        response2 <- petHttpService.run(getRq)
+        response2 <- petRoutes.run(getRq)
       } yield {
         response.status shouldEqual Ok
         response2.status shouldEqual Ok
@@ -72,23 +79,18 @@ class PetEndpointsSpec
 
   test("update pet") {
 
-    val userRepo = UserRepositoryInMemoryInterpreter[IO]()
-    val petRepo = PetRepositoryInMemoryInterpreter[IO]()
-    val petValidation = PetValidationInterpreter[IO](petRepo)
-    val petService = PetService[IO](petRepo, petValidation)
-    val auth = new AuthTest[IO](userRepo)
-    val petHttpService = PetEndpoints.endpoints[IO, HMACSHA256](petService, auth.securedRqHandler).orNotFound
+    val (auth, petRoutes) = getTestResources()
 
     forAll { (pet: Pet, user: AdminUser) =>
       (for {
         createRequest <- POST(pet, Uri.uri("/pets"))
           .flatMap(auth.embedToken(user.value, _))
-        createResponse <- petHttpService.run(createRequest)
+        createResponse <- petRoutes.run(createRequest)
         createdPet <- createResponse.as[Pet]
         petToUpdate = createdPet.copy(name = createdPet.name.reverse)
         updateRequest <- PUT(petToUpdate, Uri.unsafeFromString(s"/pets/${petToUpdate.id.get}"))
           .flatMap(auth.embedToken(user.value, _))
-        updateResponse <- petHttpService.run(updateRequest)
+        updateResponse <- petRoutes.run(updateRequest)
         updatedPet <- updateResponse.as[Pet]
       } yield {
         updatedPet.name shouldEqual pet.name.reverse
