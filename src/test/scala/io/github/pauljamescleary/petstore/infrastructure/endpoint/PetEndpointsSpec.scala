@@ -1,17 +1,16 @@
 package io.github.pauljamescleary.petstore
 package infrastructure.endpoint
 
-import domain.pets._
-import infrastructure.repository.inmemory._
+import cats.data.NonEmptyList
 import cats.effect._
-
 import io.circe.generic.auto._
-
+import io.github.pauljamescleary.petstore.domain.pets._
+import io.github.pauljamescleary.petstore.infrastructure.repository.inmemory._
 import org.http4s._
-import org.http4s.implicits._
-import org.http4s.dsl._
 import org.http4s.circe._
 import org.http4s.client.dsl.Http4sClientDsl
+import org.http4s.dsl._
+import org.http4s.implicits._
 import org.scalatest._
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
@@ -63,6 +62,30 @@ class PetEndpointsSpec
         updatedPet <- updateResponse.as[Pet]
       } yield {
         updatedPet.name shouldEqual pet.name.reverse
+      }).unsafeRunSync
+    }
+
+  }
+
+  test("find by tag") {
+
+    val petRepo = PetRepositoryInMemoryInterpreter[IO]()
+    val petValidation = PetValidationInterpreter[IO](petRepo)
+    val petService = PetService[IO](petRepo, petValidation)
+    val petHttpService = PetEndpoints.endpoints[IO](petService).orNotFound
+
+    forAll { (pet: Pet) =>
+      (for {
+        createRequest <- POST(pet, Uri.uri("/pets"))
+        createResponse <- petHttpService.run(createRequest)
+        createdPet <- createResponse.as[Pet]
+      } yield {
+        createdPet.tags.toList.headOption match {
+          case Some(tag) =>
+            val petsFoundByTag = petRepo.findByTag(NonEmptyList.of(tag)).unsafeRunSync
+            petsFoundByTag.contains(createdPet) shouldEqual true
+          case _ => ()
+        }
       }).unsafeRunSync
     }
 
