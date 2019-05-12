@@ -1,5 +1,5 @@
 import pytest
-from hamcrest import *
+from hamcrest import assert_that, is_, none, not_none
 from pet_store_client import PetStoreClient
 
 

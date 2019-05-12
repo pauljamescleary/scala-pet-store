@@ -1,5 +1,5 @@
 import pytest
-from hamcrest import *
+from hamcrest import assert_that, is_, has_length
 from pet_store_client import PetStoreClient
 
 def test_get_pet(pet_context, pet_store_client):
