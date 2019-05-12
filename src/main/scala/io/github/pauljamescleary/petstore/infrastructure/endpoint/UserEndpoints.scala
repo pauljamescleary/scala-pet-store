@@ -48,10 +48,10 @@ class UserEndpoints[F[_]: Effect, A,  Auth: JWTMacAlgo] extends Http4sDsl[F] {
             case None => throw new Exception("Impossible") // User is not properly modeled
             case Some(id) => EitherT.right[UserAuthenticationFailedError](auth.create(id))
           }
-        } yield token
+        } yield (user, token)
 
         action.value.flatMap {
-          case Right(token) => Ok().map(auth.embed(_, token))
+          case Right((user, token)) => Ok(user.asJson).map(auth.embed(_, token))
           case Left(UserAuthenticationFailedError(name)) => BadRequest(s"Authentication failed for user $name")
         }
     }
