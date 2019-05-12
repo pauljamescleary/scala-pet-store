@@ -29,9 +29,7 @@ class PetStoreClient(object):
         else:
             response = self.session.request(method, u, headers=hs, data=json.dumps(ob), **kw)
         if "Authorization" in response.headers:
-            print response.headers
             self.authHeader = response.headers['Authorization']
-        print response
         return response
 
     def create_pet(self, pet):
