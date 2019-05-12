@@ -69,7 +69,9 @@ class PetStoreClient(object):
         :param statuses: A list of valid Pet statuses
         :return:
         """
-        return self.make_request("/pets/findByStatus", params=statuses)
+        status_kv_pairs = map(lambda x: "status={0}".format(x), statuses)
+        params =  "&".join(status_kv_pairs)
+        return self.make_request("/pets/findByStatus?{0}".format(params))
 
     def find_pets_by_tag(self, tags):
         """
@@ -83,7 +85,9 @@ class PetStoreClient(object):
         :param tags: A list of valid tags.
         :return:
         """
-        return self.make_request("pets/findByTag", params=tags)
+        tags_kv_pairs = map(lambda x: "tags={0}".format(x), tags)
+        params = "&".join(tags_kv_pairs)
+        return self.make_request("/pets/findByTags?{0}".format(params))
 
     def delete_pet(self, pet_id):
         """
