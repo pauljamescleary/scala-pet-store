@@ -4,8 +4,8 @@ package infrastructure.endpoint
 import cats.data.NonEmptyList
 import cats.effect._
 import io.circe.generic.auto._
-import io.github.pauljamescleary.petstore.domain.pets._
-import io.github.pauljamescleary.petstore.infrastructure.repository.inmemory._
+import domain.pets._
+import infrastructure.repository.inmemory._
 import org.http4s._
 import org.http4s.circe._
 import org.http4s.client.dsl.Http4sClientDsl
