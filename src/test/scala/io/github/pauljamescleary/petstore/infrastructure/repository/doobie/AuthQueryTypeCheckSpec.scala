@@ -1,4 +1,5 @@
-package io.github.pauljamescleary.petstore.infrastructure.repository.doobie
+package io.github.pauljamescleary.petstore
+package infrastructure.repository.doobie
 
 import org.scalatest._
 import cats.effect.IO

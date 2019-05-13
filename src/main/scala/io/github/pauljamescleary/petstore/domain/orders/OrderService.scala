@@ -7,14 +7,13 @@ import cats.Monad
 import cats.data.EitherT
 
 class OrderService[F[_]](orderRepo: OrderRepositoryAlgebra[F]) {
-  import cats.syntax.all._
+  import cats.implicits._
 
-  def placeOrder(order: Order): F[Order] = orderRepo.
-    create(order)
+  def placeOrder(order: Order): F[Order] =
+    orderRepo.create(order)
 
   def get(id: Long)(implicit M: Monad[F]): EitherT[F, OrderNotFoundError.type, Order] =
     EitherT.fromOptionF(orderRepo.get(id), OrderNotFoundError)
-
 
   def delete(id: Long)(implicit M: Monad[F]): F[Unit] =
     orderRepo.delete(id).as(())

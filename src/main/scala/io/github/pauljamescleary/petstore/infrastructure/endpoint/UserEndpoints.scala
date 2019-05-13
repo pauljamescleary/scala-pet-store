@@ -22,7 +22,6 @@ import tsec.authentication._
 class UserEndpoints[F[_]: Effect, A,  Auth: JWTMacAlgo] extends Http4sDsl[F] {
 
   import Pagination._
-  import alias._
 
   /* Jsonization of our User type */
 

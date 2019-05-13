@@ -22,7 +22,6 @@ import tsec.authentication._
 class PetEndpoints[F[_]: Effect, Auth: JWTMacAlgo] extends Http4sDsl[F] {
 
   import Pagination._
-  import alias._
 
   /* Parses out status query param which could be multi param */
   implicit val statusQueryParamDecoder: QueryParamDecoder[PetStatus] =

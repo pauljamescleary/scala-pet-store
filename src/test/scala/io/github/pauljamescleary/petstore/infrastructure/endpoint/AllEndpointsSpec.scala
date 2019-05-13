@@ -1,13 +1,13 @@
-package io.github.pauljamescleary.petstore.infrastructure.endpoint
+package io.github.pauljamescleary.petstore
+package infrastructure.endpoint
 
 import cats.effect._
-import io.github.pauljamescleary.petstore.PetStoreArbitraries
-import io.github.pauljamescleary.petstore.domain.authentication.SignupRequest
-import io.github.pauljamescleary.petstore.domain.orders.OrderService
-import io.github.pauljamescleary.petstore.domain.pets.{Pet, PetService, PetValidationInterpreter}
-import io.github.pauljamescleary.petstore.domain.users.{UserService, UserValidationInterpreter}
-import io.github.pauljamescleary.petstore.infrastructure.endpoint.util.LoginTest
-import io.github.pauljamescleary.petstore.infrastructure.repository.inmemory.{OrderRepositoryInMemoryInterpreter, PetRepositoryInMemoryInterpreter, UserRepositoryInMemoryInterpreter}
+import domain.authentication.SignupRequest
+import domain.orders.OrderService
+import domain.pets.{Pet, PetService, PetValidationInterpreter}
+import domain.users.{UserService, UserValidationInterpreter}
+import infrastructure.endpoint.util.LoginTest
+import infrastructure.repository.inmemory.{OrderRepositoryInMemoryInterpreter, PetRepositoryInMemoryInterpreter, UserRepositoryInMemoryInterpreter}
 import org.http4s.circe.{jsonEncoderOf, jsonOf}
 import org.http4s.{EntityDecoder, EntityEncoder, Uri}
 import org.http4s.client.dsl.Http4sClientDsl

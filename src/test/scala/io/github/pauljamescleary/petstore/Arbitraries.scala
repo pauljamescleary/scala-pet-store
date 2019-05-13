@@ -2,15 +2,15 @@ package io.github.pauljamescleary.petstore
 
 import java.time.Instant
 import cats.effect.IO
-import io.github.pauljamescleary.petstore.domain.authentication.SignupRequest
+import domain.authentication.SignupRequest
 import org.scalacheck._
 import org.scalacheck.Arbitrary.arbitrary
-import io.github.pauljamescleary.petstore.domain.orders._
-import io.github.pauljamescleary.petstore.domain.orders.OrderStatus._
-import io.github.pauljamescleary.petstore.domain.{orders, pets}
-import io.github.pauljamescleary.petstore.domain.pets._
-import io.github.pauljamescleary.petstore.domain.pets.PetStatus._
-import io.github.pauljamescleary.petstore.domain.users.{Role, _}
+import domain.orders._
+import domain.orders.OrderStatus._
+import domain.{orders, pets}
+import domain.pets._
+import domain.pets.PetStatus._
+import domain.users.{Role, _}
 import tsec.common.SecureRandomId
 import tsec.jwt.JWTClaims
 import tsec.authentication.AugmentedJWT

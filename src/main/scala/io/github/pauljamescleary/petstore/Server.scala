@@ -4,8 +4,6 @@ import config._
 import domain.users._
 import domain.orders._
 import domain.pets._
-import io.github.pauljamescleary.petstore.infrastructure.endpoint.PetEndpoints
-//import infrastructure.endpoint.{OrderEndpoints, PetEndpoints, UserEndpoints}
 import infrastructure.endpoint._
 import infrastructure.repository.doobie.{DoobieAuthRepositoryInterpreter, DoobieOrderRepositoryInterpreter, DoobiePetRepositoryInterpreter, DoobieUserRepositoryInterpreter}
 import cats.effect._
@@ -16,7 +14,7 @@ import org.http4s.implicits._
 import tsec.passwordhashers.jca.BCrypt
 import doobie.util.ExecutionContexts
 import io.circe.config.parser
-import io.github.pauljamescleary.petstore.domain.authentication.Auth
+import domain.authentication.Auth
 import tsec.authentication.SecuredRequestHandler
 import tsec.mac.jca.HMACSHA256
 

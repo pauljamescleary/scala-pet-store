@@ -10,7 +10,7 @@ import org.http4s.dsl.Http4sDsl
 
 import scala.language.higherKinds
 import domain.OrderNotFoundError
-import io.github.pauljamescleary.petstore.domain.authentication.Auth
+import domain.authentication.Auth
 import domain.orders.{Order, OrderService}
 import io.github.pauljamescleary.petstore.domain.users.User
 import tsec.authentication.{AugmentedJWT, SecuredRequestHandler, asAuthed}
@@ -18,11 +18,10 @@ import tsec.jwt.algorithms.JWTMacAlgo
 
 class OrderEndpoints[F[_]: Effect, Auth: JWTMacAlgo] extends Http4sDsl[F] {
 
-  import cats.implicits._ // |+|
-  import alias._
+  import cats.implicits._
 
   /* Needed to decode entities */
-  implicit val orderDecoder: EntityDecoder[F, Order] = jsonOf[F, Order]
+  implicit val orderDecoder: EntityDecoder[F, Order] = jsonOf
 
   def placeOrderEndpoint(orderService: OrderService[F]): AuthEndpoint[F, Auth] = {
       case req @ POST -> Root asAuthed user =>

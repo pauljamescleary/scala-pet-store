@@ -1,9 +1,10 @@
-package io.github.pauljamescleary.petstore.infrastructure.endpoint.util
+package io.github.pauljamescleary.petstore
+package infrastructure.endpoint.util
 
 import cats.data.Kleisli
 import cats.effect.IO
-import io.github.pauljamescleary.petstore.domain.authentication.{LoginRequest, SignupRequest}
-import io.github.pauljamescleary.petstore.domain.users.{Role, User}
+import domain.authentication.{LoginRequest, SignupRequest}
+import domain.users.{Role, User}
 import org.http4s.circe.{jsonEncoderOf, jsonOf}
 import org.http4s.client.dsl.Http4sClientDsl
 import org.http4s.{EntityDecoder, EntityEncoder, HttpApp, Request, Response, Uri}

@@ -1,7 +1,8 @@
-package io.github.pauljamescleary.petstore.infrastructure.endpoint
+package io.github.pauljamescleary.petstore
+package infrastructure.endpoint
 
 import cats.implicits._
-import io.github.pauljamescleary.petstore.domain.users._
+import domain.users._
 import cats.effect._
 import org.http4s._
 import tsec.authentication.{AugmentedJWT, IdentityStore, JWTAuthenticator, SecuredRequestHandler, buildBearerAuthHeader}
