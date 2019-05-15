@@ -37,7 +37,7 @@ done
 
 echo "Server started, running func tests"
 cd functional_test
-./run.py live_tests -v
+python3 ./run.py live_tests -v
 FUNC_TEST_RESULT=$?
 
 echo "Functional tests completed with status $FUNC_TEST_RESULT, stopping server with PID $SERVER_PID, PPID $PARENT_PID"
