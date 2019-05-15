@@ -3,9 +3,6 @@ dist: xenial
 scala:
    - 2.12.8
 
-python:
-  - "3.6"
-
 jobs:
   include:
       before_script:
