@@ -13,7 +13,9 @@ report_dir = os.path.join(os.path.dirname(os.path.realpath(__file__)), '../targe
 if not os.path.exists(report_dir):
     os.system('mkdir -p ' + report_dir)
 
-execfile(activate_virtualenv, dict(__file__=activate_virtualenv))
+with open(activate_virtualenv, "r") as f:
+    program = compile(f.read(), activate_virtualenv, 'exec')
+    exec(program, dict(__file__=activate_virtualenv))
 
 import pytest
 

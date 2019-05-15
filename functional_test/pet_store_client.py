@@ -1,10 +1,10 @@
 import json
 import requests
 
-from urlparse import urljoin
-from urlparse import urlparse
-from urlparse import parse_qs
-from urlparse import urlsplit
+from urllib.parse import urljoin
+from urllib.parse import urlparse
+from urllib.parse import parse_qs
+from urllib.parse import urlsplit
 
 class PetStoreClient(object):
     def __init__(self, url='http://localhost:8080'):
@@ -69,7 +69,7 @@ class PetStoreClient(object):
         :param statuses: A list of valid Pet statuses
         :return:
         """
-        status_kv_pairs = map(lambda x: "status={0}".format(x), statuses)
+        status_kv_pairs = ["status={0}".format(x) for x in statuses]
         params =  "&".join(status_kv_pairs)
         return self.make_request("/pets/findByStatus?{0}".format(params))
 
@@ -85,7 +85,7 @@ class PetStoreClient(object):
         :param tags: A list of valid tags.
         :return:
         """
-        tags_kv_pairs = map(lambda x: "tags={0}".format(x), tags)
+        tags_kv_pairs = ["tags={0}".format(x) for x in tags]
         params = "&".join(tags_kv_pairs)
         return self.make_request("/pets/findByTags?{0}".format(params))
 
