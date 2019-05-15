@@ -21,7 +21,7 @@ pet = {
 }
 
 def dict_filter(u, *ks):
-    return {k: v for k, v in u.items() if k in ks}
+    return {k: v for k, v in list(u.items()) if k in ks}
 
 def login_from_user(u):
     return dict_filter(u, "userName", "password")
