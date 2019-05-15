@@ -5,7 +5,9 @@ import cats._
 import cats.data._
 import cats.syntax.functor._
 
-class UserService[F[_]: Monad](userRepo: UserRepositoryAlgebra[F], validation: UserValidationAlgebra[F]) {
+class UserService[F[_]: Monad](
+    userRepo: UserRepositoryAlgebra[F],
+    validation: UserValidationAlgebra[F]) {
 
   def createUser(user: User): EitherT[F, UserAlreadyExistsError, User] =
     for {
@@ -14,20 +16,25 @@ class UserService[F[_]: Monad](userRepo: UserRepositoryAlgebra[F], validation: U
     } yield saved
 
   def getUser(userId: Long): EitherT[F, UserNotFoundError.type, User] =
-    EitherT.fromOptionF(userRepo.get(userId), UserNotFoundError)
+    userRepo.get(userId).toRight(UserNotFoundError)
 
   def getUserByName(userName: String): EitherT[F, UserNotFoundError.type, User] =
-    EitherT.fromOptionF(userRepo.findByUserName(userName), UserNotFoundError)
+    userRepo.findByUserName(userName).toRight(UserNotFoundError)
 
-  def deleteUser(userId: Long): F[Unit] = userRepo.delete(userId).as(())
+  def deleteUser(userId: Long): F[Unit] =
+    userRepo.delete(userId)
+      .value
+      .void
 
   def deleteByUserName(userName: String): F[Unit] =
-    userRepo.deleteByUserName(userName).as(())
+    userRepo.deleteByUserName(userName)
+      .value
+      .void
 
   def update(user: User): EitherT[F, UserNotFoundError.type, User] =
     for {
       _ <- validation.exists(user.id)
-      saved <- EitherT.fromOptionF(userRepo.update(user), UserNotFoundError)
+      saved <- userRepo.update(user).toRight(UserNotFoundError)
     } yield saved
 
   def list(pageSize: Int, offset: Int): F[List[User]] =
@@ -35,6 +42,8 @@ class UserService[F[_]: Monad](userRepo: UserRepositoryAlgebra[F], validation: U
 }
 
 object UserService {
-  def apply[F[_]: Monad](repository: UserRepositoryAlgebra[F], validation: UserValidationAlgebra[F]): UserService[F] =
+  def apply[F[_]: Monad](
+      repository: UserRepositoryAlgebra[F],
+      validation: UserValidationAlgebra[F]): UserService[F] =
     new UserService[F](repository, validation)
 }

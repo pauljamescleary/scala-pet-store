@@ -12,8 +12,8 @@ import scala.concurrent.ExecutionContext
 package object doobie {
   def getTransactor[F[_] : Async : ContextShift](cfg : DatabaseConfig) : Transactor[F] =
     Transactor.fromDriverManager[F](
-      cfg.driver, // driver classname
-      cfg.url, // connect URL (driver-specific)
+      cfg.driver,            // driver classname
+      cfg.url,               // connect URL (driver-specific)
       cfg.user,              // user
       cfg.password           // password
     )

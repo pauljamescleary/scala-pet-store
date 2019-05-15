@@ -17,17 +17,17 @@ private object OrderSQL {
 
   /* We require conversion for date time */
   implicit val DateTimeMeta: Meta[Instant] =
-    Meta[java.sql.Timestamp].imap(_.toInstant)(java.sql.Timestamp.from _)
+    Meta[java.sql.Timestamp].imap(_.toInstant)(java.sql.Timestamp.from)
 
   def select(orderId: Long): Query0[Order] = sql"""
-    SELECT PET_ID, SHIP_DATE, STATUS, COMPLETE, ID
+    SELECT PET_ID, SHIP_DATE, STATUS, COMPLETE, ID, USER_ID
     FROM ORDERS
     WHERE ID = $orderId
   """.query[Order]
 
   def insert(order : Order) : Update0 = sql"""
-    INSERT INTO ORDERS (PET_ID, SHIP_DATE, STATUS, COMPLETE)
-    VALUES (${order.petId}, ${order.shipDate}, ${order.status}, ${order.complete})
+    INSERT INTO ORDERS (PET_ID, SHIP_DATE, STATUS, COMPLETE, USER_ID)
+    VALUES (${order.petId}, ${order.shipDate}, ${order.status}, ${order.complete}, ${order.userId.get})
   """.update
 
   def delete(orderId : Long) : Update0 = sql"""
