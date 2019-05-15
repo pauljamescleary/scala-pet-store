@@ -114,15 +114,28 @@ def test_update_pet_not_found(pet_store_client, admin_context):
     response = pet_store_client.update_pet(pet)
     assert_that(response.status_code, is_(404))
 
-def test_customer_cannot_update_pet(pet_store_client, customer_context, admin_context):
+def test_only_admin_can_update_pet(pet_store_client, customer_context, admin_context):
     new_pet = dict(example_pet, **{"name": "test_customer_cannot_update"})
     admin_context()
     saved_pet_resp = pet_store_client.create_pet(new_pet)
     saved_pet = saved_pet_resp.json()
     customer_context()
-    bad_update = pet_store_client.update_pet(dict(saved_pet, **{"status": "Adopted"}))
+    updated_pet = dict(saved_pet, **{"status": "Adopted"})
+    bad_update = pet_store_client.update_pet(updated_pet)
     assert_that(bad_update.status_code, is_(401))
     admin_context()
+    good_update = pet_store_client.update_pet(updated_pet)
+    assert_that(good_update.status_code, is_(200))
     pet_store_client.delete_pet(saved_pet)
 
-# def test_customer_cannot_delete_pet(pet_store_client, customer_context, admin_context)
+def test_only_admin_can_delete_pet(pet_store_client, customer_context, admin_context):
+    new_pet = dict(example_pet, **{"name": "test_customer_cannot_delete"})
+    admin_context()
+    saved_pet_resp = pet_store_client.create_pet(new_pet)
+    saved_pet = saved_pet_resp.json()
+    customer_context()
+    bad_delete = pet_store_client.delete_pet(saved_pet['id'])
+    assert_that(bad_delete.status_code, is_(401))
+    admin_context()
+    good_delete = pet_store_client.delete_pet(saved_pet['id'])
+    assert_that(good_delete.status_code, is_(200))
