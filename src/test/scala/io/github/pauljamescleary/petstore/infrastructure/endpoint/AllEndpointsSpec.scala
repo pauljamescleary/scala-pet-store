@@ -58,9 +58,7 @@ class AllEndpointsSpec
     ("/orders", ordersEndpoint),
   ).orNotFound
 
-  // TODO: POST -> /pets access is forbidden
-  ignore("login and post order") {
-
+  test("login and post order") {
     forAll { (userSignup: SignupRequest, pet: Pet) =>
       (for {
         loginResp <- signUpAndLogInAsAdmin(userSignup, routes)
