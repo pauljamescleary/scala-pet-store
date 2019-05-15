@@ -2,6 +2,10 @@
 import os
 import sys
 
+if (sys.version_info < (3, 0)):
+  print("Tests must be run with python3. Exiting")
+  sys.exit(1)
+
 basedir = os.path.dirname(os.path.realpath(__file__))
 vedir = os.path.join(basedir, '.virtualenv')
 os.system('./bootstrap.sh')
