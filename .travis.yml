@@ -4,7 +4,7 @@ scala:
    - 2.12.8
 
 python:
-  - "3.6.8"
+  - "3.6"
 
 jobs:
   include:
