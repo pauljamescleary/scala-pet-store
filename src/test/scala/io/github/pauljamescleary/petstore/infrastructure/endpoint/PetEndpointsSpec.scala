@@ -101,11 +101,12 @@ class PetEndpointsSpec
 
   test("find by tag") {
 
-    val (_, petRoutes, petRepo) = getTestResources()
+    val (auth, petRoutes, petRepo) = getTestResources()
 
-    forAll { (pet: Pet, _: User) =>
+    forAll { (pet: Pet, user: AdminUser) =>
       (for {
         createRequest <- POST(pet, Uri.uri("/pets"))
+          .flatMap(auth.embedToken(user.value, _))
         createResponse <- petRoutes.run(createRequest)
         createdPet <- createResponse.as[Pet]
       } yield {
