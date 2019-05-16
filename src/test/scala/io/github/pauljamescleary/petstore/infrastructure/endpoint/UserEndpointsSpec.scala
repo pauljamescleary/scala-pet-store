@@ -1,67 +1,65 @@
 package io.github.pauljamescleary.petstore
 package infrastructure.endpoint
 
-import org.scalatest._
 import cats.effect._
-import io.circe.generic.auto._
 import org.http4s._
 import org.http4s.implicits._
 import org.http4s.dsl._
-import org.http4s.circe._
-
 import tsec.passwordhashers.jca.BCrypt
-
 import domain.users._
 import domain.authentication._
 import infrastructure.repository.inmemory.UserRepositoryInMemoryInterpreter
-
 import org.http4s.client.dsl.Http4sClientDsl
+import org.http4s.server.Router
 import org.scalatest._
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+import scala.concurrent.duration._
+import tsec.authentication.{JWTAuthenticator, SecuredRequestHandler}
+import tsec.mac.jca.HMACSHA256
+import util.LoginTest
 
 class UserEndpointsSpec
-  extends FunSuite
-  with Matchers
-  with ScalaCheckPropertyChecks
-  with PetStoreArbitraries
-  with Http4sDsl[IO]
-  with Http4sClientDsl[IO] {
+    extends FunSuite
+    with Matchers
+    with ScalaCheckPropertyChecks
+    with PetStoreArbitraries
+    with Http4sDsl[IO]
+    with Http4sClientDsl[IO]
+    with LoginTest {
 
-  implicit val userEnc : EntityEncoder[IO, User] = jsonEncoderOf
-  implicit val userDec : EntityDecoder[IO, User] = jsonOf
-  implicit val signupRequestEnc : EntityEncoder[IO, SignupRequest] = jsonEncoderOf
-  implicit val signupRequestDec : EntityDecoder[IO, SignupRequest] = jsonOf
-
-  test("create user") {
+  def userRoutes(): HttpApp[IO] = {
     val userRepo = UserRepositoryInMemoryInterpreter[IO]()
     val userValidation = UserValidationInterpreter[IO](userRepo)
     val userService = UserService[IO](userRepo, userValidation)
-    val userHttpService = UserEndpoints.endpoints(userService, BCrypt.syncPasswordHasher[IO]).orNotFound
+    val key = HMACSHA256.unsafeGenerateKey
+    val jwtAuth = JWTAuthenticator.unbacked.inBearerToken(1.day, None, userRepo, key)
+    val usersEndpoint = UserEndpoints.endpoints(
+      userService,
+      BCrypt.syncPasswordHasher[IO],
+      SecuredRequestHandler(jwtAuth))
+    Router(("/users", usersEndpoint)).orNotFound
+  }
+
+  test("create user and log in") {
+    val userEndpoint = userRoutes()
 
     forAll { userSignup: SignupRequest =>
-      (for {
-        request <- POST(userSignup, Uri.uri("/users"))
-        response <- userHttpService.run(request)
-      } yield {
-        response.status shouldEqual Ok
-      }).unsafeRunSync
+      val (_, authorization) = signUpAndLogIn(userSignup, userEndpoint).unsafeRunSync()
+      authorization should be('defined)
     }
   }
 
   test("update user") {
-    val userRepo = UserRepositoryInMemoryInterpreter[IO]()
-    val userValidation = UserValidationInterpreter[IO](userRepo)
-    val userService = UserService[IO](userRepo, userValidation)
-    val userHttpService = UserEndpoints.endpoints(userService, BCrypt.syncPasswordHasher[IO]).orNotFound
+    val userEndpoint = userRoutes()
 
     forAll { userSignup: SignupRequest =>
       (for {
-        createRequest <- POST(userSignup, Uri.uri("/users"))
-        createResponse <- userHttpService.run(createRequest)
-        createdUser <- createResponse.as[User]
+        loginResp <- signUpAndLogInAsAdmin(userSignup, userEndpoint)
+        (createdUser, authorization) = loginResp
         userToUpdate = createdUser.copy(lastName = createdUser.lastName.reverse)
         updateUser <- PUT(userToUpdate, Uri.unsafeFromString(s"/users/${createdUser.userName}"))
-        updateResponse <- userHttpService.run(updateUser)
+        updateUserAuth = updateUser.putHeaders(authorization.get)
+        updateResponse <- userEndpoint.run(updateUserAuth)
         updatedUser <- updateResponse.as[User]
       } yield {
         updateResponse.status shouldEqual Ok
@@ -72,18 +70,15 @@ class UserEndpointsSpec
   }
 
   test("get user by userName") {
-    val userRepo = UserRepositoryInMemoryInterpreter[IO]()
-    val userValidation = UserValidationInterpreter[IO](userRepo)
-    val userService = UserService[IO](userRepo, userValidation)
-    val userHttpService = UserEndpoints.endpoints(userService, BCrypt.syncPasswordHasher[IO]).orNotFound
+    val userEndpoint = userRoutes()
 
     forAll { userSignup: SignupRequest =>
       (for {
-        createRequest <- POST(userSignup, Uri.uri("/users"))
-        createResponse <- userHttpService.run(createRequest)
-        createdUser <- createResponse.as[User]
+        loginResp <- signUpAndLogInAsAdmin(userSignup, userEndpoint)
+        (createdUser, authorization) = loginResp
         getRequest <- GET(Uri.unsafeFromString(s"/users/${createdUser.userName}"))
-        getResponse <- userHttpService.run(getRequest)
+        getRequestAuth = getRequest.putHeaders(authorization.get)
+        getResponse <- userEndpoint.run(getRequestAuth)
         getUser <- getResponse.as[User]
       } yield {
         getResponse.status shouldEqual Ok
@@ -92,26 +87,35 @@ class UserEndpointsSpec
     }
   }
 
-
   test("delete user by userName") {
-    val userRepo = UserRepositoryInMemoryInterpreter[IO]()
-    val userValidation = UserValidationInterpreter[IO](userRepo)
-    val userService = UserService[IO](userRepo, userValidation)
-    val userHttpService = UserEndpoints.endpoints(userService, BCrypt.syncPasswordHasher[IO]).orNotFound
+    val userEndpoint = userRoutes()
 
     forAll { userSignup: SignupRequest =>
       (for {
-        createRequest <- POST(userSignup, Uri.uri("/users"))
-        createResponse <- userHttpService.run(createRequest)
-        createdUser <- createResponse.as[User]
+        loginResp <- signUpAndLogInAsCustomer(userSignup, userEndpoint)
+        (createdUser, Some(authorization)) = loginResp
         deleteRequest <- DELETE(Uri.unsafeFromString(s"/users/${createdUser.userName}"))
-        deleteResponse <- userHttpService.run(deleteRequest)
-        getRequest <- GET(Uri.unsafeFromString(s"/users/${createdUser.userName}"))
-        getResponse <- userHttpService.run(getRequest)
+        deleteRequestAuth = deleteRequest.putHeaders(authorization)
+        deleteResponse <- userEndpoint.run(deleteRequestAuth)
       } yield {
-        createResponse.status shouldEqual Ok
+        deleteResponse.status shouldEqual Unauthorized
+      }).unsafeRunSync
+    }
+
+    forAll { userSignup: SignupRequest =>
+      (for {
+        loginResp <- signUpAndLogInAsAdmin(userSignup, userEndpoint)
+        (createdUser, Some(authorization)) = loginResp
+        deleteRequest <- DELETE(Uri.unsafeFromString(s"/users/${createdUser.userName}"))
+        deleteRequestAuth = deleteRequest.putHeaders(authorization)
+        deleteResponse <- userEndpoint.run(deleteRequestAuth)
+        getRequest <- GET(Uri.unsafeFromString(s"/users/${createdUser.userName}"))
+        getRequestAuth = getRequest.putHeaders(authorization)
+        getResponse <- userEndpoint.run(getRequestAuth)
+      } yield {
         deleteResponse.status shouldEqual Ok
-        getResponse.status shouldEqual NotFound
+        // The user not the token longer exist
+        getResponse.status shouldEqual Unauthorized
       }).unsafeRunSync
     }
   }

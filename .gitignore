@@ -6,3 +6,5 @@ project/target
 .virtualenv
 __pycache__
 *.pyc
+.bloop
+.metals

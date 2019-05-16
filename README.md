@@ -8,10 +8,9 @@ Special thank you to [Zak Patterson](https://github.com/zakpatterson) who also m
 # Status
 I have most of the endpoints in place.  There are few big pieces remaining in case y'all want to lend a hand:
 
-1. Use TSec to add login / authentication using JWT
-2. Create a ScalaJS React front end
-3. Build tests using scala check in an idiomatic sane way
-4. Create a microsite documenting the patterns in the pet store.  Kind of a mini-book
+1. Create a ScalaJS React front end
+2. Build tests using scala check in an idiomatic sane way
+3. Create a microsite documenting the patterns in the pet store.  Kind of a mini-book
 
 # Want to help out?
 [Join the chat at Scala Pet Store gitter.im](https://gitter.im/scala-pet-store/scala-pet-store)
