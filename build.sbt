@@ -122,3 +122,5 @@ micrositeBaseUrl := "scala-pet-store"
 
 // Note: This fixes error with sbt run not loading config properly
 fork in run := true
+
+dockerExposedPorts ++= Seq(8080)
