@@ -1,5 +1,6 @@
 package io.github.pauljamescleary.petstore
-package infrastructure.endpoint
+package infrastructure
+package endpoint
 
 import cats.effect._
 import org.http4s._
@@ -16,7 +17,6 @@ import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import scala.concurrent.duration._
 import tsec.authentication.{JWTAuthenticator, SecuredRequestHandler}
 import tsec.mac.jca.HMACSHA256
-import util.LoginTest
 
 class UserEndpointsSpec
     extends FunSuite

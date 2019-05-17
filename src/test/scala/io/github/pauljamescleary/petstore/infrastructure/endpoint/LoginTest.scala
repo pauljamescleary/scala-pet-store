@@ -1,5 +1,5 @@
 package io.github.pauljamescleary.petstore
-package infrastructure.endpoint.util
+package infrastructure.endpoint
 
 import cats.data.Kleisli
 import cats.effect.IO
