@@ -1,6 +1,7 @@
 package io.github.pauljamescleary.petstore
 package infrastructure.endpoint
 
+import cats.data.NonEmptyList
 import domain.users._
 import domain.pets._
 import infrastructure.repository.inmemory._
@@ -27,7 +28,7 @@ class PetEndpointsSpec
   implicit val petEnc : EntityEncoder[IO, Pet] = jsonEncoderOf
   implicit val petDec : EntityDecoder[IO, Pet] = jsonOf
 
-  def getTestResources(): (AuthTest[IO], HttpApp[IO]) = {
+  def getTestResources(): (AuthTest[IO], HttpApp[IO], PetRepositoryInMemoryInterpreter[IO]) = {
     val userRepo = UserRepositoryInMemoryInterpreter[IO]()
     val petRepo = PetRepositoryInMemoryInterpreter[IO]()
     val petValidation = PetValidationInterpreter[IO](petRepo)
@@ -35,12 +36,12 @@ class PetEndpointsSpec
     val auth = new AuthTest[IO](userRepo)
     val petEndpoint = PetEndpoints.endpoints[IO, HMACSHA256](petService, auth.securedRqHandler)
     val petRoutes = Router(("/pets", petEndpoint)).orNotFound
-    (auth, petRoutes)
+    (auth, petRoutes, petRepo)
   }
 
   test("create pet") {
 
-    val (auth, petRoutes) = getTestResources()
+    val (auth, petRoutes, _) = getTestResources()
 
     forAll { pet: Pet =>
       (for {
@@ -79,7 +80,7 @@ class PetEndpointsSpec
 
   test("update pet") {
 
-    val (auth, petRoutes) = getTestResources()
+    val (auth, petRoutes, _) = getTestResources()
 
     forAll { (pet: Pet, user: AdminUser) =>
       (for {
@@ -96,5 +97,27 @@ class PetEndpointsSpec
         updatedPet.name shouldEqual pet.name.reverse
       }).unsafeRunSync
     }
+  }
+
+  test("find by tag") {
+
+    val (auth, petRoutes, petRepo) = getTestResources()
+
+    forAll { (pet: Pet, user: AdminUser) =>
+      (for {
+        createRequest <- POST(pet, Uri.uri("/pets"))
+          .flatMap(auth.embedToken(user.value, _))
+        createResponse <- petRoutes.run(createRequest)
+        createdPet <- createResponse.as[Pet]
+      } yield {
+        createdPet.tags.toList.headOption match {
+          case Some(tag) =>
+            val petsFoundByTag = petRepo.findByTag(NonEmptyList.of(tag)).unsafeRunSync
+            petsFoundByTag.contains(createdPet) shouldEqual true
+          case _ => ()
+        }
+      }).unsafeRunSync
+    }
+
   }
 }
