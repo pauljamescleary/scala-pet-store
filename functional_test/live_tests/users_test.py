@@ -1,5 +1,5 @@
 import pytest
-from hamcrest import *
+from hamcrest import assert_that, is_, not_none 
 from pet_store_client import PetStoreClient
 
 user1 = {
@@ -8,7 +8,8 @@ user1 = {
     "lastName": "Wick",
     "email": "wheresmycar@gmail.com",
     "password": "wickofyourwit",
-    "phone": "215-789-0123"
+    "phone": "215-789-0123",
+    "role": "Admin"
 }
 
 user2 = dict(user1, **{"userName": "jwick201"})
@@ -28,8 +29,8 @@ def test_login(pet_store_client):
     assert_that(new_user['id'], not_none())
     assert_that(new_user['userName'], is_(user1['userName']))
 
-    incorrect_password = dict(user1, **{'password': 'incorrect_password'});
-    bad_pass_resp = pet_store_client.login_user(incorrect_password);
+    incorrect_password = dict(user1, **{'password': 'incorrect_password'})
+    bad_pass_resp = pet_store_client.login_user(incorrect_password)
     assert_that(bad_pass_resp.status_code, is_(400))
 
 def test_signup_existing_user(pet_store_client):

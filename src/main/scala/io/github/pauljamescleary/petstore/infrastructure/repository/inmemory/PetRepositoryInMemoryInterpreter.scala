@@ -42,8 +42,10 @@ class PetRepositoryInMemoryInterpreter[F[_]: Applicative] extends PetRepositoryA
   def findByStatus(statuses: NonEmptyList[PetStatus]): F[List[Pet]] =
     cache.values.filter(p => statuses.exists(_ == p.status)).toList.pure[F]
 
-  def findByTag(tags: NonEmptyList[String]): F[List[Pet]] =
-    cache.values.filter(p => tags.exists(_ == p.tags)).toList.pure[F]
+  def findByTag(tags: NonEmptyList[String]): F[List[Pet]] = {
+    val tagSet = tags.toNes
+    cache.values.filter(_.tags.exists(tagSet.contains(_))).toList.pure[F]
+  }
 }
 
 object PetRepositoryInMemoryInterpreter {
