@@ -80,7 +80,7 @@ The infrastructure package is where the ugliness lives.  It has HTTP things, JDB
 1. `repository` - contains the JDBC code, implementations of our `Repositories`.  We have 2 implementations, an in-memory version as well as a **doobie** version.
 
 **The config package**
-The config package could be considered infrastructure, as it has nothing to do with the domain.  We use **Pure Config** to load configuration objects when the application starts up.  **pure config** Provides a neat mapping of config file to case classes for us, so we really do not have to do any code.  **pure config cats effect** is a little library that allows us to load the config in some effect type (to handle the fact that configuration loading could fail).
+The config package could be considered infrastructure, as it has nothing to do with the domain.  We use **Circe Config** to load configuration objects when the application starts up.  **circe config** Provides a neat mapping of config file to case classes for us, so we really do not have to do any code. 
 
 ### What about dependency injection?
 The pet store does currently use `classes` for certain things (some would argue this isn't very FP).  There are lots of ways to do dependency injection, including function arguments, implicits, and monad transformers.  Using _class constructors_ is rather OO like, but I believe this is simpler for people with OO backgrounds to digest.

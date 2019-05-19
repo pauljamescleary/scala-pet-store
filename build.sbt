@@ -12,7 +12,7 @@ val CirceConfigVersion     = "0.6.1"
 val DoobieVersion          = "0.7.0-M4"
 val EnumeratumCirceVersion = "1.5.21"
 val H2Version              = "1.4.199"
-val Http4sVersion          = "0.20.0"
+val Http4sVersion          = "0.20.1"
 val KindProjectorVersion   = "0.9.9"
 val LogbackVersion         = "1.2.3"
 val ScalaCheckVersion      = "1.14.0"
@@ -136,3 +136,5 @@ micrositeBaseUrl := "scala-pet-store"
 
 // Note: This fixes error with sbt run not loading config properly
 fork in run := true
+
+dockerExposedPorts ++= Seq(8080)
