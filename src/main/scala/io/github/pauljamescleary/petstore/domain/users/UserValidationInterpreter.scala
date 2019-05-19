@@ -1,11 +1,11 @@
 package io.github.pauljamescleary.petstore.domain
 package users
 
-import cats._
+import cats.Applicative
 import cats.data.EitherT
 import cats.implicits._
 
-class UserValidationInterpreter[F[_]: Monad](userRepo: UserRepositoryAlgebra[F]) extends UserValidationAlgebra[F] {
+class UserValidationInterpreter[F[_]: Applicative](userRepo: UserRepositoryAlgebra[F]) extends UserValidationAlgebra[F] {
   def doesNotExist(user: User): EitherT[F, UserAlreadyExistsError, Unit] =
     userRepo
       .findByUserName(user.userName)
@@ -24,6 +24,6 @@ class UserValidationInterpreter[F[_]: Monad](userRepo: UserRepositoryAlgebra[F])
 }
 
 object UserValidationInterpreter {
-  def apply[F[_]: Monad](repo: UserRepositoryAlgebra[F]): UserValidationAlgebra[F] =
+  def apply[F[_]: Applicative](repo: UserRepositoryAlgebra[F]): UserValidationAlgebra[F] =
     new UserValidationInterpreter[F](repo)
 }
