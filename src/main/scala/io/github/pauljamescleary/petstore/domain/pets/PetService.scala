@@ -27,11 +27,11 @@ class PetService[F[_]](repository: PetRepositoryAlgebra[F], validation: PetValid
     saved <- EitherT.fromOptionF(repository.update(pet), PetNotFoundError)
   } yield saved
 
-  def get(id: Long)(implicit M: Monad[F]): EitherT[F, PetNotFoundError.type, Pet] =
+  def get(id: Long)(implicit F: Functor[F]): EitherT[F, PetNotFoundError.type, Pet] =
     EitherT.fromOptionF(repository.get(id), PetNotFoundError)
 
   /* In some circumstances we may care if we actually delete the pet; here we are idempotent and do not care */
-  def delete(id: Long)(implicit M: Monad[F]): F[Unit] =
+  def delete(id: Long)(implicit F: Functor[F]): F[Unit] =
     repository.delete(id).as(())
 
   def list(pageSize: Int, offset: Int): F[List[Pet]] =
