@@ -3,7 +3,7 @@ package infrastructure.endpoint
 
 import cats.data.Validated.Valid
 import cats.data._
-import cats.effect.Effect
+import cats.effect.Sync
 import cats.implicits._
 import io.circe.generic.auto._
 import io.circe.syntax._
@@ -19,7 +19,7 @@ import io.github.pauljamescleary.petstore.domain.users.User
 import tsec.jwt.algorithms.JWTMacAlgo
 import tsec.authentication._
 
-class PetEndpoints[F[_]: Effect, Auth: JWTMacAlgo] extends Http4sDsl[F] {
+class PetEndpoints[F[_]: Sync, Auth: JWTMacAlgo] extends Http4sDsl[F] {
 
   import Pagination._
 
@@ -131,7 +131,7 @@ class PetEndpoints[F[_]: Effect, Auth: JWTMacAlgo] extends Http4sDsl[F] {
 }
 
 object PetEndpoints {
-  def endpoints[F[_]: Effect, Auth: JWTMacAlgo](petService: PetService[F],
+  def endpoints[F[_]: Sync, Auth: JWTMacAlgo](petService: PetService[F],
                                                 auth: SecuredRequestHandler[F, Long, User, AugmentedJWT[Auth, Long]]
                                                ): HttpRoutes[F] =
     new PetEndpoints[F, Auth].endpoints(petService, auth)

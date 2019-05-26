@@ -2,7 +2,7 @@ package io.github.pauljamescleary.petstore
 package infrastructure.endpoint
 
 import cats.data.EitherT
-import cats.effect.Effect
+import cats.effect.Sync
 import cats.implicits._
 import io.circe.generic.auto._
 import io.circe.syntax._
@@ -19,7 +19,7 @@ import tsec.jwt.algorithms.JWTMacAlgo
 import tsec.passwordhashers.{PasswordHash, PasswordHasher}
 import tsec.authentication._
 
-class UserEndpoints[F[_]: Effect, A,  Auth: JWTMacAlgo] extends Http4sDsl[F] {
+class UserEndpoints[F[_]: Sync, A,  Auth: JWTMacAlgo] extends Http4sDsl[F] {
 
   import Pagination._
 
@@ -130,7 +130,7 @@ class UserEndpoints[F[_]: Effect, A,  Auth: JWTMacAlgo] extends Http4sDsl[F] {
 }
 
 object UserEndpoints {
-  def endpoints[F[_]: Effect, A, Auth: JWTMacAlgo](
+  def endpoints[F[_]: Sync, A, Auth: JWTMacAlgo](
     userService: UserService[F],
     cryptService: PasswordHasher[F, A],
     auth: SecuredRequestHandler[F, Long, User, AugmentedJWT[Auth, Long]]
