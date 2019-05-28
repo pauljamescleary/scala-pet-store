@@ -1,14 +1,14 @@
 package io.github.pauljamescleary.petstore.domain
 package users
 
-import cats._
 import cats.data._
+import cats.effect.Bracket
 import cats.syntax.functor._
 
-class UserService[F[_]: Monad](
-    userRepo: UserRepositoryAlgebra[F],
-    validation: UserValidationAlgebra[F]) {
-
+class UserService[F[_]: Bracket[?[_], Throwable]](
+  userRepo: UserRepositoryAlgebra[F],
+  validation: UserValidationAlgebra[F]
+) {
   def createUser(user: User): EitherT[F, UserAlreadyExistsError, User] =
     for {
       _ <- validation.doesNotExist(user)
@@ -42,8 +42,9 @@ class UserService[F[_]: Monad](
 }
 
 object UserService {
-  def apply[F[_]: Monad](
-      repository: UserRepositoryAlgebra[F],
-      validation: UserValidationAlgebra[F]): UserService[F] =
+  def apply[F[_]: Bracket[?[_], Throwable]](
+    repository: UserRepositoryAlgebra[F],
+    validation: UserValidationAlgebra[F]
+  ): UserService[F] =
     new UserService[F](repository, validation)
 }

@@ -1,12 +1,13 @@
 package io.github.pauljamescleary.petstore.domain
 package pets
 
-import cats._
 import cats.data.EitherT
+import cats.effect.Bracket
 import cats.implicits._
 
-class PetValidationInterpreter[F[_]: Monad](repository: PetRepositoryAlgebra[F])
-    extends PetValidationAlgebra[F] {
+class PetValidationInterpreter[F[_]: Bracket[?[_], Throwable]](
+  repository: PetRepositoryAlgebra[F]
+) extends PetValidationAlgebra[F] {
   
   def doesNotExist(pet: Pet): EitherT[F, PetAlreadyExistsError, Unit] = EitherT {
     repository.findByNameAndCategory(pet.name, pet.category).map { matches =>
@@ -35,6 +36,6 @@ class PetValidationInterpreter[F[_]: Monad](repository: PetRepositoryAlgebra[F])
 }
 
 object PetValidationInterpreter {
-  def apply[F[_]: Monad](repository: PetRepositoryAlgebra[F]) =
+  def apply[F[_]: Bracket[?[_], Throwable]](repository: PetRepositoryAlgebra[F]) =
     new PetValidationInterpreter[F](repository)
 }

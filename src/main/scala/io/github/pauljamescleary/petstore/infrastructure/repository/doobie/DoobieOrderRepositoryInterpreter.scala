@@ -3,8 +3,8 @@ package infrastructure.repository.doobie
 
 import java.time.Instant
 
-import cats._
 import cats.data.OptionT
+import cats.effect.Bracket
 import cats.implicits._
 import doobie._
 import doobie.implicits._
@@ -36,14 +36,15 @@ private object OrderSQL {
   """.update
 }
 
-class DoobieOrderRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
-    extends OrderRepositoryAlgebra[F] {
+class DoobieOrderRepositoryInterpreter[F[_]: Bracket[?[_], Throwable]](val xa: Transactor[F])
+extends OrderRepositoryAlgebra[F] {
   import OrderSQL._
 
   def create(order: Order): F[Order] =
     insert(order).withUniqueGeneratedKeys[Long]("ID").map(id => order.copy(id = id.some)).transact(xa)
 
-  def get(orderId: Long): F[Option[Order]] = OrderSQL.select(orderId).option.transact(xa)
+  def get(orderId: Long): F[Option[Order]] =
+    OrderSQL.select(orderId).option.transact(xa)
 
   def delete(orderId: Long): F[Option[Order]] =
     OptionT(get(orderId)).semiflatMap(order =>
@@ -52,6 +53,6 @@ class DoobieOrderRepositoryInterpreter[F[_]: Monad](val xa: Transactor[F])
 }
 
 object DoobieOrderRepositoryInterpreter {
-  def apply[F[_]: Monad](xa: Transactor[F]): DoobieOrderRepositoryInterpreter[F] =
+  def apply[F[_]: Bracket[?[_], Throwable]](xa: Transactor[F]): DoobieOrderRepositoryInterpreter[F] =
     new DoobieOrderRepositoryInterpreter(xa)
 }

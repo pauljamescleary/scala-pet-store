@@ -10,7 +10,6 @@ import cats.implicits._
 import domain.pets.{Pet, PetRepositoryAlgebra, PetStatus}
 
 class PetRepositoryInMemoryInterpreter[F[_]: Applicative] extends PetRepositoryAlgebra[F] {
-
   private val cache = new TrieMap[Long, Pet]
 
   private val random = new Random

@@ -1,12 +1,9 @@
 package io.github.pauljamescleary.petstore.domain
 package pets
 
-import scala.language.higherKinds
-
 import cats.data.EitherT
 
 trait PetValidationAlgebra[F[_]] {
-
   /* Fails with a PetAlreadyExistsError */
   def doesNotExist(pet: Pet): EitherT[F, PetAlreadyExistsError, Unit]
 

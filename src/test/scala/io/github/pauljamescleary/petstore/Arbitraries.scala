@@ -65,7 +65,7 @@ trait PetStoreArbitraries {
     } yield pets.Pet(name, category, bio, status, tags, photoUrls, id)
   }
 
-  implicit val role = Arbitrary[Role](Gen.oneOf(Role.values))
+  implicit val role = Arbitrary[Role](Gen.oneOf(Role.values.toIndexedSeq))
 
   implicit val user = Arbitrary[User] {
     for {
