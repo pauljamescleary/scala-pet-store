@@ -8,7 +8,6 @@ import org.http4s._
 import org.http4s.circe._
 import org.http4s.dsl.Http4sDsl
 
-import scala.language.higherKinds
 import domain.OrderNotFoundError
 import domain.authentication.Auth
 import domain.orders.{Order, OrderService}

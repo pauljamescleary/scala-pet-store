@@ -1,10 +1,10 @@
 package io.github.pauljamescleary.petstore.domain
 package pets
 
-import scala.language.higherKinds
-
-import cats._
+import cats.Monad
+import cats.Functor
 import cats.data._
+import cats.syntax.all._
 
 /**
   * The entry point to our domain, works with repositories and validations to implement behavior
@@ -13,8 +13,10 @@ import cats.data._
   * @tparam F - this is the container for the things we work with, could be scala.concurrent.Future, Option, anything
   *           as long as it is a Monad
   */
-class PetService[F[_]](repository: PetRepositoryAlgebra[F], validation: PetValidationAlgebra[F]) {
-  import cats.syntax.all._
+class PetService[F[_]](
+  repository: PetRepositoryAlgebra[F],
+  validation: PetValidationAlgebra[F]
+) {
 
   def create(pet: Pet)(implicit M: Monad[F]): EitherT[F, PetAlreadyExistsError, Pet] = for {
     _ <- validation.doesNotExist(pet)
@@ -45,6 +47,9 @@ class PetService[F[_]](repository: PetRepositoryAlgebra[F], validation: PetValid
 }
 
 object PetService {
-  def apply[F[_]: Monad](repository: PetRepositoryAlgebra[F], validation: PetValidationAlgebra[F]) =
+  def apply[F[_]](
+    repository: PetRepositoryAlgebra[F],
+    validation: PetValidationAlgebra[F]
+  ) =
     new PetService[F](repository, validation)
 }

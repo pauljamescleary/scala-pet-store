@@ -1,8 +1,8 @@
 package io.github.pauljamescleary.petstore
 package infrastructure.repository.doobie
 
-import cats._
 import cats.data.OptionT
+import cats.effect.Bracket
 import cats.implicits._
 import doobie._
 import doobie.implicits._
@@ -53,10 +53,9 @@ private object UserSQL {
   """.query
 }
 
-class DoobieUserRepositoryInterpreter[F[_]](val xa: Transactor[F])(implicit M: Monad[F])
-  extends UserRepositoryAlgebra[F]
-  with IdentityStore[F, Long, User] { self =>
-
+class DoobieUserRepositoryInterpreter[F[_]: Bracket[?[_], Throwable]](val xa: Transactor[F])
+extends UserRepositoryAlgebra[F]
+with IdentityStore[F, Long, User] { self =>
   import UserSQL._
 
   def create(user: User): F[User] =
@@ -84,7 +83,6 @@ class DoobieUserRepositoryInterpreter[F[_]](val xa: Transactor[F])(implicit M: M
 }
 
 object DoobieUserRepositoryInterpreter {
-  def apply[F[_]](xa: Transactor[F])(implicit M: Monad[F]): DoobieUserRepositoryInterpreter[F]=
+  def apply[F[_]: Bracket[?[_], Throwable]](xa: Transactor[F]): DoobieUserRepositoryInterpreter[F] =
     new DoobieUserRepositoryInterpreter(xa)
 }
-
