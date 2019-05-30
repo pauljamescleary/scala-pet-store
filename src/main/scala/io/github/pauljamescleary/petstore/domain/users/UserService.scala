@@ -6,10 +6,7 @@ import cats.Functor
 import cats.Monad
 import cats.syntax.functor._
 
-class UserService[F[_]](
-  userRepo: UserRepositoryAlgebra[F],
-  validation: UserValidationAlgebra[F]
-) {
+class UserService[F[_]](userRepo: UserRepositoryAlgebra[F], validation: UserValidationAlgebra[F]) {
   def createUser(user: User)(implicit M: Monad[F]): EitherT[F, UserAlreadyExistsError, User] =
     for {
       _ <- validation.doesNotExist(user)
@@ -39,9 +36,6 @@ class UserService[F[_]](
 }
 
 object UserService {
-  def apply[F[_]](
-    repository: UserRepositoryAlgebra[F],
-    validation: UserValidationAlgebra[F]
-  ): UserService[F] =
+  def apply[F[_]](repository: UserRepositoryAlgebra[F], validation: UserValidationAlgebra[F]): UserService[F] =
     new UserService[F](repository, validation)
 }

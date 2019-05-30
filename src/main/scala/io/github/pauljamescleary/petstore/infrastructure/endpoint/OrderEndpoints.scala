@@ -2,6 +2,7 @@ package io.github.pauljamescleary.petstore
 package infrastructure.endpoint
 
 import cats.effect.Sync
+import cats.implicits._
 import io.circe.generic.auto._
 import io.circe.syntax._
 import org.http4s._
@@ -16,9 +17,7 @@ import tsec.authentication.{AugmentedJWT, SecuredRequestHandler, asAuthed}
 import tsec.jwt.algorithms.JWTMacAlgo
 
 class OrderEndpoints[F[_]: Sync, Auth: JWTMacAlgo] extends Http4sDsl[F] {
-
-  import cats.implicits._
-
+  
   /* Needed to decode entities */
   implicit val orderDecoder: EntityDecoder[F, Order] = jsonOf
 

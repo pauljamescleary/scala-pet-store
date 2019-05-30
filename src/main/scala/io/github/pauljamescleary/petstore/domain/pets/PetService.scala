@@ -1,9 +1,9 @@
 package io.github.pauljamescleary.petstore.domain
 package pets
 
-import cats.Monad
 import cats.Functor
 import cats.data._
+import cats.Monad
 import cats.syntax.all._
 
 /**
@@ -47,9 +47,6 @@ class PetService[F[_]](
 }
 
 object PetService {
-  def apply[F[_]](
-    repository: PetRepositoryAlgebra[F],
-    validation: PetValidationAlgebra[F]
-  ) =
+  def apply[F[_]](repository: PetRepositoryAlgebra[F], validation: PetValidationAlgebra[F]): PetService[F] =
     new PetService[F](repository, validation)
 }
