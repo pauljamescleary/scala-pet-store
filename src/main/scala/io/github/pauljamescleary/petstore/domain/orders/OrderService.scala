@@ -1,22 +1,22 @@
 package io.github.pauljamescleary.petstore.domain
 package orders
 
+import cats.Functor
 import cats.data.EitherT
-import cats.effect.Bracket
 import cats.implicits._
 
-class OrderService[F[_]: Bracket[?[_], Throwable]](orderRepo: OrderRepositoryAlgebra[F]) {
+class OrderService[F[_]](orderRepo: OrderRepositoryAlgebra[F]) {
   def placeOrder(order: Order): F[Order] =
     orderRepo.create(order)
 
-  def get(id: Long): EitherT[F, OrderNotFoundError.type, Order] =
+    def get(id: Long)(implicit F: Functor[F]): EitherT[F, OrderNotFoundError.type, Order] =
     EitherT.fromOptionF(orderRepo.get(id), OrderNotFoundError)
 
-  def delete(id: Long): F[Unit] =
+  def delete(id: Long)(implicit F: Functor[F]): F[Unit] =
     orderRepo.delete(id).as(())
 }
 
 object OrderService {
-  def apply[F[_]: Bracket[?[_], Throwable]](orderRepo: OrderRepositoryAlgebra[F]): OrderService[F] =
+  def apply[F[_]](orderRepo: OrderRepositoryAlgebra[F]): OrderService[F] =
     new OrderService(orderRepo)
 }
