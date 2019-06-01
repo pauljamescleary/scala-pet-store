@@ -2,7 +2,7 @@ language: scala
 dist: xenial
 scala:
    - 2.12.8
-   - 2.13.0-M5
+   - 2.13.0-RC2
 
 jobs:
   include:
