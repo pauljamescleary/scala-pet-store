@@ -17,6 +17,7 @@ val KindProjectorVersion   = "0.10.1"
 val LogbackVersion         = "1.2.3"
 val ScalaCheckVersion      = "1.14.0"
 val ScalaTestVersion       = "3.1.0-SNAP11"
+val ScalaTestPlusVersion   = "1.0.0-SNAP7"
 val FlywayVersion          = "5.2.4"
 val TsecVersion            = "0.1.0"
 
@@ -38,9 +39,10 @@ libraryDependencies ++= Seq(
   "org.http4s"            %% "http4s-dsl"             % Http4sVersion,
   "ch.qos.logback"        %  "logback-classic"        % LogbackVersion,
   "org.flywaydb"          %  "flyway-core"            % FlywayVersion,
-  "org.http4s"            %% "http4s-blaze-client"    % Http4sVersion     % Test,
-  "org.scalacheck"        %% "scalacheck"             % ScalaCheckVersion % Test,
-  "org.scalatest"         %% "scalatest"              % ScalaTestVersion  % Test,
+  "org.http4s"            %% "http4s-blaze-client"      % Http4sVersion        % Test,
+  "org.scalacheck"        %% "scalacheck"               % ScalaCheckVersion    % Test,
+  "org.scalatest"         %% "scalatest"                % ScalaTestVersion     % Test,
+  "org.scalatestplus"     %% "scalatestplus-scalacheck" % ScalaTestPlusVersion % Test,
 
   // Authentication dependencies
   "io.github.jmcardon"    %% "tsec-common"            % TsecVersion,

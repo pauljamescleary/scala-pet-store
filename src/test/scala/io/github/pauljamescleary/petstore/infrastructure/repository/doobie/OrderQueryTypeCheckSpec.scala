@@ -2,13 +2,14 @@ package io.github.pauljamescleary.petstore
 package infrastructure.repository.doobie
 
 import org.scalatest._
+import org.scalatest.funsuite.AnyFunSuite
 import cats.effect.IO
 import doobie.scalatest.IOChecker
 import doobie.util.transactor.Transactor
 
 import PetStoreArbitraries.order
 
-class OrderQueryTypeCheckSpec extends FunSuite with Matchers with IOChecker {
+class OrderQueryTypeCheckSpec extends AnyFunSuite with Matchers with IOChecker {
   import OrderSQL._
 
   override val transactor : Transactor[IO] = testTransactor
