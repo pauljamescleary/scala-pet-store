@@ -26,7 +26,6 @@ libraryDependencies ++= Seq(
   "io.circe"              %% "circe-literal"          % CirceVersion,
   "io.circe"              %% "circe-generic-extras"   % CirceVersion,
   "io.circe"              %% "circe-parser"           % CirceVersion,
-  "io.circe"              %% "circe-java8"            % CirceVersion,
   "io.circe"              %% "circe-config"           % CirceConfigVersion,
   "org.tpolecat"          %% "doobie-core"            % DoobieVersion,
   "org.tpolecat"          %% "doobie-h2"              % DoobieVersion,
