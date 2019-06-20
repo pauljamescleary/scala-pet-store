@@ -13,7 +13,7 @@ addSbtPlugin("io.github.davidmweber" % "flyway-sbt" % "5.2.0")
 // Documentation plugins
 addSbtPlugin("org.tpolecat" % "tut-plugin" % "0.6.10")
 
-addSbtPlugin("com.47deg"  % "sbt-microsites" % "0.7.18")
+addSbtPlugin("com.47deg"  % "sbt-microsites" % "0.7.27")
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-ghpages" % "0.6.3")
 
