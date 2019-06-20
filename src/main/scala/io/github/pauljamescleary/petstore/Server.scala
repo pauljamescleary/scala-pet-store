@@ -24,7 +24,7 @@ object Server extends IOApp {
       conf           <- Resource.liftF(parser.decodePathF[F, PetStoreConfig]("petstore"))
       connEc         <- ExecutionContexts.fixedThreadPool[F](conf.db.connections.poolSize)
       txnEc          <- ExecutionContexts.cachedThreadPool[F]
-      xa             <- DatabaseConfig.dbTransactor(conf.db, connEc, txnEc)
+      xa             <- DatabaseConfig.dbTransactor(conf.db, connEc, Blocker.liftExecutionContext(txnEc))
       key            <- Resource.liftF(HMACSHA256.generateKey[F])
       authRepo       =  DoobieAuthRepositoryInterpreter[F, HMACSHA256](key, xa)
       petRepo        =  DoobiePetRepositoryInterpreter[F](xa)
