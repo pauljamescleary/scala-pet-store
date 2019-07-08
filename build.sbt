@@ -7,7 +7,7 @@ crossScalaVersions  := Seq("2.12.8", "2.13.0")
 resolvers += Resolver.sonatypeRepo("snapshots")
 
 val CatsVersion            = "2.0.0-M4"
-val CirceVersion           = "0.12.0-M3"
+val CirceVersion           = "0.12.0-M4"
 val CirceConfigVersion     = "0.7.0-M1"
 val DoobieVersion          = "0.8.0-M1"
 val EnumeratumCirceVersion = "1.5.21"
