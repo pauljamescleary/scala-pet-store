@@ -12,3 +12,9 @@ jobs:
       script:
         - sbt ++$TRAVIS_SCALA_VERSION test
         - ./build.sh
+
+cache:
+  directories:
+    - "$HOME/.coursier/cache"
+    - "$HOME/.ivy2/cache"
+    - "$HOME/.sbt/boot"
