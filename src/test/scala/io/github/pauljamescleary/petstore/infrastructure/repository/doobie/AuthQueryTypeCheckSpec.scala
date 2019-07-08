@@ -1,18 +1,18 @@
 package io.github.pauljamescleary.petstore
 package infrastructure.repository.doobie
 
-import org.scalatest._
 import cats.effect.IO
 import doobie.scalatest.IOChecker
-import org.scalatest.Matchers
-import tsec.mac.jca.HMACSHA256
-import io.github.pauljamescleary.petstore.PetStoreArbitraries._
+import org.scalatest._
+import org.scalatest.funsuite.AnyFunSuite
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
+import PetStoreArbitraries._
+import tsec.mac.jca.HMACSHA256
 import tsec.authentication.AugmentedJWT
 import tsec.common.SecureRandomId
 
 class AuthQueryTypeCheckSpec 
-  extends FunSuite 
+  extends AnyFunSuite 
   with Matchers 
   with ScalaCheckPropertyChecks
   with IOChecker {
