@@ -67,7 +67,6 @@ def scalacOptionsForVersion(version: String): Seq[String] = {
     "-language:implicitConversions",     // Allow definition of implicit functions called views
     "-unchecked",                        // Enable additional warnings where generated code depends on assumptions.
     "-Xcheckinit",                       // Wrap field accessors to throw an exception on uninitialized access.
-    "-Xfuture",                          // Turn on future language features.
     "-Xlint:adapted-args",               // Warn if an argument list is modified to match the receiver.
     "-Xlint:constant",                   // Evaluation of a constant arithmetic expression results in an error.
     "-Xlint:delayedinit-select",         // Selecting member of DelayedInit.
@@ -99,6 +98,7 @@ def scalacOptionsForVersion(version: String): Seq[String] = {
       "-Xlint:by-name-right-associative",  // By-name parameter of right associative operator.
       "-Xlint:unsound-match",              // Pattern match may not be typesafe.
       "-Xfatal-warnings",                  // Fail the compilation if there are any warnings.
+      "-Xfuture",                          // Turn on future language features.
       "-Yno-adapted-args",                 // Do not adapt an argument list (either by inserting () or creating a tuple) to match the receiver.
       "-Ypartial-unification",             // Enable partial unification in type constructor inference
       "-Ywarn-inaccessible",               // Warn about inaccessible types in method signatures.
