@@ -2,23 +2,24 @@ organization        := "io.github.pauljamescleary"
 name                := "scala-pet-store"
 version             := "0.0.1-SNAPSHOT"
 scalaVersion        := "2.12.8"
-crossScalaVersions  := Seq("2.12.8", "2.13.0-M5")
+crossScalaVersions  := Seq("2.12.8", "2.13.0")
 
 resolvers += Resolver.sonatypeRepo("snapshots")
 
-val CatsVersion            = "1.6.1"
-val CirceVersion           = "0.11.1"
-val CirceConfigVersion     = "0.6.1"
-val DoobieVersion          = "0.7.0"
+val CatsVersion            = "2.0.0-M4"
+val CirceVersion           = "0.12.0-M3"
+val CirceConfigVersion     = "0.7.0-M1"
+val DoobieVersion          = "0.8.0-M1"
 val EnumeratumCirceVersion = "1.5.21"
 val H2Version              = "1.4.199"
-val Http4sVersion          = "0.20.3"
-val KindProjectorVersion   = "0.9.9"
+val Http4sVersion          = "0.21.0-M1"
+val KindProjectorVersion   = "0.10.3"
 val LogbackVersion         = "1.2.3"
 val ScalaCheckVersion      = "1.14.0"
-val ScalaTestVersion       = "3.0.7"
+val ScalaTestVersion       = "3.1.0-SNAP13"
+val ScalaTestPlusVersion   = "1.0.0-SNAP8"
 val FlywayVersion          = "5.2.4"
-val TsecVersion            = "0.1.0"
+val TsecVersion            = "0.2.0-M1"
 
 libraryDependencies ++= Seq(
   "org.typelevel"         %% "cats-core"              % CatsVersion,
@@ -38,9 +39,10 @@ libraryDependencies ++= Seq(
   "org.http4s"            %% "http4s-dsl"             % Http4sVersion,
   "ch.qos.logback"        %  "logback-classic"        % LogbackVersion,
   "org.flywaydb"          %  "flyway-core"            % FlywayVersion,
-  "org.http4s"            %% "http4s-blaze-client"    % Http4sVersion     % Test,
-  "org.scalacheck"        %% "scalacheck"             % ScalaCheckVersion % Test,
-  "org.scalatest"         %% "scalatest"              % ScalaTestVersion  % Test,
+  "org.http4s"            %% "http4s-blaze-client"      % Http4sVersion        % Test,
+  "org.scalacheck"        %% "scalacheck"               % ScalaCheckVersion    % Test,
+  "org.scalatest"         %% "scalatest"                % ScalaTestVersion     % Test,
+  "org.scalatestplus"     %% "scalatestplus-scalacheck" % ScalaTestPlusVersion % Test,
 
   // Authentication dependencies
   "io.github.jmcardon"    %% "tsec-common"            % TsecVersion,
@@ -65,7 +67,6 @@ def scalacOptionsForVersion(version: String): Seq[String] = {
     "-language:implicitConversions",     // Allow definition of implicit functions called views
     "-unchecked",                        // Enable additional warnings where generated code depends on assumptions.
     "-Xcheckinit",                       // Wrap field accessors to throw an exception on uninitialized access.
-    "-Xfuture",                          // Turn on future language features.
     "-Xlint:adapted-args",               // Warn if an argument list is modified to match the receiver.
     "-Xlint:constant",                   // Evaluation of a constant arithmetic expression results in an error.
     "-Xlint:delayedinit-select",         // Selecting member of DelayedInit.
@@ -97,6 +98,7 @@ def scalacOptionsForVersion(version: String): Seq[String] = {
       "-Xlint:by-name-right-associative",  // By-name parameter of right associative operator.
       "-Xlint:unsound-match",              // Pattern match may not be typesafe.
       "-Xfatal-warnings",                  // Fail the compilation if there are any warnings.
+      "-Xfuture",                          // Turn on future language features.
       "-Yno-adapted-args",                 // Do not adapt an argument list (either by inserting () or creating a tuple) to match the receiver.
       "-Ypartial-unification",             // Enable partial unification in type constructor inference
       "-Ywarn-inaccessible",               // Warn about inaccessible types in method signatures.
@@ -112,7 +114,7 @@ def scalacOptionsForVersion(version: String): Seq[String] = {
 
 scalacOptions ++= scalacOptionsForVersion(scalaVersion.value)
 
-addCompilerPlugin("org.spire-math" %% "kind-projector" % KindProjectorVersion cross CrossVersion.binary)
+addCompilerPlugin("org.typelevel" %% "kind-projector" % KindProjectorVersion cross CrossVersion.binary)
 
 // Filter out compiler flags to make the repl experience functional...
 val badConsoleFlags = Seq("-Xfatal-warnings", "-Ywarn-unused:imports")

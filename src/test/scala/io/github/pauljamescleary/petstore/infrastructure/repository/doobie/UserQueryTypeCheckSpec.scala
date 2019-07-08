@@ -2,13 +2,14 @@ package io.github.pauljamescleary.petstore
 package infrastructure.repository.doobie
 
 import org.scalatest._
+import org.scalatest.funsuite.AnyFunSuite
 import cats.effect.IO
 import doobie.scalatest.IOChecker
 import doobie.util.transactor.Transactor
 
 import PetStoreArbitraries.user
 
-class UserQueryTypeCheckSpec extends FunSuite with Matchers with IOChecker {
+class UserQueryTypeCheckSpec extends AnyFunSuite with Matchers with IOChecker {
   override val transactor : Transactor[IO] = testTransactor
 
   import UserSQL._
