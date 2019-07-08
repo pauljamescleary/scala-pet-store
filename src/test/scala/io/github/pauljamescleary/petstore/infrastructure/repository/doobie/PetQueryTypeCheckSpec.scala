@@ -1,16 +1,17 @@
 package io.github.pauljamescleary.petstore
 package infrastructure.repository.doobie
 
-import org.scalatest._
+import cats.data.NonEmptyList
 import cats.effect.IO
+import cats.syntax.applicative._
 import doobie.scalatest.IOChecker
 import doobie.util.transactor.Transactor
+import org.scalatest._
+import org.scalatest.funsuite.AnyFunSuite
 import PetStoreArbitraries.pet
-import cats.data.NonEmptyList
-import cats.syntax.applicative._
 
 
-class PetQueryTypeCheckSpec extends FunSuite with Matchers with IOChecker {
+class PetQueryTypeCheckSpec extends AnyFunSuite with Matchers with IOChecker {
   override val transactor : Transactor[IO] = testTransactor
 
   import PetSQL._
