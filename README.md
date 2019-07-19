@@ -132,7 +132,7 @@ Building out a test suite using Python.  The reason is that typically we want to
 when we deploy our code in order to make sure that everything is running properly in the target environment.  It
 is reassuring to know that your code works across clients.
 
-In order to run the functional tests, your machine will need to have Python 2.7 and pip, and virtualenv.
+In order to run the functional tests, your machine will need to have Python 3 and pip, and virtualenv.
 
 1. To install pip on a Mac, run `sudo easy_install pip`
 2. Then install virutalenv `sudo pip install virtualenv`
