@@ -9,7 +9,7 @@ class OrderService[F[_]](orderRepo: OrderRepositoryAlgebra[F]) {
   def placeOrder(order: Order): F[Order] =
     orderRepo.create(order)
 
-    def get(id: Long)(implicit F: Functor[F]): EitherT[F, OrderNotFoundError.type, Order] =
+  def get(id: Long)(implicit F: Functor[F]): EitherT[F, OrderNotFoundError.type, Order] =
     EitherT.fromOptionF(orderRepo.get(id), OrderNotFoundError)
 
   def delete(id: Long)(implicit F: Functor[F]): F[Unit] =
