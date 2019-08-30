@@ -5,7 +5,7 @@ addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.0.4")
 addSbtPlugin("io.spray" % "sbt-revolver" % "0.9.1")
 
 // Native Packager allows us to create standalone jar
-addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.4.0")
+addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.4.1")
 
 // Database migrations
 addSbtPlugin("io.github.davidmweber" % "flyway-sbt" % "5.2.4")
