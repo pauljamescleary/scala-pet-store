@@ -63,7 +63,7 @@ class PetEndpoints[F[_]: Sync, Auth: JWTMacAlgo] extends Http4sDsl[F] {
   }
 
   private def getPetEndpoint(petService: PetService[F]): AuthEndpoint[F, Auth] = {
-    case GET -> Root / LongVar(id) asAuthed _=>
+    case GET -> Root / LongVar(id) asAuthed _ =>
       petService.get(id).value.flatMap {
         case Right(found) => Ok(found.asJson)
         case Left(PetNotFoundError) => NotFound("The pet was not found")
@@ -79,7 +79,7 @@ class PetEndpoints[F[_]: Sync, Auth: JWTMacAlgo] extends Http4sDsl[F] {
   }
 
   private def listPetsEndpoint(petService: PetService[F]): AuthEndpoint[F, Auth] = {
-    case GET -> Root :? OptionalPageSizeMatcher(pageSize) :? OptionalOffsetMatcher(offset) asAuthed _=>
+    case GET -> Root :? OptionalPageSizeMatcher(pageSize) :? OptionalOffsetMatcher(offset) asAuthed _ =>
       for {
         retrieved <- petService.list(pageSize.getOrElse(10), offset.getOrElse(0))
         resp <- Ok(retrieved.asJson)
@@ -87,11 +87,11 @@ class PetEndpoints[F[_]: Sync, Auth: JWTMacAlgo] extends Http4sDsl[F] {
   }
 
   private def findPetsByStatusEndpoint(petService: PetService[F]): AuthEndpoint[F, Auth] = {
-    case GET -> Root / "findByStatus" :? StatusMatcher(Valid(Nil)) asAuthed _=>
+    case GET -> Root / "findByStatus" :? StatusMatcher(Valid(Nil)) asAuthed _ =>
       // User did not specify any statuses
       BadRequest("status parameter not specified")
 
-    case GET -> Root / "findByStatus" :? StatusMatcher(Valid(statuses)) asAuthed _=>
+    case GET -> Root / "findByStatus" :? StatusMatcher(Valid(statuses)) asAuthed _ =>
       // We have a list of valid statuses, find them and return
       for {
         retrieved <- petService.findByStatus(NonEmptyList.fromListUnsafe(statuses))
@@ -100,10 +100,10 @@ class PetEndpoints[F[_]: Sync, Auth: JWTMacAlgo] extends Http4sDsl[F] {
   }
 
   private def findPetsByTagEndpoint(petService: PetService[F]): AuthEndpoint[F, Auth] = {
-    case GET -> Root / "findByTags" :? TagMatcher(Valid(Nil)) asAuthed _=>
+    case GET -> Root / "findByTags" :? TagMatcher(Valid(Nil)) asAuthed _ =>
       BadRequest("tag parameter not specified")
 
-    case GET -> Root / "findByTags" :? TagMatcher(Valid(tags)) asAuthed _=>
+    case GET -> Root / "findByTags" :? TagMatcher(Valid(tags)) asAuthed _ =>
       for {
         retrieved <- petService.findByTag(NonEmptyList.fromListUnsafe(tags))
         resp <- Ok(retrieved.asJson)
@@ -111,7 +111,7 @@ class PetEndpoints[F[_]: Sync, Auth: JWTMacAlgo] extends Http4sDsl[F] {
   }
 
   def endpoints(petService: PetService[F], auth: SecuredRequestHandler[F, Long, User, AugmentedJWT[Auth, Long]]): HttpRoutes[F] = {
-    val authEndpoints: AuthService[F, Auth]  = {
+    val authEndpoints: AuthService[F, Auth] = {
       val allRoles =
         createPetEndpoint(petService) orElse
           getPetEndpoint(petService) orElse

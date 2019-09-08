@@ -21,7 +21,7 @@ class OrderEndpoints[F[_]: Sync, Auth: JWTMacAlgo] extends Http4sDsl[F] {
   /* Needed to decode entities */
   implicit val orderDecoder: EntityDecoder[F, Order] = jsonOf
 
-  def placeOrderEndpoint(orderService: OrderService[F]): AuthEndpoint[F, Auth] = {
+  private def placeOrderEndpoint(orderService: OrderService[F]): AuthEndpoint[F, Auth] = {
       case req @ POST -> Root asAuthed user =>
         for {
           order <- req.request.as[Order]
@@ -40,7 +40,7 @@ class OrderEndpoints[F[_]: Sync, Auth: JWTMacAlgo] extends Http4sDsl[F] {
   }
 
   private def deleteOrderEndpoint(orderService: OrderService[F]): AuthEndpoint[F, Auth] = {
-    case DELETE -> Root / LongVar(id) asAuthed _=>
+    case DELETE -> Root / LongVar(id) asAuthed _ =>
       for {
         _ <- orderService.delete(id)
         resp <- Ok()
@@ -49,7 +49,7 @@ class OrderEndpoints[F[_]: Sync, Auth: JWTMacAlgo] extends Http4sDsl[F] {
 
   def endpoints(orderService: OrderService[F],
                 auth: SecuredRequestHandler[F, Long, User, AugmentedJWT[Auth, Long]]): HttpRoutes[F] = {
-    val authEndpoints: AuthService[F, Auth]  =
+    val authEndpoints: AuthService[F, Auth] =
       Auth.allRolesHandler(placeOrderEndpoint(orderService) orElse getOrderEndpoint(orderService)) {
         Auth.adminOnly(deleteOrderEndpoint(orderService))
       }
