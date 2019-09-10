@@ -17,7 +17,7 @@ val KindProjectorVersion   = "0.10.3"
 val LogbackVersion         = "1.2.3"
 val ScalaCheckVersion      = "1.14.0"
 val ScalaTestVersion       = "3.1.0-SNAP13"
-val ScalaTestPlusVersion   = "1.0.0-SNAP8"
+val ScalaTestPlusVersion   = "3.1.0.0-RC2"
 val FlywayVersion          = "5.2.4"
 val TsecVersion            = "0.2.0-M1"
 
