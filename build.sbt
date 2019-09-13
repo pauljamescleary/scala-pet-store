@@ -7,7 +7,8 @@ crossScalaVersions  := Seq("2.12.9", "2.13.0")
 resolvers += Resolver.sonatypeRepo("snapshots")
 
 val CatsVersion            = "2.0.0"
-val CirceVersion           = "0.12.2"
+val CirceVersion           = "0.12.1"
+val CirceGenericExVersion  = "0.12.2"
 val CirceConfigVersion     = "0.7.0"
 val DoobieVersion          = "0.8.0-RC1"
 val EnumeratumCirceVersion = "1.5.21"
@@ -25,7 +26,7 @@ libraryDependencies ++= Seq(
   "org.typelevel"         %% "cats-core"              % CatsVersion,
   "io.circe"              %% "circe-generic"          % CirceVersion,
   "io.circe"              %% "circe-literal"          % CirceVersion,
-  "io.circe"              %% "circe-generic-extras"   % CirceVersion,
+  "io.circe"              %% "circe-generic-extras"   % CirceGenericExVersion,
   "io.circe"              %% "circe-parser"           % CirceVersion,
   "io.circe"              %% "circe-config"           % CirceConfigVersion,
   "org.tpolecat"          %% "doobie-core"            % DoobieVersion,
