@@ -1,7 +1,6 @@
 package io.github.pauljamescleary.petstore
 package infrastructure.repository.doobie
 
-import org.scalatest._
 import org.scalatest.funsuite.AnyFunSuite
 import cats.effect.IO
 import doobie.scalatest.IOChecker

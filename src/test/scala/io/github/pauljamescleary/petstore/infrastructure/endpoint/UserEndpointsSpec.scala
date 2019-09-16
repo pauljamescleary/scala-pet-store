@@ -12,7 +12,6 @@ import domain.authentication._
 import infrastructure.repository.inmemory.UserRepositoryInMemoryInterpreter
 import org.http4s.client.dsl.Http4sClientDsl
 import org.http4s.server.Router
-import org.scalatest._
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 

@@ -3,7 +3,6 @@ package infrastructure.repository.doobie
 
 import cats.effect.IO
 import doobie.scalatest.IOChecker
-import org.scalatest._
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import PetStoreArbitraries._
@@ -12,9 +11,9 @@ import tsec.authentication.AugmentedJWT
 import tsec.common.SecureRandomId
 import org.scalatest.matchers.should.Matchers
 
-class AuthQueryTypeCheckSpec 
-  extends AnyFunSuite 
-  with Matchers 
+class AuthQueryTypeCheckSpec
+  extends AnyFunSuite
+  with Matchers
   with ScalaCheckPropertyChecks
   with IOChecker {
     override def transactor: doobie.Transactor[IO] = testTransactor
