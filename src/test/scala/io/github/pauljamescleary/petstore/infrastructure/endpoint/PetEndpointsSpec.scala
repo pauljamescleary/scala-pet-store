@@ -13,10 +13,10 @@ import org.http4s.dsl._
 import org.http4s.circe._
 import org.http4s.client.dsl.Http4sClientDsl
 import org.http4s.server.Router
-import org.scalatest._
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import tsec.mac.jca.HMACSHA256
+import org.scalatest.matchers.should.Matchers
 
 class PetEndpointsSpec
     extends AnyFunSuite

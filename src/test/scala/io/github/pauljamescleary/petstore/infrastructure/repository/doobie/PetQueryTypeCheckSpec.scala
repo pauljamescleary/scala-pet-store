@@ -6,9 +6,9 @@ import cats.effect.IO
 import cats.syntax.applicative._
 import doobie.scalatest.IOChecker
 import doobie.util.transactor.Transactor
-import org.scalatest._
 import org.scalatest.funsuite.AnyFunSuite
 import PetStoreArbitraries.pet
+import org.scalatest.matchers.should.Matchers
 
 
 class PetQueryTypeCheckSpec extends AnyFunSuite with Matchers with IOChecker {

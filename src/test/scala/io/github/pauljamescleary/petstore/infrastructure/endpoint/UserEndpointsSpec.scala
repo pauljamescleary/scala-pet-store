@@ -12,13 +12,13 @@ import domain.authentication._
 import infrastructure.repository.inmemory.UserRepositoryInMemoryInterpreter
 import org.http4s.client.dsl.Http4sClientDsl
 import org.http4s.server.Router
-import org.scalatest._
 import org.scalatest.funsuite.AnyFunSuite
 import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
 import scala.concurrent.duration._
 import tsec.authentication.{JWTAuthenticator, SecuredRequestHandler}
 import tsec.mac.jca.HMACSHA256
+import org.scalatest.matchers.should.Matchers
 
 class UserEndpointsSpec
     extends AnyFunSuite
