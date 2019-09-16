@@ -19,6 +19,7 @@ import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import scala.concurrent.duration._
 import tsec.authentication.{JWTAuthenticator, SecuredRequestHandler}
 import tsec.mac.jca.HMACSHA256
+import org.scalatest.matchers.should.Matchers
 
 class UserEndpointsSpec
     extends AnyFunSuite

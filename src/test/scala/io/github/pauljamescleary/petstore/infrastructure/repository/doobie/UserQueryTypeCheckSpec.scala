@@ -8,6 +8,7 @@ import doobie.scalatest.IOChecker
 import doobie.util.transactor.Transactor
 
 import PetStoreArbitraries.user
+import org.scalatest.matchers.should.Matchers
 
 class UserQueryTypeCheckSpec extends AnyFunSuite with Matchers with IOChecker {
   override val transactor : Transactor[IO] = testTransactor

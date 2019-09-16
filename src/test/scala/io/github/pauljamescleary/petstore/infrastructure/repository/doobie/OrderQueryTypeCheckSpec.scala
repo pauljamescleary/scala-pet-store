@@ -8,6 +8,7 @@ import doobie.scalatest.IOChecker
 import doobie.util.transactor.Transactor
 
 import PetStoreArbitraries.order
+import org.scalatest.matchers.should.Matchers
 
 class OrderQueryTypeCheckSpec extends AnyFunSuite with Matchers with IOChecker {
   import OrderSQL._

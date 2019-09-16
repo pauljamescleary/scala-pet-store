@@ -10,6 +10,7 @@ import PetStoreArbitraries._
 import tsec.mac.jca.HMACSHA256
 import tsec.authentication.AugmentedJWT
 import tsec.common.SecureRandomId
+import org.scalatest.matchers.should.Matchers
 
 class AuthQueryTypeCheckSpec 
   extends AnyFunSuite 
