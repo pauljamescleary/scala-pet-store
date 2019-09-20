@@ -12,7 +12,7 @@ import tsec.authentication.IdentityStore
 import scala.collection.concurrent.TrieMap
 
 class UserRepositoryInMemoryInterpreter[F[_]: Applicative]
-  extends UserRepositoryAlgebra[F]
+    extends UserRepositoryAlgebra[F]
     with IdentityStore[F, Long, User] {
 
   private val cache = new TrieMap[Long, User]
@@ -27,7 +27,7 @@ class UserRepositoryInMemoryInterpreter[F[_]: Applicative]
   }
 
   def update(user: User): OptionT[F, User] = OptionT {
-    user.id.traverse{ id =>
+    user.id.traverse { id =>
       cache.update(id, user)
       user.pure[F]
     }
@@ -50,7 +50,7 @@ class UserRepositoryInMemoryInterpreter[F[_]: Applicative]
       for {
         user <- cache.values.find(u => u.userName == userName)
         removed <- cache.remove(user.id.get)
-      } yield removed
+      } yield removed,
     )
 }
 
