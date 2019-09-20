@@ -10,6 +10,7 @@ jobs:
         - sbt stage
 
       script:
+        - sbt scalafmtSbtCheck scalafmtCheckAll
         - sbt ++$TRAVIS_SCALA_VERSION test
         - ./build.sh
 
