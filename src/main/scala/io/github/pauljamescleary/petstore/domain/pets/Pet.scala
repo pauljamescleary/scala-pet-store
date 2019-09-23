@@ -7,5 +7,5 @@ case class Pet(
     status: PetStatus = PetStatus.Available,
     tags: Set[String] = Set.empty,
     photoUrls: Set[String] = Set.empty,
-    id: Option[Long] = None
+    id: Option[Long] = None,
 )

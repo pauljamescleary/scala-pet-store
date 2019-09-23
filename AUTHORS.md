@@ -31,3 +31,4 @@ If you see your name on here, and do not want to be mentioned, you can open a PR
 * [Zach McCoy](https://github.com/zmccoy)
 * [Omar A. García](https://github.com/nebtrx)
 * [Arnau Abella](https://monadplus.github.io/) (authentication via TSec) 
+* [Jimin Hsieh](https://github.com/jiminhsieh)

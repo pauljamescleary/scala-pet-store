@@ -10,11 +10,12 @@ jobs:
         - sbt stage
 
       script:
+        - sbt scalafmtSbtCheck scalafmtCheckAll
         - sbt ++$TRAVIS_SCALA_VERSION test
         - ./build.sh
 
 cache:
   directories:
-    - "$HOME/.coursier/cache"
+    - "$HOME/.cache/coursier/v1"
     - "$HOME/.ivy2/cache"
     - "$HOME/.sbt/boot"

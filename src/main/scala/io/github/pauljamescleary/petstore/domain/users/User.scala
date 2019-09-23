@@ -11,7 +11,7 @@ case class User(
     hash: String,
     phone: String,
     id: Option[Long] = None,
-    role: Role
+    role: Role,
 )
 
 object User {

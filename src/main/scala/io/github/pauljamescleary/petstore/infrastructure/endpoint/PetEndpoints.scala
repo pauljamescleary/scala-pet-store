@@ -110,17 +110,19 @@ class PetEndpoints[F[_]: Sync, Auth: JWTMacAlgo] extends Http4sDsl[F] {
       } yield resp
   }
 
-  def endpoints(petService: PetService[F], auth: SecuredRequestHandler[F, Long, User, AugmentedJWT[Auth, Long]]): HttpRoutes[F] = {
+  def endpoints(
+      petService: PetService[F],
+      auth: SecuredRequestHandler[F, Long, User, AugmentedJWT[Auth, Long]],
+  ): HttpRoutes[F] = {
     val authEndpoints: AuthService[F, Auth] = {
       val allRoles =
-        createPetEndpoint(petService) orElse
-          getPetEndpoint(petService) orElse
-          listPetsEndpoint(petService) orElse
-          findPetsByStatusEndpoint(petService) orElse
-          findPetsByTagEndpoint(petService)
+        createPetEndpoint(petService)
+          .orElse(getPetEndpoint(petService))
+          .orElse(listPetsEndpoint(petService))
+          .orElse(findPetsByStatusEndpoint(petService))
+          .orElse(findPetsByTagEndpoint(petService))
       val onlyAdmin =
-        deletePetEndpoint(petService) orElse
-          updatePetEndpoint(petService)
+        deletePetEndpoint(petService).orElse(updatePetEndpoint(petService))
 
       Auth.allRolesHandler(allRoles)(Auth.adminOnly(onlyAdmin))
     }
@@ -130,8 +132,9 @@ class PetEndpoints[F[_]: Sync, Auth: JWTMacAlgo] extends Http4sDsl[F] {
 }
 
 object PetEndpoints {
-  def endpoints[F[_]: Sync, Auth: JWTMacAlgo](petService: PetService[F],
-                                                auth: SecuredRequestHandler[F, Long, User, AugmentedJWT[Auth, Long]]
-                                               ): HttpRoutes[F] =
+  def endpoints[F[_]: Sync, Auth: JWTMacAlgo](
+      petService: PetService[F],
+      auth: SecuredRequestHandler[F, Long, User, AugmentedJWT[Auth, Long]],
+  ): HttpRoutes[F] =
     new PetEndpoints[F, Auth].endpoints(petService, auth)
 }

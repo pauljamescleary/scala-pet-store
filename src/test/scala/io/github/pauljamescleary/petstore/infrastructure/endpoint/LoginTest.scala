@@ -12,20 +12,21 @@ import org.http4s.headers.Authorization
 import io.circe.generic.auto._
 import org.http4s.dsl.Http4sDsl
 
-trait LoginTest extends Http4sClientDsl[IO] with Http4sDsl[IO]{
+trait LoginTest extends Http4sClientDsl[IO] with Http4sDsl[IO] {
 
   implicit val userEnc: EntityEncoder[IO, User] = jsonEncoderOf
   implicit val userDec: EntityDecoder[IO, User] = jsonOf
 
-  implicit val signUpRequestEnc : EntityEncoder[IO, SignupRequest] = jsonEncoderOf
-  implicit val signUpRequestDec : EntityDecoder[IO, SignupRequest] = jsonOf
+  implicit val signUpRequestEnc: EntityEncoder[IO, SignupRequest] = jsonEncoderOf
+  implicit val signUpRequestDec: EntityDecoder[IO, SignupRequest] = jsonOf
 
-  implicit val loginRequestEnc : EntityEncoder[IO, LoginRequest] = jsonEncoderOf
-  implicit val loginRequestDec : EntityDecoder[IO, LoginRequest] = jsonOf
+  implicit val loginRequestEnc: EntityEncoder[IO, LoginRequest] = jsonEncoderOf
+  implicit val loginRequestDec: EntityDecoder[IO, LoginRequest] = jsonOf
 
   def signUpAndLogIn(
-                      userSignUp: SignupRequest,
-                      userEndpoint: HttpApp[IO]): IO[(User, Option[Authorization])] =
+      userSignUp: SignupRequest,
+      userEndpoint: HttpApp[IO],
+  ): IO[(User, Option[Authorization])] =
     for {
       signUpRq <- POST(userSignUp, Uri.uri("/users"))
       signUpResp <- userEndpoint.run(signUpRq)
@@ -39,11 +40,13 @@ trait LoginTest extends Http4sClientDsl[IO] with Http4sDsl[IO]{
 
   def signUpAndLogInAsAdmin(
       userSignUp: SignupRequest,
-      userEndpoint: Kleisli[IO, Request[IO], Response[IO]]): IO[(User, Option[Authorization])] =
+      userEndpoint: Kleisli[IO, Request[IO], Response[IO]],
+  ): IO[(User, Option[Authorization])] =
     signUpAndLogIn(userSignUp.copy(role = Role.Admin), userEndpoint)
 
   def signUpAndLogInAsCustomer(
       userSignUp: SignupRequest,
-      userEndpoint: Kleisli[IO, Request[IO], Response[IO]]): IO[(User, Option[Authorization])] =
+      userEndpoint: Kleisli[IO, Request[IO], Response[IO]],
+  ): IO[(User, Option[Authorization])] =
     signUpAndLogIn(userSignUp.copy(role = Role.Customer), userEndpoint)
 }
