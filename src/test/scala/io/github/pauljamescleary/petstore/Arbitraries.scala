@@ -17,7 +17,6 @@ import tsec.authentication.AugmentedJWT
 import tsec.jws.mac._
 import tsec.mac.jca._
 
-
 trait PetStoreArbitraries {
 
   val userNameLength = 16
@@ -114,11 +113,18 @@ trait PetStoreArbitraries {
   implicit val jwtMac: Arbitrary[JWTMac[HMACSHA256]] = Arbitrary {
     for {
       key <- Gen.const(HMACSHA256.unsafeGenerateKey)
-      claims <- Gen.finiteDuration.map(exp => JWTClaims.withDuration[IO](expiration = Some(exp)).unsafeRunSync())
-    } yield JWTMacImpure.build[HMACSHA256](claims, key).getOrElse(throw new Exception("Inconceivable"))
+      claims <- Gen.finiteDuration.map(
+        exp => JWTClaims.withDuration[IO](expiration = Some(exp)).unsafeRunSync(),
+      )
+    } yield JWTMacImpure
+      .build[HMACSHA256](claims, key)
+      .getOrElse(throw new Exception("Inconceivable"))
   }
 
-  implicit def augmentedJWT[A, I](implicit arb1: Arbitrary[JWTMac[A]], arb2: Arbitrary[I]): Arbitrary[AugmentedJWT[A, I]] =
+  implicit def augmentedJWT[A, I](
+      implicit arb1: Arbitrary[JWTMac[A]],
+      arb2: Arbitrary[I],
+  ): Arbitrary[AugmentedJWT[A, I]] =
     Arbitrary {
       for {
         id <- arbitrary[SecureRandomId]

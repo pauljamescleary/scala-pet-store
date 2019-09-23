@@ -21,7 +21,7 @@ class PetRepositoryInMemoryInterpreter[F[_]: Applicative] extends PetRepositoryA
     toSave.pure[F]
   }
 
-  def update(pet: Pet): F[Option[Pet]] = pet.id.traverse{ id =>
+  def update(pet: Pet): F[Option[Pet]] = pet.id.traverse { id =>
     cache.update(id, pet)
     pet.pure[F]
   }

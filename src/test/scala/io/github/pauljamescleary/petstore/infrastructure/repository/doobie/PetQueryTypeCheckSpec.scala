@@ -10,14 +10,13 @@ import org.scalatest.funsuite.AnyFunSuite
 import PetStoreArbitraries.pet
 import org.scalatest.matchers.should.Matchers
 
-
 class PetQueryTypeCheckSpec extends AnyFunSuite with Matchers with IOChecker {
-  override val transactor : Transactor[IO] = testTransactor
+  override val transactor: Transactor[IO] = testTransactor
 
   import PetSQL._
 
   test("Typecheck pet queries") {
-    pet.arbitrary.sample.map{ p =>
+    pet.arbitrary.sample.map { p =>
       check(selectByStatus(p.status.pure[NonEmptyList]))
       check(insert(p))
       p.id.foreach(id => check(PetSQL.update(p, id)))
