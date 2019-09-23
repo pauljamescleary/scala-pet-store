@@ -12,7 +12,7 @@ import org.scalatest.matchers.should.Matchers
 class OrderQueryTypeCheckSpec extends AnyFunSuite with Matchers with IOChecker {
   import OrderSQL._
 
-  override val transactor : Transactor[IO] = testTransactor
+  override val transactor: Transactor[IO] = testTransactor
 
   test("Typecheck order queries") {
     check(delete(1L))

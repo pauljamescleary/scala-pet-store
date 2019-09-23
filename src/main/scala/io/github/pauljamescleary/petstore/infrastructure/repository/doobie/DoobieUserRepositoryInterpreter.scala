@@ -18,7 +18,6 @@ private object UserSQL {
   implicit val roleMeta: Meta[Role] =
     Meta[String].imap(decode[Role](_).leftMap(throw _).merge)(_.asJson.toString)
 
-
   def insert(user: User): Update0 = sql"""
     INSERT INTO USERS (USER_NAME, FIRST_NAME, LAST_NAME, EMAIL, HASH, PHONE, ROLE)
     VALUES (${user.userName}, ${user.firstName}, ${user.lastName}, ${user.email}, ${user.hash}, ${user.phone}, ${user.role})
@@ -54,8 +53,8 @@ private object UserSQL {
 }
 
 class DoobieUserRepositoryInterpreter[F[_]: Bracket[?[_], Throwable]](val xa: Transactor[F])
-extends UserRepositoryAlgebra[F]
-with IdentityStore[F, Long, User] { self =>
+    extends UserRepositoryAlgebra[F]
+    with IdentityStore[F, Long, User] { self =>
   import UserSQL._
 
   def create(user: User): F[User] =
@@ -71,9 +70,8 @@ with IdentityStore[F, Long, User] { self =>
   def findByUserName(userName: String): OptionT[F, User] =
     OptionT(byUserName(userName).option.transact(xa))
 
-  def delete(userId: Long): OptionT[F, User] = get(userId).semiflatMap(user =>
-    UserSQL.delete(userId).run.transact(xa).as(user)
-  )
+  def delete(userId: Long): OptionT[F, User] =
+    get(userId).semiflatMap(user => UserSQL.delete(userId).run.transact(xa).as(user))
 
   def deleteByUserName(userName: String): OptionT[F, User] =
     findByUserName(userName).mapFilter(_.id).flatMap(delete)

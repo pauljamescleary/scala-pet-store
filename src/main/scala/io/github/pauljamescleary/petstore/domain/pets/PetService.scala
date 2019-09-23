@@ -14,20 +14,22 @@ import cats.syntax.all._
   *           as long as it is a Monad
   */
 class PetService[F[_]](
-  repository: PetRepositoryAlgebra[F],
-  validation: PetValidationAlgebra[F]
+    repository: PetRepositoryAlgebra[F],
+    validation: PetValidationAlgebra[F],
 ) {
 
-  def create(pet: Pet)(implicit M: Monad[F]): EitherT[F, PetAlreadyExistsError, Pet] = for {
-    _ <- validation.doesNotExist(pet)
-    saved <- EitherT.liftF(repository.create(pet))
-  } yield saved
+  def create(pet: Pet)(implicit M: Monad[F]): EitherT[F, PetAlreadyExistsError, Pet] =
+    for {
+      _ <- validation.doesNotExist(pet)
+      saved <- EitherT.liftF(repository.create(pet))
+    } yield saved
 
   /* Could argue that we could make this idempotent on put and not check if the pet exists */
-  def update(pet: Pet)(implicit M: Monad[F]): EitherT[F, PetNotFoundError.type, Pet] = for {
-    _ <- validation.exists(pet.id)
-    saved <- EitherT.fromOptionF(repository.update(pet), PetNotFoundError)
-  } yield saved
+  def update(pet: Pet)(implicit M: Monad[F]): EitherT[F, PetNotFoundError.type, Pet] =
+    for {
+      _ <- validation.exists(pet.id)
+      saved <- EitherT.fromOptionF(repository.update(pet), PetNotFoundError)
+    } yield saved
 
   def get(id: Long)(implicit F: Functor[F]): EitherT[F, PetNotFoundError.type, Pet] =
     EitherT.fromOptionF(repository.get(id), PetNotFoundError)
@@ -47,6 +49,9 @@ class PetService[F[_]](
 }
 
 object PetService {
-  def apply[F[_]](repository: PetRepositoryAlgebra[F], validation: PetValidationAlgebra[F]): PetService[F] =
+  def apply[F[_]](
+      repository: PetRepositoryAlgebra[F],
+      validation: PetValidationAlgebra[F],
+  ): PetService[F] =
     new PetService[F](repository, validation)
 }

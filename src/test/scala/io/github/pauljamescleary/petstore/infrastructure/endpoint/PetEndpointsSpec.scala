@@ -24,10 +24,10 @@ class PetEndpointsSpec
     with ScalaCheckPropertyChecks
     with PetStoreArbitraries
     with Http4sDsl[IO]
-    with Http4sClientDsl[IO]{
+    with Http4sClientDsl[IO] {
 
-  implicit val petEnc : EntityEncoder[IO, Pet] = jsonEncoderOf
-  implicit val petDec : EntityDecoder[IO, Pet] = jsonOf
+  implicit val petEnc: EntityEncoder[IO, Pet] = jsonEncoderOf
+  implicit val petDec: EntityDecoder[IO, Pet] = jsonOf
 
   def getTestResources(): (AuthTest[IO], HttpApp[IO], PetRepositoryInMemoryInterpreter[IO]) = {
     val userRepo = UserRepositoryInMemoryInterpreter[IO]()

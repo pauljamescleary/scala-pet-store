@@ -38,7 +38,8 @@ class UserEndpointsSpec
     val usersEndpoint = UserEndpoints.endpoints(
       userService,
       BCrypt.syncPasswordHasher[IO],
-      SecuredRequestHandler(jwtAuth))
+      SecuredRequestHandler(jwtAuth),
+    )
     Router(("/users", usersEndpoint)).orNotFound
   }
 

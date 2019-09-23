@@ -1,58 +1,57 @@
-organization        := "io.github.pauljamescleary"
-name                := "scala-pet-store"
-version             := "0.0.1-SNAPSHOT"
-scalaVersion        := "2.12.9"
-crossScalaVersions  := Seq("2.12.9", "2.13.0")
+organization := "io.github.pauljamescleary"
+name := "scala-pet-store"
+version := "0.0.1-SNAPSHOT"
+scalaVersion := "2.12.9"
+crossScalaVersions := Seq("2.12.9", "2.13.0")
 
 resolvers += Resolver.sonatypeRepo("snapshots")
 
-val CatsVersion            = "2.0.0"
-val CirceVersion           = "0.12.1"
-val CirceGenericExVersion  = "0.12.2"
-val CirceConfigVersion     = "0.7.0"
-val DoobieVersion          = "0.8.2"
+val CatsVersion = "2.0.0"
+val CirceVersion = "0.12.1"
+val CirceGenericExVersion = "0.12.2"
+val CirceConfigVersion = "0.7.0"
+val DoobieVersion = "0.8.0-RC1"
 val EnumeratumCirceVersion = "1.5.21"
-val H2Version              = "1.4.199"
-val Http4sVersion          = "0.21.0-M4"
-val KindProjectorVersion   = "0.10.3"
-val LogbackVersion         = "1.2.3"
-val ScalaCheckVersion      = "1.14.0"
-val ScalaTestVersion       = "3.2.0-M1"
-val ScalaTestPlusVersion   = "3.1.0.0-RC2"
-val FlywayVersion          = "6.0.3"
-val TsecVersion            = "0.2.0-M1"
+val H2Version = "1.4.199"
+val Http4sVersion = "0.21.0-M4"
+val KindProjectorVersion = "0.10.3"
+val LogbackVersion = "1.2.3"
+val ScalaCheckVersion = "1.14.0"
+val ScalaTestVersion = "3.2.0-M1"
+val ScalaTestPlusVersion = "3.1.0.0-RC2"
+val FlywayVersion = "6.0.3"
+val TsecVersion = "0.2.0-M1"
 
 libraryDependencies ++= Seq(
-  "org.typelevel"         %% "cats-core"              % CatsVersion,
-  "io.circe"              %% "circe-generic"          % CirceVersion,
-  "io.circe"              %% "circe-literal"          % CirceVersion,
-  "io.circe"              %% "circe-generic-extras"   % CirceGenericExVersion,
-  "io.circe"              %% "circe-parser"           % CirceVersion,
-  "io.circe"              %% "circe-config"           % CirceConfigVersion,
-  "org.tpolecat"          %% "doobie-core"            % DoobieVersion,
-  "org.tpolecat"          %% "doobie-h2"              % DoobieVersion,
-  "org.tpolecat"          %% "doobie-scalatest"       % DoobieVersion,
-  "org.tpolecat"          %% "doobie-hikari"          % DoobieVersion,
-  "com.beachape"          %% "enumeratum-circe"       % EnumeratumCirceVersion,
-  "com.h2database"        %  "h2"                     % H2Version,
-  "org.http4s"            %% "http4s-blaze-server"    % Http4sVersion,
-  "org.http4s"            %% "http4s-circe"           % Http4sVersion,
-  "org.http4s"            %% "http4s-dsl"             % Http4sVersion,
-  "ch.qos.logback"        %  "logback-classic"        % LogbackVersion,
-  "org.flywaydb"          %  "flyway-core"            % FlywayVersion,
-  "org.http4s"            %% "http4s-blaze-client"      % Http4sVersion        % Test,
-  "org.scalacheck"        %% "scalacheck"               % ScalaCheckVersion    % Test,
-  "org.scalatest"         %% "scalatest"                % ScalaTestVersion     % Test,
-  "org.scalatestplus"     %% "scalatestplus-scalacheck" % ScalaTestPlusVersion % Test,
-
+  "org.typelevel" %% "cats-core" % CatsVersion,
+  "io.circe" %% "circe-generic" % CirceVersion,
+  "io.circe" %% "circe-literal" % CirceVersion,
+  "io.circe" %% "circe-generic-extras" % CirceGenericExVersion,
+  "io.circe" %% "circe-parser" % CirceVersion,
+  "io.circe" %% "circe-config" % CirceConfigVersion,
+  "org.tpolecat" %% "doobie-core" % DoobieVersion,
+  "org.tpolecat" %% "doobie-h2" % DoobieVersion,
+  "org.tpolecat" %% "doobie-scalatest" % DoobieVersion,
+  "org.tpolecat" %% "doobie-hikari" % DoobieVersion,
+  "com.beachape" %% "enumeratum-circe" % EnumeratumCirceVersion,
+  "com.h2database" % "h2" % H2Version,
+  "org.http4s" %% "http4s-blaze-server" % Http4sVersion,
+  "org.http4s" %% "http4s-circe" % Http4sVersion,
+  "org.http4s" %% "http4s-dsl" % Http4sVersion,
+  "ch.qos.logback" % "logback-classic" % LogbackVersion,
+  "org.flywaydb" % "flyway-core" % FlywayVersion,
+  "org.http4s" %% "http4s-blaze-client" % Http4sVersion % Test,
+  "org.scalacheck" %% "scalacheck" % ScalaCheckVersion % Test,
+  "org.scalatest" %% "scalatest" % ScalaTestVersion % Test,
+  "org.scalatestplus" %% "scalatestplus-scalacheck" % ScalaTestPlusVersion % Test,
   // Authentication dependencies
-  "io.github.jmcardon"    %% "tsec-common"            % TsecVersion,
-  "io.github.jmcardon"    %% "tsec-password"          % TsecVersion,
-  "io.github.jmcardon"    %% "tsec-mac"               % TsecVersion,
-  "io.github.jmcardon"    %% "tsec-signatures"        % TsecVersion,
-  "io.github.jmcardon"    %% "tsec-jwt-mac"           % TsecVersion,
-  "io.github.jmcardon"    %% "tsec-jwt-sig"           % TsecVersion,
-  "io.github.jmcardon"    %% "tsec-http4s"            % TsecVersion
+  "io.github.jmcardon" %% "tsec-common" % TsecVersion,
+  "io.github.jmcardon" %% "tsec-password" % TsecVersion,
+  "io.github.jmcardon" %% "tsec-mac" % TsecVersion,
+  "io.github.jmcardon" %% "tsec-signatures" % TsecVersion,
+  "io.github.jmcardon" %% "tsec-jwt-mac" % TsecVersion,
+  "io.github.jmcardon" %% "tsec-jwt-sig" % TsecVersion,
+  "io.github.jmcardon" %% "tsec-http4s" % TsecVersion,
 )
 
 def scalacOptionsForVersion(version: String): Seq[String] = {
@@ -92,7 +91,7 @@ def scalacOptionsForVersion(version: String): Seq[String] = {
     "-Ywarn-unused:params",              // Warn if a value parameter is unused.
     "-Ywarn-unused:patvars",             // Warn if a variable bound in a pattern is unused.
     "-Ywarn-unused:privates",            // Warn if a private member is unused.
-    "-Ywarn-value-discard"               // Warn when non-Unit expression results are unused.
+    "-Ywarn-value-discard",               // Warn when non-Unit expression results are unused.
   )
   val versionOpts: Seq[String] = CrossVersion.partialVersion(version) match {
     case Some((2, major)) if major < 13 => Seq(
@@ -115,7 +114,9 @@ def scalacOptionsForVersion(version: String): Seq[String] = {
 
 scalacOptions ++= scalacOptionsForVersion(scalaVersion.value)
 
-addCompilerPlugin("org.typelevel" %% "kind-projector" % KindProjectorVersion cross CrossVersion.binary)
+addCompilerPlugin(
+  ("org.typelevel" %% "kind-projector" % KindProjectorVersion).cross(CrossVersion.binary),
+)
 
 // Filter out compiler flags to make the repl experience functional...
 val badConsoleFlags = Seq("-Xfatal-warnings", "-Ywarn-unused:imports")

@@ -8,5 +8,5 @@ case class Order(
     status: OrderStatus = OrderStatus.Placed,
     complete: Boolean = false,
     id: Option[Long] = None,
-    userId: Option[Long]
+    userId: Option[Long],
 )
