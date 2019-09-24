@@ -49,7 +49,7 @@ class OrderEndpointsSpec
 
     forAll { (order: Order, user: AdminUser) =>
       (for {
-        createRq <- POST(order, Uri.uri("/orders"))
+        createRq <- POST(order, uri"/orders")
         createRqAuth <- auth.embedToken(user.value, createRq)
         createResp <- orderRoutes.run(createRqAuth)
         orderResp <- createResp.as[Order]
