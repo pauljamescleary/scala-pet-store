@@ -5,6 +5,6 @@ pull_request_rules:
       - status-success=Travis CI - Pull Request
     actions:
       merge:
-        method: merge
+        method: squash
       label:
         add: [dependency-update]
