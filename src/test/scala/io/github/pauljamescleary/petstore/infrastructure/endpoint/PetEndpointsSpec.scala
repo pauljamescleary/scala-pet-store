@@ -46,7 +46,7 @@ class PetEndpointsSpec
 
     forAll { pet: Pet =>
       (for {
-        request <- POST(pet, Uri.uri("/pets"))
+        request <- POST(pet, uri"/pets")
         response <- petRoutes.run(request)
       } yield {
         response.status shouldEqual Unauthorized
@@ -55,7 +55,7 @@ class PetEndpointsSpec
 
     forAll { (pet: Pet, user: User) =>
       (for {
-        request <- POST(pet, Uri.uri("/pets"))
+        request <- POST(pet, uri"/pets")
           .flatMap(auth.embedToken(user, _))
         response <- petRoutes.run(request)
       } yield {
@@ -65,7 +65,7 @@ class PetEndpointsSpec
 
     forAll { (pet: Pet, user: User) =>
       (for {
-        createRq <- POST(pet, Uri.uri("/pets"))
+        createRq <- POST(pet, uri"/pets")
           .flatMap(auth.embedToken(user, _))
         response <- petRoutes.run(createRq)
         createdPet <- response.as[Pet]
@@ -85,7 +85,7 @@ class PetEndpointsSpec
 
     forAll { (pet: Pet, user: AdminUser) =>
       (for {
-        createRequest <- POST(pet, Uri.uri("/pets"))
+        createRequest <- POST(pet, uri"/pets")
           .flatMap(auth.embedToken(user.value, _))
         createResponse <- petRoutes.run(createRequest)
         createdPet <- createResponse.as[Pet]
@@ -106,7 +106,7 @@ class PetEndpointsSpec
 
     forAll { (pet: Pet, user: AdminUser) =>
       (for {
-        createRequest <- POST(pet, Uri.uri("/pets"))
+        createRequest <- POST(pet, uri"/pets")
           .flatMap(auth.embedToken(user.value, _))
         createResponse <- petRoutes.run(createRequest)
         createdPet <- createResponse.as[Pet]
