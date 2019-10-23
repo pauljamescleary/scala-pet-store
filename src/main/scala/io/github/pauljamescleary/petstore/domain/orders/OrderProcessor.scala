@@ -1,6 +1,6 @@
 package io.github.pauljamescleary.petstore.domain.orders
 
-import cats.Monad
+import cats.{Functor, Monad}
 import cats.data.OptionT
 import cats.effect.Timer
 import cats.implicits._
@@ -11,12 +11,12 @@ import scala.concurrent.duration._
 
 object OrderProcessor {
 
-  def poll[F[_]: Monad: Timer](
+  def poll[F[_]: Functor: Timer](
       interval: FiniteDuration,
       queue: OrderQueueAlgebra[F],
   ): Stream[F, OrderRequest] =
     for {
-      _ <- Stream.fixedDelay(interval).covary[F]
+      _ <- Stream.fixedDelay(interval).covary[F].map { _ => println("POLLING!") }
       requestStream <- Stream.evalSeq(queue.receive().map(_.toSeq))
     } yield requestStream
 
@@ -38,7 +38,7 @@ object OrderProcessor {
       }
     }
 
-  def cleanupMessage[F[_]: Monad](queue: OrderQueueAlgebra[F]): Pipe[F, OrderRequest, Unit] =
+  def cleanupMessage[F[_]: Functor](queue: OrderQueueAlgebra[F]): Pipe[F, OrderRequest, Unit] =
     _.evalMap(req => queue.delete(req.id).void)
 
   def flow[F[_]: Monad: Timer](
