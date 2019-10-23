@@ -5,7 +5,12 @@ import domain.users._
 import domain.orders._
 import domain.pets._
 import infrastructure.endpoint._
-import infrastructure.repository.doobie.{DoobieAuthRepositoryInterpreter, DoobieOrderRepositoryInterpreter, DoobiePetRepositoryInterpreter, DoobieUserRepositoryInterpreter}
+import infrastructure.repository.doobie.{
+  DoobieAuthRepositoryInterpreter,
+  DoobieOrderRepositoryInterpreter,
+  DoobiePetRepositoryInterpreter,
+  DoobieUserRepositoryInterpreter,
+}
 import cats.effect._
 import cats.implicits._
 import org.http4s.server.{Router, Server => H4Server}

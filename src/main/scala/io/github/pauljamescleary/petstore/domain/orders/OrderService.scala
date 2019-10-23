@@ -19,6 +19,9 @@ class OrderService[F[_]: Monad](orderRepo: OrderRepositoryAlgebra[F], queue: Ord
 }
 
 object OrderService {
-  def apply[F[_]: Monad](orderRepo: OrderRepositoryAlgebra[F], queue: OrderQueueAlgebra[F]): OrderService[F] =
+  def apply[F[_]: Monad](
+      orderRepo: OrderRepositoryAlgebra[F],
+      queue: OrderQueueAlgebra[F],
+  ): OrderService[F] =
     new OrderService(orderRepo, queue)
 }

@@ -17,7 +17,9 @@ object OrderProcessor {
       queue: OrderQueueAlgebra[F],
   ): Stream[F, OrderRequest] =
     for {
-      _ <- Stream.fixedDelay(interval).covary[F].map { _ => println("POLLING!") }
+      _ <- Stream.fixedDelay(interval).covary[F].map { _ =>
+        println("POLLING!")
+      }
       requestStream <- Stream.evalSeq(queue.receive().map(_.toSeq))
     } yield requestStream
 
