@@ -11,6 +11,7 @@ import scala.concurrent.duration._
 
 object OrderProcessor {
 
+  /* Polls the message queue on an interval, generating a stream of orders only if one is present */
   def poll[F[_]: Functor: Timer](
       interval: FiniteDuration,
       queue: OrderQueueAlgebra[F],
@@ -20,6 +21,7 @@ object OrderProcessor {
       requestStream <- Stream.evalSeq(queue.receive().map(_.toSeq))
     } yield requestStream
 
+  /* Does something interesting with the order, save it or delete it, exciting amirite!? */
   def handleOrder[F[_]: Monad](
       repo: OrderRepositoryAlgebra[F],
   ): Pipe[F, OrderRequest, OrderRequest] =
@@ -38,9 +40,11 @@ object OrderProcessor {
       }
     }
 
+  /* Removes the message from the queue if processing is successful */
   def cleanupMessage[F[_]: Functor](queue: OrderQueueAlgebra[F]): Pipe[F, OrderRequest, Unit] =
     _.evalMap(req => queue.delete(req.id).void)
 
+  /* Creates a stream that can be started in the background to poll for messages */
   def flow[F[_]: Monad: Timer](
       repo: OrderRepositoryAlgebra[F],
       queue: OrderQueueAlgebra[F],
