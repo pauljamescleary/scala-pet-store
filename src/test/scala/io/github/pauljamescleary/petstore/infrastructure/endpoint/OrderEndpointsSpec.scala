@@ -3,6 +3,7 @@ package infrastructure.endpoint
 
 import domain.orders._
 import infrastructure.repository.inmemory._
+import infrastructure.queue.inmemory._
 import cats.effect._
 import io.circe._
 import io.circe.generic.semiauto._
@@ -36,7 +37,7 @@ class OrderEndpointsSpec
   def getTestResources(): (AuthTest[IO], HttpApp[IO]) = {
     val userRepo = UserRepositoryInMemoryInterpreter[IO]()
     val auth = new AuthTest[IO](userRepo)
-    val orderService = OrderService(OrderRepositoryInMemoryInterpreter[IO]())
+    val orderService = OrderService(OrderRepositoryInMemoryInterpreter[IO](), OrderQueueInMemoryInterpreter[IO]())
     val orderEndpoint =
       OrderEndpoints.endpoints[IO, HMACSHA256](orderService, auth.securedRqHandler)
     val orderRoutes = Router(("/orders", orderEndpoint)).orNotFound

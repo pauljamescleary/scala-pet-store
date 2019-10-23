@@ -42,10 +42,10 @@ class OrderEndpoints[F[_]: Sync, Auth: JWTMacAlgo] extends Http4sDsl[F] {
 
   private def deleteOrderEndpoint(orderService: OrderService[F]): AuthEndpoint[F, Auth] = {
     case DELETE -> Root / LongVar(id) asAuthed _ =>
-      for {
-        _ <- orderService.delete(id)
-        resp <- Ok()
-      } yield resp
+      orderService.cancel(id).value.flatMap {
+        case Right(_) => Ok()
+        case Left(OrderNotFoundError) => NotFound("The order was not found")
+      }
   }
 
   def endpoints(
