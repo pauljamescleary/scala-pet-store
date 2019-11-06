@@ -1,7 +1,4 @@
 #!/bin/bash
-echo "Running verify"
-sbt test
-
 echo "Running func tests"
 echo "Starting server"
 
