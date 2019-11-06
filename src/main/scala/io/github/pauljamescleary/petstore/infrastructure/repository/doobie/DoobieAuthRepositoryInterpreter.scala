@@ -44,7 +44,6 @@ class DoobieAuthRepositoryInterpreter[F[_]: Bracket[?[_], Throwable], A](
     hs: JWSSerializer[JWSMacHeader[A]],
     s: JWSMacCV[MacErrorM, A],
 ) extends BackingStore[F, SecureRandomId, AugmentedJWT[A, Long]] {
-
   override def put(jwt: AugmentedJWT[A, Long]): F[AugmentedJWT[A, Long]] =
     AuthSQL.insert(jwt).run.transact(xa).as(jwt)
 

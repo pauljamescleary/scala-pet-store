@@ -7,7 +7,6 @@ import tsec.authorization.{AuthGroup, SimpleAuthEnum}
 final case class Role(roleRepr: String)
 
 object Role extends SimpleAuthEnum[Role, String] {
-
   val Admin: Role = Role("Admin")
   val Customer: Role = Role("Customer")
 

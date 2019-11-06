@@ -7,7 +7,6 @@ import cats.implicits._
 
 class PetValidationInterpreter[F[_]: Applicative](repository: PetRepositoryAlgebra[F])
     extends PetValidationAlgebra[F] {
-
   def doesNotExist(pet: Pet): EitherT[F, PetAlreadyExistsError, Unit] = EitherT {
     repository.findByNameAndCategory(pet.name, pet.category).map { matches =>
       if (matches.forall(possibleMatch => possibleMatch.bio != pet.bio)) {

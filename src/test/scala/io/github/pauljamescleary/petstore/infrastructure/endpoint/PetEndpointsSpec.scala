@@ -25,7 +25,6 @@ class PetEndpointsSpec
     with PetStoreArbitraries
     with Http4sDsl[IO]
     with Http4sClientDsl[IO] {
-
   implicit val petEnc: EntityEncoder[IO, Pet] = jsonEncoderOf
   implicit val petDec: EntityDecoder[IO, Pet] = jsonOf
 
@@ -41,7 +40,6 @@ class PetEndpointsSpec
   }
 
   test("create pet") {
-
     val (auth, petRoutes, _) = getTestResources()
 
     forAll { pet: Pet =>
@@ -80,7 +78,6 @@ class PetEndpointsSpec
   }
 
   test("update pet") {
-
     val (auth, petRoutes, _) = getTestResources()
 
     forAll { (pet: Pet, user: AdminUser) =>
@@ -101,7 +98,6 @@ class PetEndpointsSpec
   }
 
   test("find by tag") {
-
     val (auth, petRoutes, petRepo) = getTestResources()
 
     forAll { (pet: Pet, user: AdminUser) =>
@@ -119,6 +115,5 @@ class PetEndpointsSpec
         }
       }).unsafeRunSync
     }
-
   }
 }

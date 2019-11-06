@@ -14,7 +14,6 @@ import io.circe.generic.auto._
 import org.http4s.dsl.Http4sDsl
 
 trait LoginTest extends Http4sClientDsl[IO] with Http4sDsl[IO] {
-
   implicit val userEnc: EntityEncoder[IO, User] = jsonEncoderOf
   implicit val userDec: EntityDecoder[IO, User] = jsonOf
 

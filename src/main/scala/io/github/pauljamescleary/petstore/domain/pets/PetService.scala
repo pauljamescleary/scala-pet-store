@@ -17,7 +17,6 @@ class PetService[F[_]](
     repository: PetRepositoryAlgebra[F],
     validation: PetValidationAlgebra[F],
 ) {
-
   def create(pet: Pet)(implicit M: Monad[F]): EitherT[F, PetAlreadyExistsError, Pet] =
     for {
       _ <- validation.doesNotExist(pet)

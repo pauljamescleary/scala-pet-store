@@ -4,7 +4,6 @@ import org.http4s.QueryParamDecoder
 import org.http4s.dsl.impl.OptionalQueryParamDecoderMatcher
 
 object Pagination {
-
   /* Necessary for decoding query parameters */
   import QueryParamDecoder._
 

@@ -20,7 +20,6 @@ import scala.concurrent.duration._
 class AuthTest[F[_]: Sync](userRepo: UserRepositoryAlgebra[F] with IdentityStore[F, Long, User])(
     implicit cv: JWSMacCV[F, HMACSHA256],
 ) {
-
   private val symmetricKey = HMACSHA256.unsafeGenerateKey
   private val jwtAuth: JWTAuthenticator[F, Long, User, HMACSHA256] =
     JWTAuthenticator.unbacked.inBearerToken(1.day, None, userRepo, symmetricKey)

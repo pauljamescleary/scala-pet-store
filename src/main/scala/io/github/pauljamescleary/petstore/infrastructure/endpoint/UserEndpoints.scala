@@ -19,7 +19,6 @@ import tsec.passwordhashers.{PasswordHash, PasswordHasher}
 import tsec.authentication._
 
 class UserEndpoints[F[_]: Sync, A, Auth: JWTMacAlgo] extends Http4sDsl[F] {
-
   import Pagination._
 
   /* Jsonization of our User type */
