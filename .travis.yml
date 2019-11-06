@@ -4,15 +4,13 @@ scala:
    - 2.12.9
    - 2.13.0
 
-jobs:
-  include:
-      before_script:
-        - sbt stage
+before_script:
+  - sbt stage
 
-      script:
-        - sbt scalafmtSbtCheck scalafmtCheckAll
-        - sbt ++$TRAVIS_SCALA_VERSION test
-        - ./build.sh
+script:
+  - sbt scalafmtSbtCheck scalafmtCheckAll
+  - sbt ++$TRAVIS_SCALA_VERSION test
+  - ./build.sh
 
 cache:
   directories:
