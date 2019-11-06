@@ -14,7 +14,6 @@ import scala.collection.concurrent.TrieMap
 class UserRepositoryInMemoryInterpreter[F[_]: Applicative]
     extends UserRepositoryAlgebra[F]
     with IdentityStore[F, Long, User] {
-
   private val cache = new TrieMap[Long, User]
 
   private val random = new Random

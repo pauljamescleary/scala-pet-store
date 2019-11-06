@@ -28,7 +28,6 @@ class UserEndpointsSpec
     with Http4sDsl[IO]
     with Http4sClientDsl[IO]
     with LoginTest {
-
   def userRoutes(): HttpApp[IO] = {
     val userRepo = UserRepositoryInMemoryInterpreter[IO]()
     val userValidation = UserValidationInterpreter[IO](userRepo)

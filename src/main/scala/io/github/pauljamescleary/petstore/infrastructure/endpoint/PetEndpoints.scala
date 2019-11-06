@@ -19,7 +19,6 @@ import tsec.jwt.algorithms.JWTMacAlgo
 import tsec.authentication._
 
 class PetEndpoints[F[_]: Sync, Auth: JWTMacAlgo] extends Http4sDsl[F] {
-
   import Pagination._
 
   /* Parses out status query param which could be multi param */

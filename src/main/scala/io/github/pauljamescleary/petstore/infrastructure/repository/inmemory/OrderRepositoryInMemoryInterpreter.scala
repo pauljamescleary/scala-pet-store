@@ -9,7 +9,6 @@ import cats.implicits._
 import domain.orders.{Order, OrderRepositoryAlgebra}
 
 class OrderRepositoryInMemoryInterpreter[F[_]: Applicative] extends OrderRepositoryAlgebra[F] {
-
   private val cache = new TrieMap[Long, Order]
 
   private val random = new Random

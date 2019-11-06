@@ -24,7 +24,6 @@ class OrderEndpointsSpec
     with PetStoreArbitraries
     with Http4sDsl[IO]
     with Http4sClientDsl[IO] {
-
   implicit val statusDec: EntityDecoder[IO, OrderStatus] = jsonOf
   implicit val statusEnc: EntityEncoder[IO, OrderStatus] = jsonEncoderOf
 
@@ -44,7 +43,6 @@ class OrderEndpointsSpec
   }
 
   test("place and get order") {
-
     val (auth, orderRoutes) = getTestResources()
 
     forAll { (order: Order, user: AdminUser) =>
@@ -67,7 +65,6 @@ class OrderEndpointsSpec
   }
 
   test("user roles") {
-
     val (auth, orderRoutes) = getTestResources()
 
     forAll { user: CustomerUser =>

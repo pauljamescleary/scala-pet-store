@@ -18,7 +18,6 @@ import tsec.jws.mac._
 import tsec.mac.jca._
 
 trait PetStoreArbitraries {
-
   val userNameLength = 16
   val userNameGen: Gen[String] = Gen.listOfN(userNameLength, Gen.alphaChar).map(_.mkString)
 
