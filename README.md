@@ -106,15 +106,17 @@ In this application, we use **cats effect IO** as our effect type, and use **cat
 
 ## Getting Started
 
+Be aware that this project targets **Java 11**.
+
 Start up sbt:
 
-```
-> sbt
+```bash
+sbt --java-home {your.java.11.location}
 ```
 
 Once sbt has loaded, you can start up the application
 
-```
+```sbtshell
 > ~reStart
 ```
 
@@ -123,7 +125,7 @@ will be automatically rebuilt when you make code changes
 
 To stop the app in sbt, hit the `Enter` key and then type:
 
-```
+```sbtshell
 > reStop
 ```
 
