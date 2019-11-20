@@ -1,5 +1,10 @@
 language: scala
 dist: xenial
+
+jdk:
+  - openjdk8
+  - openjdk11
+
 scala:
    - 2.12.9
    - 2.13.0
@@ -11,6 +16,10 @@ script:
   - sbt scalafmtSbtCheck scalafmtCheckAll
   - sbt ++$TRAVIS_SCALA_VERSION test
   - ./build.sh
+
+matrix:
+  allow_failures:
+    - jdk: openjdk8
 
 cache:
   directories:
