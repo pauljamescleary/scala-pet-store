@@ -1,23 +1,18 @@
 package io.github.pauljamescleary.petstore
 package infrastructure.repository.doobie
 
-import java.time.Instant
-
 import cats.data.OptionT
 import cats.effect.Bracket
 import cats.implicits._
 import doobie._
 import doobie.implicits._
+import doobie.implicits.legacy.instant._
 import domain.orders.{Order, OrderRepositoryAlgebra, OrderStatus}
 
 private object OrderSQL {
   /* We require type StatusMeta to handle our ADT Status */
   implicit val StatusMeta: Meta[OrderStatus] =
     Meta[String].imap(OrderStatus.withName)(_.entryName)
-
-  /* We require conversion for date time */
-  implicit val DateTimeMeta: Meta[Instant] =
-    Meta[java.sql.Timestamp].imap(_.toInstant)(java.sql.Timestamp.from)
 
   def select(orderId: Long): Query0[Order] = sql"""
     SELECT PET_ID, SHIP_DATE, STATUS, COMPLETE, ID, USER_ID
