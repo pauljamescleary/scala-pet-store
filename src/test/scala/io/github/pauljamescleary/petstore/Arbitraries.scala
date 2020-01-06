@@ -112,8 +112,8 @@ trait PetStoreArbitraries {
   implicit val jwtMac: Arbitrary[JWTMac[HMACSHA256]] = Arbitrary {
     for {
       key <- Gen.const(HMACSHA256.unsafeGenerateKey)
-      claims <- Gen.finiteDuration.map(
-        exp => JWTClaims.withDuration[IO](expiration = Some(exp)).unsafeRunSync(),
+      claims <- Gen.finiteDuration.map(exp =>
+        JWTClaims.withDuration[IO](expiration = Some(exp)).unsafeRunSync(),
       )
     } yield JWTMacImpure
       .build[HMACSHA256](claims, key)

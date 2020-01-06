@@ -47,7 +47,7 @@ class UserEndpointsSpec
 
     forAll { userSignup: SignupRequest =>
       val (_, authorization) = signUpAndLogIn(userSignup, userEndpoint).unsafeRunSync()
-      authorization should be('defined)
+      authorization shouldBe defined
     }
   }
 

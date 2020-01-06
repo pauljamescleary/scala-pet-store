@@ -59,7 +59,7 @@ class OrderEndpointsSpec
         createResp.status shouldEqual Ok
         orderResp.petId shouldBe order.petId
         getOrderResp.status shouldEqual Ok
-        orderResp2.userId should be('defined)
+        orderResp2.userId shouldBe defined
       }).unsafeRunSync
     }
   }
