@@ -8,6 +8,7 @@ import cats.effect.Bracket
 import cats.implicits._
 import doobie._
 import doobie.implicits._
+import doobie.implicits.legacy.instant._
 import tsec.authentication.{AugmentedJWT, BackingStore}
 import tsec.common.SecureRandomId
 import tsec.jws.JWSSerializer
