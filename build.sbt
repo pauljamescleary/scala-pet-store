@@ -2,7 +2,7 @@ organization := "io.github.pauljamescleary"
 name := "scala-pet-store"
 version := "0.0.1-SNAPSHOT"
 scalaVersion := "2.12.9"
-crossScalaVersions := Seq("2.12.9", "2.13.0")
+crossScalaVersions := Seq("2.12.10", "2.13.1")
 
 resolvers += Resolver.sonatypeRepo("snapshots")
 
@@ -14,11 +14,11 @@ val DoobieVersion = "0.8.8"
 val EnumeratumCirceVersion = "1.5.22"
 val H2Version = "1.4.200"
 val Http4sVersion = "0.21.0-RC2"
-val KindProjectorVersion = "0.10.3"
+val KindProjectorVersion = "0.11.0"
 val LogbackVersion = "1.2.3"
 val ScalaCheckVersion = "1.14.3"
-val ScalaTestVersion = "3.2.0-M2"
-val ScalaTestPlusVersion = "3.1.0.0-RC2"
+val ScalaTestVersion = "3.1.0"
+val ScalaTestPlusVersion = "3.1.0.1"
 val FlywayVersion = "6.1.4"
 val TsecVersion = "0.2.0-M2"
 
@@ -43,7 +43,7 @@ libraryDependencies ++= Seq(
   "org.http4s" %% "http4s-blaze-client" % Http4sVersion % Test,
   "org.scalacheck" %% "scalacheck" % ScalaCheckVersion % Test,
   "org.scalatest" %% "scalatest" % ScalaTestVersion % Test,
-  "org.scalatestplus" %% "scalatestplus-scalacheck" % ScalaTestPlusVersion % Test,
+  "org.scalatestplus" %% "scalacheck-1-14" % ScalaTestPlusVersion % Test,
   // Authentication dependencies
   "io.github.jmcardon" %% "tsec-common" % TsecVersion,
   "io.github.jmcardon" %% "tsec-password" % TsecVersion,
@@ -115,7 +115,7 @@ def scalacOptionsForVersion(version: String): Seq[String] = {
 scalacOptions ++= scalacOptionsForVersion(scalaVersion.value)
 
 addCompilerPlugin(
-  ("org.typelevel" %% "kind-projector" % KindProjectorVersion).cross(CrossVersion.binary),
+  ("org.typelevel" %% "kind-projector" % KindProjectorVersion).cross(CrossVersion.full),
 )
 
 // Filter out compiler flags to make the repl experience functional...
