@@ -57,10 +57,6 @@ addCompilerPlugin(
   ("org.typelevel" %% "kind-projector" % KindProjectorVersion).cross(CrossVersion.full),
 )
 
-// Filter out compiler flags to make the repl experience functional...
-val badConsoleFlags = Seq("-Xfatal-warnings", "-Ywarn-unused:imports")
-scalacOptions in (Compile, console) ~= (_.filterNot(badConsoleFlags.contains(_)))
-
 enablePlugins(ScalafmtPlugin, JavaAppPackaging, GhpagesPlugin, MicrositesPlugin, TutPlugin)
 
 // Microsite settings
