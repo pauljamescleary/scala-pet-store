@@ -89,7 +89,7 @@ class DoobiePetRepositoryInterpreter[F[_]: Bracket[?[_], Throwable]](val xa: Tra
   def get(id: Long): F[Option[Pet]] = select(id).option.transact(xa)
 
   def delete(id: Long): F[Option[Pet]] =
-    OptionT(get(id)).semiflatMap(pet => PetSQL.delete(id).run.transact(xa).as(pet)).value
+    OptionT(select(id).option).semiflatMap(pet => PetSQL.delete(id).run.as(pet)).value.transact(xa)
 
   def findByNameAndCategory(name: String, category: String): F[Set[Pet]] =
     selectByNameAndCategory(name, category).to[List].transact(xa).map(_.toSet)
