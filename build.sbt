@@ -7,7 +7,7 @@ resolvers += Resolver.sonatypeRepo("snapshots")
 
 val CatsVersion = "2.1.0"
 val CirceVersion = "0.13.0"
-val CirceGenericExVersion = "0.12.2"
+val CirceGenericExVersion = "0.13.0"
 val CirceConfigVersion = "0.7.0"
 val DoobieVersion = "0.8.8"
 val EnumeratumCirceVersion = "1.5.22"
