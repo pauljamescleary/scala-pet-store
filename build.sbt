@@ -18,7 +18,7 @@ val LogbackVersion = "1.2.3"
 val ScalaCheckVersion = "1.14.3"
 val ScalaTestVersion = "3.1.0"
 val ScalaTestPlusVersion = "3.1.0.1"
-val FlywayVersion = "6.2.2"
+val FlywayVersion = "6.2.3"
 val TsecVersion = "0.2.0"
 
 libraryDependencies ++= Seq(
