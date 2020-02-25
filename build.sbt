@@ -5,7 +5,7 @@ crossScalaVersions := Seq("2.12.10", "2.13.1")
 
 resolvers += Resolver.sonatypeRepo("snapshots")
 
-val CatsVersion = "2.1.0"
+val CatsVersion = "2.1.1"
 val CirceVersion = "0.13.0"
 val CirceGenericExVersion = "0.12.2"
 val CirceConfigVersion = "0.7.0"
