@@ -15,7 +15,7 @@ class OrderRepositoryInMemoryInterpreter[F[_]: Applicative] extends OrderReposit
 
   def create(order: Order): F[Order] = {
     val toSave = order.copy(id = order.id.orElse(random.nextLong.some))
-    toSave.id.foreach { cache.put(_, toSave) }
+    toSave.id.foreach(cache.put(_, toSave))
     toSave.pure[F]
   }
 

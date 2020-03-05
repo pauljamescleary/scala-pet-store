@@ -18,8 +18,6 @@ class OrderQueryTypeCheckSpec extends AnyFunSuite with Matchers with IOChecker {
     check(delete(1L))
     check(select(1L))
 
-    order(Some(1L)).arbitrary.sample.map { o =>
-      check(insert(o))
-    }
+    order(Some(1L)).arbitrary.sample.map(o => check(insert(o)))
   }
 }
