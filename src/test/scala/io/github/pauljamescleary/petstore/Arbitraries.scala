@@ -82,15 +82,11 @@ trait PetStoreArbitraries {
   case class CustomerUser(value: User)
 
   implicit val adminUser: Arbitrary[AdminUser] = Arbitrary {
-    user.arbitrary.map { user =>
-      AdminUser(user.copy(role = Role.Admin))
-    }
+    user.arbitrary.map(user => AdminUser(user.copy(role = Role.Admin)))
   }
 
   implicit val customerUser: Arbitrary[CustomerUser] = Arbitrary {
-    user.arbitrary.map { user =>
-      CustomerUser(user.copy(role = Role.Customer))
-    }
+    user.arbitrary.map(user => CustomerUser(user.copy(role = Role.Customer)))
   }
 
   implicit val userSignup = Arbitrary[SignupRequest] {
