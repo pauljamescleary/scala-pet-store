@@ -1,5 +1,5 @@
 // Makes our code tidy
-addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.3.3")
+addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.3.4")
 
 // Revolver allows us to use re-start and work a lot faster!
 addSbtPlugin("io.spray" % "sbt-revolver" % "0.9.1")
