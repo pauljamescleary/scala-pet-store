@@ -12,7 +12,6 @@ import infrastructure.repository.doobie.{
   DoobieUserRepositoryInterpreter,
 }
 import cats.effect._
-import cats.implicits._
 import org.http4s.server.{Router, Server => H4Server}
 import org.http4s.server.blaze.BlazeServerBuilder
 import org.http4s.implicits._
@@ -27,6 +26,7 @@ object Server extends IOApp {
   def createServer[F[_]: ContextShift: ConcurrentEffect: Timer]: Resource[F, H4Server[F]] =
     for {
       conf <- Resource.liftF(parser.decodePathF[F, PetStoreConfig]("petstore"))
+      serverEc <- ExecutionContexts.cachedThreadPool[F]
       connEc <- ExecutionContexts.fixedThreadPool[F](conf.db.connections.poolSize)
       txnEc <- ExecutionContexts.cachedThreadPool[F]
       xa <- DatabaseConfig.dbTransactor(conf.db, connEc, Blocker.liftExecutionContext(txnEc))
@@ -49,7 +49,7 @@ object Server extends IOApp {
         "/orders" -> OrderEndpoints.endpoints[F, HMACSHA256](orderService, routeAuth),
       ).orNotFound
       _ <- Resource.liftF(DatabaseConfig.initializeDb(conf.db))
-      server <- BlazeServerBuilder[F]
+      server <- BlazeServerBuilder[F](serverEc)
         .bindHttp(conf.server.port, conf.server.host)
         .withHttpApp(httpApp)
         .resource
