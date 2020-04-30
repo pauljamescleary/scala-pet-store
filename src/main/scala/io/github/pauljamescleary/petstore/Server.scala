@@ -12,7 +12,6 @@ import infrastructure.repository.doobie.{
   DoobieUserRepositoryInterpreter,
 }
 import cats.effect._
-import cats.implicits._
 import org.http4s.server.{Router, Server => H4Server}
 import org.http4s.server.blaze.BlazeServerBuilder
 import org.http4s.implicits._
