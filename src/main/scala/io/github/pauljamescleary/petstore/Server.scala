@@ -20,6 +20,7 @@ import tsec.passwordhashers.jca.BCrypt
 import doobie.util.ExecutionContexts
 import io.circe.config.parser
 import domain.authentication.Auth
+import io.github.pauljamescleary.petstore.infrastructure.queue.inmemory.OrderQueueInMemoryInterpreter
 import tsec.authentication.SecuredRequestHandler
 import tsec.mac.jca.HMACSHA256
 
@@ -38,7 +39,8 @@ object Server extends IOApp {
       petValidation = PetValidationInterpreter[F](petRepo)
       petService = PetService[F](petRepo, petValidation)
       userValidation = UserValidationInterpreter[F](userRepo)
-      orderService = OrderService[F](orderRepo)
+      orderQueue = OrderQueueInMemoryInterpreter[F]()
+      orderService = OrderService[F](orderRepo, orderQueue)
       userService = UserService[F](userRepo, userValidation)
       authenticator = Auth.jwtAuthenticator[F, HMACSHA256](key, authRepo, userRepo)
       routeAuth = SecuredRequestHandler(authenticator)
@@ -49,6 +51,7 @@ object Server extends IOApp {
         "/orders" -> OrderEndpoints.endpoints[F, HMACSHA256](orderService, routeAuth),
       ).orNotFound
       _ <- Resource.liftF(DatabaseConfig.initializeDb(conf.db))
+      _ <- Resource.liftF(OrderProcessor.flow(orderRepo, orderQueue).compile.drain)
       server <- BlazeServerBuilder[F]
         .bindHttp(conf.server.port, conf.server.host)
         .withHttpApp(httpApp)
