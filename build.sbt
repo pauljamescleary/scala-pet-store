@@ -19,7 +19,7 @@ val ScalaCheckVersion = "1.14.3"
 val ScalaTestVersion = "3.1.2"
 val ScalaTestPlusVersion = "3.1.2.0"
 val FlywayVersion = "6.4.2"
-val TsecVersion = "0.2.0"
+val TsecVersion = "0.2.1"
 
 libraryDependencies ++= Seq(
   "org.typelevel" %% "cats-core" % CatsVersion,
