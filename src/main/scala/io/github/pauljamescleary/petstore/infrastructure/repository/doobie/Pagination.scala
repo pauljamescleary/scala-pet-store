@@ -2,7 +2,6 @@ package io.github.pauljamescleary.petstore.infrastructure.repository.doobie
 
 import doobie._
 import doobie.implicits._
-import doobie.util.pos.Pos
 
 /**
   * Pagination is a convenience to simply add limits and offsets to any query
@@ -11,11 +10,11 @@ import doobie.util.pos.Pos
   * which seems wrong.
   */
 trait SQLPagination {
-  def limit[A: Read](lim: Int)(q: Query0[A])(implicit pos: Pos): Query0[A] =
-    (Fragment(q.sql, Nil, Some(pos)) ++ fr"LIMIT $lim").query
+  def limit[A: Read](lim: Int)(q: Query0[A]): Query0[A] =
+    (q.toFragment ++ fr"LIMIT $lim").query
 
-  def paginate[A: Read](lim: Int, offset: Int)(q: Query0[A])(implicit pos: Pos): Query0[A] =
-    (Fragment(q.sql, Nil, Some(pos)) ++ fr"LIMIT $lim OFFSET $offset").query
+  def paginate[A: Read](lim: Int, offset: Int)(q: Query0[A]): Query0[A] =
+    (q.toFragment ++ fr"LIMIT $lim OFFSET $offset").query
 }
 
 object SQLPagination extends SQLPagination
