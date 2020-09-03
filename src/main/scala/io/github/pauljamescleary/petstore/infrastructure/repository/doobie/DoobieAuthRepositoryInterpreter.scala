@@ -5,7 +5,7 @@ import java.time.Instant
 import cats._
 import cats.data._
 import cats.effect.Bracket
-import cats.implicits._
+import cats.syntax.all._
 import doobie._
 import doobie.implicits._
 import doobie.implicits.legacy.instant._

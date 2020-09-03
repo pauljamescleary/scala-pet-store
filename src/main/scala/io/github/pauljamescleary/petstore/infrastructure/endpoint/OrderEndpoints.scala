@@ -2,7 +2,7 @@ package io.github.pauljamescleary.petstore
 package infrastructure.endpoint
 
 import cats.effect.Sync
-import cats.implicits._
+import cats.syntax.all._
 import io.circe.generic.auto._
 import io.circe.syntax._
 import org.http4s._

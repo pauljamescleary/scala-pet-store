@@ -2,7 +2,7 @@ package io.github.pauljamescleary.petstore
 package infrastructure.repository.doobie
 
 import cats.data._
-import cats.implicits._
+import cats.syntax.all._
 import doobie._
 import doobie.implicits._
 import domain.pets.{Pet, PetRepositoryAlgebra, PetStatus}
