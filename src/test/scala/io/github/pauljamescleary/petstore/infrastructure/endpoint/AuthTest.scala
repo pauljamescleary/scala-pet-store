@@ -1,7 +1,7 @@
 package io.github.pauljamescleary.petstore
 package infrastructure.endpoint
 
-import cats.implicits._
+import cats.syntax.all._
 import domain.users._
 import cats.effect._
 import org.http4s._

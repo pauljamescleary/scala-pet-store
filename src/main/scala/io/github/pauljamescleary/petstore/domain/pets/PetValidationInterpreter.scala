@@ -3,7 +3,7 @@ package pets
 
 import cats.Applicative
 import cats.data.EitherT
-import cats.implicits._
+import cats.syntax.all._
 
 class PetValidationInterpreter[F[_]: Applicative](repository: PetRepositoryAlgebra[F])
     extends PetValidationAlgebra[F] {

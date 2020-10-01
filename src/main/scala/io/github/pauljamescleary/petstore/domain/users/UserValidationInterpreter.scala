@@ -3,7 +3,7 @@ package users
 
 import cats.Applicative
 import cats.data.EitherT
-import cats.implicits._
+import cats.syntax.all._
 
 class UserValidationInterpreter[F[_]: Applicative](userRepo: UserRepositoryAlgebra[F])
     extends UserValidationAlgebra[F] {

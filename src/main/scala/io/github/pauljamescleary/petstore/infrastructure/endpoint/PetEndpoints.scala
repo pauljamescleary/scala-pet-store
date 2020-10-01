@@ -4,7 +4,7 @@ package infrastructure.endpoint
 import cats.data.Validated.Valid
 import cats.data._
 import cats.effect.Sync
-import cats.implicits._
+import cats.syntax.all._
 import io.circe.generic.auto._
 import io.circe.syntax._
 import io.github.pauljamescleary.petstore.domain.authentication.Auth
@@ -78,7 +78,9 @@ class PetEndpoints[F[_]: Sync, Auth: JWTMacAlgo] extends Http4sDsl[F] {
   }
 
   private def listPetsEndpoint(petService: PetService[F]): AuthEndpoint[F, Auth] = {
-    case GET -> Root :? OptionalPageSizeMatcher(pageSize) :? OptionalOffsetMatcher(offset) asAuthed _ =>
+    case GET -> Root :? OptionalPageSizeMatcher(pageSize) :? OptionalOffsetMatcher(
+          offset,
+        ) asAuthed _ =>
       for {
         retrieved <- petService.list(pageSize.getOrElse(10), offset.getOrElse(0))
         resp <- Ok(retrieved.asJson)

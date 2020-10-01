@@ -1,7 +1,7 @@
 package io.github.pauljamescleary.petstore
 package infrastructure.repository
 
-import cats.implicits._
+import cats.syntax.all._
 import cats.effect.{Async, ContextShift, Effect, IO}
 import config._
 import _root_.doobie.Transactor

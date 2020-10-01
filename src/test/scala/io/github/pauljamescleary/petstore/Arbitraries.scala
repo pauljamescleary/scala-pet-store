@@ -116,8 +116,8 @@ trait PetStoreArbitraries {
       .getOrElse(throw new Exception("Inconceivable"))
   }
 
-  implicit def augmentedJWT[A, I](
-      implicit arb1: Arbitrary[JWTMac[A]],
+  implicit def augmentedJWT[A, I](implicit
+      arb1: Arbitrary[JWTMac[A]],
       arb2: Arbitrary[I],
   ): Arbitrary[AugmentedJWT[A, I]] =
     Arbitrary {

@@ -3,7 +3,7 @@ package infrastructure.repository.doobie
 
 import cats.data.OptionT
 import cats.effect.Bracket
-import cats.implicits._
+import cats.syntax.all._
 import doobie._
 import doobie.implicits._
 import doobie.implicits.legacy.instant._
