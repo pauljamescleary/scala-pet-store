@@ -15,6 +15,7 @@ val H2Version = "1.4.200"
 val Http4sVersion = "0.21.7"
 val KindProjectorVersion = "0.11.0"
 val LogbackVersion = "1.2.3"
+val Slf4jVersion = "1.7.30"
 val ScalaCheckVersion = "1.14.3"
 val ScalaTestVersion = "3.2.2"
 val ScalaTestPlusVersion = "3.2.2.0"
@@ -52,6 +53,8 @@ libraryDependencies ++= Seq(
   "io.github.jmcardon" %% "tsec-jwt-sig" % TsecVersion,
   "io.github.jmcardon" %% "tsec-http4s" % TsecVersion,
 )
+
+dependencyOverrides += "org.slf4j" % "slf4j-api" % Slf4jVersion
 
 addCompilerPlugin(
   ("org.typelevel" %% "kind-projector" % KindProjectorVersion).cross(CrossVersion.full),
