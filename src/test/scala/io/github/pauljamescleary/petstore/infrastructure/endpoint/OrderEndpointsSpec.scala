@@ -72,9 +72,7 @@ class OrderEndpointsSpec
         deleteRq <- DELETE(Uri.unsafeFromString(s"/orders/1"))
           .flatMap(auth.embedToken(user.value, _))
         deleteResp <- orderRoutes.run(deleteRq)
-      } yield {
-        deleteResp.status shouldEqual Unauthorized
-      }).unsafeRunSync
+      } yield deleteResp.status shouldEqual Unauthorized).unsafeRunSync
     }
 
     forAll { user: AdminUser =>
@@ -82,9 +80,7 @@ class OrderEndpointsSpec
         deleteRq <- DELETE(Uri.unsafeFromString(s"/orders/1"))
           .flatMap(auth.embedToken(user.value, _))
         deleteResp <- orderRoutes.run(deleteRq)
-      } yield {
-        deleteResp.status shouldEqual Ok
-      }).unsafeRunSync
+      } yield deleteResp.status shouldEqual Ok).unsafeRunSync
     }
   }
 }

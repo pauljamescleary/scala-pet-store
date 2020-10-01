@@ -40,8 +40,7 @@ private object AuthSQL {
 class DoobieAuthRepositoryInterpreter[F[_]: Bracket[?[_], Throwable], A](
     val key: MacSigningKey[A],
     val xa: Transactor[F],
-)(
-    implicit
+)(implicit
     hs: JWSSerializer[JWSMacHeader[A]],
     s: JWSMacCV[MacErrorM, A],
 ) extends BackingStore[F, SecureRandomId, AugmentedJWT[A, Long]] {
@@ -65,8 +64,7 @@ class DoobieAuthRepositoryInterpreter[F[_]: Bracket[?[_], Throwable], A](
 }
 
 object DoobieAuthRepositoryInterpreter {
-  def apply[F[_]: Bracket[?[_], Throwable], A](key: MacSigningKey[A], xa: Transactor[F])(
-      implicit
+  def apply[F[_]: Bracket[?[_], Throwable], A](key: MacSigningKey[A], xa: Transactor[F])(implicit
       hs: JWSSerializer[JWSMacHeader[A]],
       s: JWSMacCV[MacErrorM, A],
   ): DoobieAuthRepositoryInterpreter[F, A] =
