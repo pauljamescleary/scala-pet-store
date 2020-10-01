@@ -99,9 +99,7 @@ class UserEndpointsSpec
         deleteRequest <- DELETE(Uri.unsafeFromString(s"/users/${createdUser.userName}"))
         deleteRequestAuth = deleteRequest.putHeaders(authorization)
         deleteResponse <- userEndpoint.run(deleteRequestAuth)
-      } yield {
-        deleteResponse.status shouldEqual Unauthorized
-      }).unsafeRunSync
+      } yield deleteResponse.status shouldEqual Unauthorized).unsafeRunSync
     }
 
     forAll { userSignup: SignupRequest =>

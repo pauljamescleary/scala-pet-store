@@ -8,3 +8,6 @@ __pycache__
 *.pyc
 .bloop
 .metals
+.vscode
+project/.metals
+project/metals.sbt

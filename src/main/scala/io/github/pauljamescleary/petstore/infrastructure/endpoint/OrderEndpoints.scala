@@ -52,7 +52,9 @@ class OrderEndpoints[F[_]: Sync, Auth: JWTMacAlgo] extends Http4sDsl[F] {
       auth: SecuredRequestHandler[F, Long, User, AugmentedJWT[Auth, Long]],
   ): HttpRoutes[F] = {
     val authEndpoints: AuthService[F, Auth] =
-      Auth.allRolesHandler(placeOrderEndpoint(orderService).orElse(getOrderEndpoint(orderService))) {
+      Auth.allRolesHandler(
+        placeOrderEndpoint(orderService).orElse(getOrderEndpoint(orderService)),
+      ) {
         Auth.adminOnly(deleteOrderEndpoint(orderService))
       }
 

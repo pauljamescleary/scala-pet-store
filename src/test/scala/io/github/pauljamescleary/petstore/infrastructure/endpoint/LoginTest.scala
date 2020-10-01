@@ -34,9 +34,7 @@ trait LoginTest extends Http4sClientDsl[IO] with Http4sDsl[IO] {
       loginBody = LoginRequest(userSignUp.userName, userSignUp.password)
       loginRq <- POST(loginBody, uri"/users/login")
       loginResp <- userEndpoint.run(loginRq)
-    } yield {
-      user -> loginResp.headers.get(Authorization)
-    }
+    } yield user -> loginResp.headers.get(Authorization)
 
   def signUpAndLogInAsAdmin(
       userSignUp: SignupRequest,

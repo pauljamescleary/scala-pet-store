@@ -46,9 +46,7 @@ class PetEndpointsSpec
       (for {
         request <- POST(pet, uri"/pets")
         response <- petRoutes.run(request)
-      } yield {
-        response.status shouldEqual Unauthorized
-      }).unsafeRunSync
+      } yield response.status shouldEqual Unauthorized).unsafeRunSync
     }
 
     forAll { (pet: Pet, user: User) =>
@@ -56,9 +54,7 @@ class PetEndpointsSpec
         request <- POST(pet, uri"/pets")
           .flatMap(auth.embedToken(user, _))
         response <- petRoutes.run(request)
-      } yield {
-        response.status shouldEqual Ok
-      }).unsafeRunSync
+      } yield response.status shouldEqual Ok).unsafeRunSync
     }
 
     forAll { (pet: Pet, user: User) =>
@@ -91,9 +87,7 @@ class PetEndpointsSpec
           .flatMap(auth.embedToken(user.value, _))
         updateResponse <- petRoutes.run(updateRequest)
         updatedPet <- updateResponse.as[Pet]
-      } yield {
-        updatedPet.name shouldEqual pet.name.reverse
-      }).unsafeRunSync
+      } yield updatedPet.name shouldEqual pet.name.reverse).unsafeRunSync
     }
   }
 
@@ -106,13 +100,11 @@ class PetEndpointsSpec
           .flatMap(auth.embedToken(user.value, _))
         createResponse <- petRoutes.run(createRequest)
         createdPet <- createResponse.as[Pet]
-      } yield {
-        createdPet.tags.toList.headOption match {
-          case Some(tag) =>
-            val petsFoundByTag = petRepo.findByTag(NonEmptyList.of(tag)).unsafeRunSync
-            petsFoundByTag.contains(createdPet) shouldEqual true
-          case _ => ()
-        }
+      } yield createdPet.tags.toList.headOption match {
+        case Some(tag) =>
+          val petsFoundByTag = petRepo.findByTag(NonEmptyList.of(tag)).unsafeRunSync
+          petsFoundByTag.contains(createdPet) shouldEqual true
+        case _ => ()
       }).unsafeRunSync
     }
   }

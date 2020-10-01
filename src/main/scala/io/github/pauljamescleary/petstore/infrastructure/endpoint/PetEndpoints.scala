@@ -78,7 +78,9 @@ class PetEndpoints[F[_]: Sync, Auth: JWTMacAlgo] extends Http4sDsl[F] {
   }
 
   private def listPetsEndpoint(petService: PetService[F]): AuthEndpoint[F, Auth] = {
-    case GET -> Root :? OptionalPageSizeMatcher(pageSize) :? OptionalOffsetMatcher(offset) asAuthed _ =>
+    case GET -> Root :? OptionalPageSizeMatcher(pageSize) :? OptionalOffsetMatcher(
+          offset,
+        ) asAuthed _ =>
       for {
         retrieved <- petService.list(pageSize.getOrElse(10), offset.getOrElse(0))
         resp <- Ok(retrieved.asJson)

@@ -34,8 +34,8 @@ object Auth {
       signingKey = key,
     )
 
-  private def _allRoles[F[_], Auth](
-      implicit F: MonadError[F, Throwable],
+  private def _allRoles[F[_], Auth](implicit
+      F: MonadError[F, Throwable],
   ): BasicRBAC[F, Role, User, Auth] =
     BasicRBAC.all[F, Role, User, Auth]
 
@@ -54,8 +54,8 @@ object Auth {
       onNotAuthorized.run,
     )
 
-  private def _adminOnly[F[_], Auth](
-      implicit F: MonadError[F, Throwable],
+  private def _adminOnly[F[_], Auth](implicit
+      F: MonadError[F, Throwable],
   ): BasicRBAC[F, Role, User, Auth] =
     BasicRBAC[F, Role, User, Auth](Role.Admin)
 

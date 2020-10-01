@@ -30,13 +30,11 @@ object DatabaseConfig {
     */
   def initializeDb[F[_]](cfg: DatabaseConfig)(implicit S: Sync[F]): F[Unit] =
     S.delay {
-        val fw: Flyway = {
-          Flyway
-            .configure()
-            .dataSource(cfg.url, cfg.user, cfg.password)
-            .load()
-        }
-        fw.migrate()
-      }
-      .as(())
+      val fw: Flyway =
+        Flyway
+          .configure()
+          .dataSource(cfg.url, cfg.user, cfg.password)
+          .load()
+      fw.migrate()
+    }.as(())
 }
