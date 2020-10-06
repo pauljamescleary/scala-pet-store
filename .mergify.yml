@@ -3,7 +3,7 @@ pull_request_rules:
     conditions:
       - author=scala-steward
       - status-success=Build and Test Scala 2.12.12
-      - status-success=Build and Test Scala 2.13.3
+      - status-success=Build and Test Scala 2.13.2
     actions:
       merge:
         method: squash
