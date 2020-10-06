@@ -8,12 +8,12 @@ on:
 
 jobs:
   build:
-    name: Build and Test
+    name: Build and Test Scala ${{matrix.scala}}
     if: "!contains(github.event.head_commit.message, 'ci skip')"
     strategy:
       matrix:
         os: [ubuntu-latest]
-        scala: [2.12.10, 2.13.1]
+        scala: [2.12.12, 2.13.2]
         java: [adopt@1.11]
     runs-on: ${{ matrix.os }}
     steps:
