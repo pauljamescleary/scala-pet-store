@@ -2,8 +2,8 @@ pull_request_rules:
   - name: automatically merge scala-steward's PRs
     conditions:
       - author=scala-steward
-      - status-success=Build and Test
-    actions:
+      - status-success=Build and Test Scala 2.12.12
+      - status-success=Build and Test Scala 2.13.3
       merge:
         method: squash
       label:
