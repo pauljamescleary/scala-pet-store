@@ -67,7 +67,7 @@ class UserEndpointsSpec
         updateResponse.status shouldEqual Ok
         updatedUser.lastName shouldEqual createdUser.lastName.reverse
         createdUser.id shouldEqual updatedUser.id
-      }).unsafeRunSync
+      }).unsafeRunSync()
     }
   }
 
@@ -85,7 +85,7 @@ class UserEndpointsSpec
       } yield {
         getResponse.status shouldEqual Ok
         createdUser.userName shouldEqual getUser.userName
-      }).unsafeRunSync
+      }).unsafeRunSync()
     }
   }
 
@@ -99,7 +99,7 @@ class UserEndpointsSpec
         deleteRequest <- DELETE(Uri.unsafeFromString(s"/users/${createdUser.userName}"))
         deleteRequestAuth = deleteRequest.putHeaders(authorization)
         deleteResponse <- userEndpoint.run(deleteRequestAuth)
-      } yield deleteResponse.status shouldEqual Unauthorized).unsafeRunSync
+      } yield deleteResponse.status shouldEqual Unauthorized).unsafeRunSync()
     }
 
     forAll { userSignup: SignupRequest =>
@@ -116,7 +116,7 @@ class UserEndpointsSpec
         deleteResponse.status shouldEqual Ok
         // The user not the token longer exist
         getResponse.status shouldEqual Unauthorized
-      }).unsafeRunSync
+      }).unsafeRunSync()
     }
   }
 }

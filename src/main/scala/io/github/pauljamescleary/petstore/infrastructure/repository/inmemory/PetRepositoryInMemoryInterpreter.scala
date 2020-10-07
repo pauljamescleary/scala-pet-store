@@ -15,7 +15,7 @@ class PetRepositoryInMemoryInterpreter[F[_]: Applicative] extends PetRepositoryA
   private val random = new Random
 
   def create(pet: Pet): F[Pet] = {
-    val id = random.nextLong
+    val id = random.nextLong()
     val toSave = pet.copy(id = id.some)
     cache += (id -> pet.copy(id = id.some))
     toSave.pure[F]
