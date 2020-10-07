@@ -19,7 +19,7 @@ class UserRepositoryInMemoryInterpreter[F[_]: Applicative]
   private val random = new Random
 
   def create(user: User): F[User] = {
-    val id = random.nextLong
+    val id = random.nextLong()
     val toSave = user.copy(id = id.some)
     cache += (id -> toSave)
     toSave.pure[F]
