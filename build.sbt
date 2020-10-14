@@ -19,7 +19,7 @@ val Slf4jVersion = "1.7.30"
 val ScalaCheckVersion = "1.14.3"
 val ScalaTestVersion = "3.2.2"
 val ScalaTestPlusVersion = "3.2.2.0"
-val FlywayVersion = "7.0.2"
+val FlywayVersion = "7.0.3"
 val TsecVersion = "0.2.1"
 
 libraryDependencies ++= Seq(
