@@ -10,7 +10,7 @@ addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.7.6")
 // Documentation plugins
 addSbtPlugin("org.tpolecat" % "tut-plugin" % "0.6.13")
 
-addSbtPlugin("com.47deg" % "sbt-microsites" % "1.2.1")
+addSbtPlugin("com.47deg" % "sbt-microsites" % "1.3.3")
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-ghpages" % "0.6.3")
 
