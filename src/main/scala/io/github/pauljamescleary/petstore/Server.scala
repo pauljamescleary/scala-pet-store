@@ -25,12 +25,12 @@ import tsec.mac.jca.HMACSHA256
 object Server extends IOApp {
   def createServer[F[_]: ContextShift: ConcurrentEffect: Timer]: Resource[F, H4Server[F]] =
     for {
-      conf <- Resource.liftF(parser.decodePathF[F, PetStoreConfig]("petstore"))
+      conf <- Resource.eval(parser.decodePathF[F, PetStoreConfig]("petstore"))
       serverEc <- ExecutionContexts.cachedThreadPool[F]
       connEc <- ExecutionContexts.fixedThreadPool[F](conf.db.connections.poolSize)
       txnEc <- ExecutionContexts.cachedThreadPool[F]
       xa <- DatabaseConfig.dbTransactor(conf.db, connEc, Blocker.liftExecutionContext(txnEc))
-      key <- Resource.liftF(HMACSHA256.generateKey[F])
+      key <- Resource.eval(HMACSHA256.generateKey[F])
       authRepo = DoobieAuthRepositoryInterpreter[F, HMACSHA256](key, xa)
       petRepo = DoobiePetRepositoryInterpreter[F](xa)
       orderRepo = DoobieOrderRepositoryInterpreter[F](xa)
@@ -48,7 +48,7 @@ object Server extends IOApp {
         "/pets" -> PetEndpoints.endpoints[F, HMACSHA256](petService, routeAuth),
         "/orders" -> OrderEndpoints.endpoints[F, HMACSHA256](orderService, routeAuth),
       ).orNotFound
-      _ <- Resource.liftF(DatabaseConfig.initializeDb(conf.db))
+      _ <- Resource.eval(DatabaseConfig.initializeDb(conf.db))
       server <- BlazeServerBuilder[F](serverEc)
         .bindHttp(conf.server.port, conf.server.host)
         .withHttpApp(httpApp)

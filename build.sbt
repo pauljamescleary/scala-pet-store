@@ -1,25 +1,25 @@
 organization := "io.github.pauljamescleary"
 name := "scala-pet-store"
 version := "0.0.1-SNAPSHOT"
-crossScalaVersions := Seq("2.12.12", "2.13.3")
+crossScalaVersions := Seq("2.12.13", "2.13.5")
 
 resolvers += Resolver.sonatypeRepo("snapshots")
 
-val CatsVersion = "2.2.0"
+val CatsVersion = "2.6.0"
 val CirceVersion = "0.13.0"
 val CirceGenericExVersion = "0.13.0"
 val CirceConfigVersion = "0.8.0"
-val DoobieVersion = "0.9.2"
+val DoobieVersion = "0.9.4"
 val EnumeratumCirceVersion = "1.6.1"
 val H2Version = "1.4.200"
-val Http4sVersion = "0.21.9"
-val KindProjectorVersion = "0.11.0"
+val Http4sVersion = "0.21.22"
+val KindProjectorVersion = "0.11.3"
 val LogbackVersion = "1.2.3"
 val Slf4jVersion = "1.7.30"
-val ScalaCheckVersion = "1.15.1"
-val ScalaTestVersion = "3.2.3"
+val ScalaCheckVersion = "1.15.4"
+val ScalaTestVersion = "3.2.8"
 val ScalaTestPlusVersion = "3.2.2.0"
-val FlywayVersion = "7.2.0"
+val FlywayVersion = "7.2.1"
 val TsecVersion = "0.2.1"
 
 libraryDependencies ++= Seq(
