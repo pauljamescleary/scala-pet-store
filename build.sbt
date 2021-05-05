@@ -60,7 +60,7 @@ addCompilerPlugin(
   ("org.typelevel" %% "kind-projector" % KindProjectorVersion).cross(CrossVersion.full),
 )
 
-enablePlugins(ScalafmtPlugin, JavaAppPackaging, GhpagesPlugin, MicrositesPlugin, TutPlugin)
+enablePlugins(ScalafmtPlugin, JavaAppPackaging, GhpagesPlugin, MicrositesPlugin, MdocPlugin)
 
 // Microsite settings
 git.remoteRepo := "git@github.com:pauljamescleary/scala-pet-store.git"
