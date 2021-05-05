@@ -5,6 +5,6 @@ title:  "Scala Pet Store"
 
 Here is how you add numbers:
 
-```tut
+```scala mdoc
 1 + 1
 ```

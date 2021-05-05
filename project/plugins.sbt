@@ -8,7 +8,7 @@ addSbtPlugin("io.spray" % "sbt-revolver" % "0.9.1")
 addSbtPlugin("com.typesafe.sbt" % "sbt-native-packager" % "1.7.6")
 
 // Documentation plugins
-addSbtPlugin("org.tpolecat" % "tut-plugin" % "0.6.13")
+addSbtPlugin("org.scalameta" % "sbt-mdoc" % "2.2.20")
 
 addSbtPlugin("com.47deg" % "sbt-microsites" % "1.2.1")
 
