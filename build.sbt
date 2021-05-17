@@ -1,7 +1,7 @@
 organization := "io.github.pauljamescleary"
 name := "scala-pet-store"
 version := "0.0.1-SNAPSHOT"
-crossScalaVersions := Seq("2.12.13", "2.13.5")
+crossScalaVersions := Seq("2.12.13", "2.13.6")
 
 resolvers += Resolver.sonatypeRepo("snapshots")
 
