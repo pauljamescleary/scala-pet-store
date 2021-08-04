@@ -15,6 +15,7 @@ val H2Version = "1.4.200"
 val Http4sVersion = "0.21.24"
 val KindProjectorVersion = "0.13.0"
 val LogbackVersion = "1.2.3"
+val Log4catsVersion = "1.3.1"
 val Slf4jVersion = "1.7.30"
 val ScalaCheckVersion = "1.15.4"
 val ScalaTestVersion = "3.2.9"
@@ -38,6 +39,8 @@ libraryDependencies ++= Seq(
   "org.http4s" %% "http4s-blaze-server" % Http4sVersion,
   "org.http4s" %% "http4s-circe" % Http4sVersion,
   "org.http4s" %% "http4s-dsl" % Http4sVersion,
+  "org.typelevel" %% "log4cats-core"    %  Log4catsVersion,
+  "org.typelevel" %% "log4cats-slf4j"   % Log4catsVersion,
   "ch.qos.logback" % "logback-classic" % LogbackVersion,
   "org.flywaydb" % "flyway-core" % FlywayVersion,
   "org.http4s" %% "http4s-blaze-client" % Http4sVersion % Test,

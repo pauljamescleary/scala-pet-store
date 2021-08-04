@@ -10,6 +10,6 @@ __pycache__
 .metals
 .vscode
 project/.metals
-project/metals.sbt
+**/metals.sbt
 .bsp
 

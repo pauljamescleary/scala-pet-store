@@ -10,6 +10,7 @@ import SQLPagination._
 import cats.effect.Bracket
 
 private object PetSQL {
+  implicit val logHandler: LogHandler = LogHandler.petStoreLogHandler
   /* We require type StatusMeta to handle our ADT Status */
   implicit val StatusMeta: Meta[PetStatus] =
     Meta[String].imap(PetStatus.withName)(_.entryName)

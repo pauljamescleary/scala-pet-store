@@ -13,6 +13,7 @@ import io.github.pauljamescleary.petstore.infrastructure.repository.doobie.SQLPa
 import tsec.authentication.IdentityStore
 
 private object UserSQL {
+  implicit val logHandler: LogHandler = LogHandler.petStoreLogHandler
   // H2 does not support JSON data type.
   implicit val roleMeta: Meta[Role] =
     Meta[String].imap(decode[Role](_).leftMap(throw _).merge)(_.asJson.toString)

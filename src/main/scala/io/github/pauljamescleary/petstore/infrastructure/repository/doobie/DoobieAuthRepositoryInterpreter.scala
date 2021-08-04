@@ -16,6 +16,7 @@ import tsec.jws.mac.{JWSMacCV, JWSMacHeader, JWTMacImpure}
 import tsec.mac.jca.{MacErrorM, MacSigningKey}
 
 private object AuthSQL {
+  implicit val logHandler: LogHandler = LogHandler.petStoreLogHandler
   implicit val secureRandomIdPut: Put[SecureRandomId] =
     Put[String].contramap((_: Id[SecureRandomId]).widen)
 

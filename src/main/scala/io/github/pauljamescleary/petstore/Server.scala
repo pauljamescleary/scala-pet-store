@@ -36,10 +36,10 @@ object Server extends IOApp {
       orderRepo = DoobieOrderRepositoryInterpreter[F](xa)
       userRepo = DoobieUserRepositoryInterpreter[F](xa)
       petValidation = PetValidationInterpreter[F](petRepo)
-      petService = PetService[F](petRepo, petValidation)
+      petService <- PetService[F](petRepo, petValidation)
       userValidation = UserValidationInterpreter[F](userRepo)
-      orderService = OrderService[F](orderRepo)
-      userService = UserService[F](userRepo, userValidation)
+      orderService <- OrderService[F](orderRepo)
+      userService <- UserService[F](userRepo, userValidation)
       authenticator = Auth.jwtAuthenticator[F, HMACSHA256](key, authRepo, userRepo)
       routeAuth = SecuredRequestHandler(authenticator)
       httpApp = Router(

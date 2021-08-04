@@ -10,6 +10,7 @@ import doobie.implicits.legacy.instant._
 import domain.orders.{Order, OrderRepositoryAlgebra, OrderStatus}
 
 private object OrderSQL {
+  implicit val logHandler: LogHandler = LogHandler.petStoreLogHandler
   /* We require type StatusMeta to handle our ADT Status */
   implicit val StatusMeta: Meta[OrderStatus] =
     Meta[String].imap(OrderStatus.withName)(_.entryName)
