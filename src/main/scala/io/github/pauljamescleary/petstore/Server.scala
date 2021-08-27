@@ -13,7 +13,7 @@ import infrastructure.repository.doobie.{
 }
 import cats.effect._
 import org.http4s.server.{Router, Server => H4Server}
-import org.http4s.server.blaze.BlazeServerBuilder
+import org.http4s.blaze.server.BlazeServerBuilder
 import org.http4s.implicits._
 import tsec.passwordhashers.jca.BCrypt
 import doobie.util.ExecutionContexts
