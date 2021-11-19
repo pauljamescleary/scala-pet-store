@@ -3,11 +3,12 @@ package pets
 
 import cats.Applicative
 import cats.data.EitherT
+import cats.effect.IO
 import cats.syntax.all._
 
-class PetValidationInterpreter[F[_]: Applicative](repository: PetRepositoryAlgebra[F])
-    extends PetValidationAlgebra[F] {
-  def doesNotExist(pet: Pet): EitherT[F, PetAlreadyExistsError, Unit] = EitherT {
+class PetValidationInterpreter(repository: PetRepositoryAlgebra)
+    extends PetValidationAlgebra {
+  def doesNotExist(pet: Pet): IO[Either[PetAlreadyExistsError, Unit]] = EitherT {
     repository.findByNameAndCategory(pet.name, pet.category).map { matches =>
       if (matches.forall(possibleMatch => possibleMatch.bio != pet.bio)) {
         Right(())
@@ -15,9 +16,9 @@ class PetValidationInterpreter[F[_]: Applicative](repository: PetRepositoryAlgeb
         Left(PetAlreadyExistsError(pet))
       }
     }
-  }
+  }.value
 
-  def exists(petId: Option[Long]): EitherT[F, PetNotFoundError.type, Unit] =
+  def exists(petId: Option[Long]): IO[Either[PetNotFoundError.type, Unit]] =
     EitherT {
       petId match {
         case Some(id) =>
@@ -28,12 +29,12 @@ class PetValidationInterpreter[F[_]: Applicative](repository: PetRepositoryAlgeb
             case _ => Left(PetNotFoundError)
           }
         case _ =>
-          Either.left[PetNotFoundError.type, Unit](PetNotFoundError).pure[F]
+          PetNotFoundError.asLeft[Unit].pure[IO]
       }
-    }
+    }.value
 }
 
 object PetValidationInterpreter {
-  def apply[F[_]: Applicative](repository: PetRepositoryAlgebra[F]) =
-    new PetValidationInterpreter[F](repository)
+  def apply[F[_]: Applicative](repository: PetRepositoryAlgebra) =
+    new PetValidationInterpreter(repository)
 }

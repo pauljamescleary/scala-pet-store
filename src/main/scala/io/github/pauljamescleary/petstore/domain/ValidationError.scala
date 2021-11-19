@@ -3,7 +3,7 @@ package io.github.pauljamescleary.petstore.domain
 import pets.Pet
 import users.User
 
-sealed trait ValidationError extends Product with Serializable
+sealed trait ValidationError
 case class PetAlreadyExistsError(pet: Pet) extends ValidationError
 case object PetNotFoundError extends ValidationError
 case object OrderNotFoundError extends ValidationError

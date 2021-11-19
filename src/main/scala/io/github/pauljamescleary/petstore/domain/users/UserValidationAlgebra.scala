@@ -1,10 +1,10 @@
 package io.github.pauljamescleary.petstore.domain
 package users
 
-import cats.data.EitherT
+import cats.effect.IO
 
-trait UserValidationAlgebra[F[_]] {
-  def doesNotExist(user: User): EitherT[F, UserAlreadyExistsError, Unit]
+trait UserValidationAlgebra {
+  def doesNotExist(user: User): IO[Either[UserAlreadyExistsError, Unit]]
 
-  def exists(userId: Option[Long]): EitherT[F, UserNotFoundError.type, Unit]
+  def exists(userId: Option[Long]): IO[Either[UserNotFoundError.type, Unit]]
 }

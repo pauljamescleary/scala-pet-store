@@ -1,26 +1,24 @@
 package io.github.pauljamescleary.petstore
 package infrastructure.endpoint
 
-import cats.effect.Sync
-import cats.syntax.all._
+import cats.effect.IO
 import io.circe.generic.auto._
 import io.circe.syntax._
+import io.github.pauljamescleary.petstore.domain.OrderNotFoundError
+import io.github.pauljamescleary.petstore.domain.authentication.Auth
+import io.github.pauljamescleary.petstore.domain.orders.{Order, OrderService}
+import io.github.pauljamescleary.petstore.domain.users.User
 import org.http4s._
 import org.http4s.circe._
 import org.http4s.dsl.Http4sDsl
-
-import domain.OrderNotFoundError
-import domain.authentication.Auth
-import domain.orders.{Order, OrderService}
-import io.github.pauljamescleary.petstore.domain.users.User
 import tsec.authentication.{AugmentedJWT, SecuredRequestHandler, asAuthed}
 import tsec.jwt.algorithms.JWTMacAlgo
 
-class OrderEndpoints[F[_]: Sync, Auth: JWTMacAlgo] extends Http4sDsl[F] {
+class OrderEndpoints[Auth: JWTMacAlgo] extends Http4sDsl[IO] {
   /* Needed to decode entities */
-  implicit val orderDecoder: EntityDecoder[F, Order] = jsonOf
+  implicit val orderDecoder: EntityDecoder[IO, Order] = jsonOf
 
-  private def placeOrderEndpoint(orderService: OrderService[F]): AuthEndpoint[F, Auth] = {
+  private def placeOrderEndpoint(orderService: OrderService): AuthEndpoint[IO, Auth] = {
     case req @ POST -> Root asAuthed user =>
       for {
         order <- req.request
@@ -31,15 +29,15 @@ class OrderEndpoints[F[_]: Sync, Auth: JWTMacAlgo] extends Http4sDsl[F] {
       } yield resp
   }
 
-  private def getOrderEndpoint(orderService: OrderService[F]): AuthEndpoint[F, Auth] = {
+  private def getOrderEndpoint(orderService: OrderService): AuthEndpoint[IO, Auth] = {
     case GET -> Root / LongVar(id) asAuthed _ =>
-      orderService.get(id).value.flatMap {
+      orderService.get(id).flatMap {
         case Right(found) => Ok(found.asJson)
         case Left(OrderNotFoundError) => NotFound("The order was not found")
       }
   }
 
-  private def deleteOrderEndpoint(orderService: OrderService[F]): AuthEndpoint[F, Auth] = {
+  private def deleteOrderEndpoint(orderService: OrderService): AuthEndpoint[IO, Auth] = {
     case DELETE -> Root / LongVar(id) asAuthed _ =>
       for {
         _ <- orderService.delete(id)
@@ -48,10 +46,10 @@ class OrderEndpoints[F[_]: Sync, Auth: JWTMacAlgo] extends Http4sDsl[F] {
   }
 
   def endpoints(
-      orderService: OrderService[F],
-      auth: SecuredRequestHandler[F, Long, User, AugmentedJWT[Auth, Long]],
-  ): HttpRoutes[F] = {
-    val authEndpoints: AuthService[F, Auth] =
+      orderService: OrderService,
+      auth: SecuredRequestHandler[IO, Long, User, AugmentedJWT[Auth, Long]],
+  ): HttpRoutes[IO] = {
+    val authEndpoints: AuthService[IO, Auth] =
       Auth.allRolesHandler(
         placeOrderEndpoint(orderService).orElse(getOrderEndpoint(orderService)),
       ) {
@@ -63,9 +61,9 @@ class OrderEndpoints[F[_]: Sync, Auth: JWTMacAlgo] extends Http4sDsl[F] {
 }
 
 object OrderEndpoints {
-  def endpoints[F[_]: Sync, Auth: JWTMacAlgo](
-      orderService: OrderService[F],
-      auth: SecuredRequestHandler[F, Long, User, AugmentedJWT[Auth, Long]],
-  ): HttpRoutes[F] =
-    new OrderEndpoints[F, Auth].endpoints(orderService, auth)
+  def endpoints[Auth: JWTMacAlgo](
+      orderService: OrderService,
+      auth: SecuredRequestHandler[IO, Long, User, AugmentedJWT[Auth, Long]],
+  ): HttpRoutes[IO] =
+    new OrderEndpoints[Auth].endpoints(orderService, auth)
 }

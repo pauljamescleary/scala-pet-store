@@ -1,13 +1,17 @@
 package io.github.pauljamescleary.petstore.config
 
-import cats.syntax.functor._
-import cats.effect.{Async, Blocker, ContextShift, Resource, Sync}
+import cats.effect.{Blocker, ContextShift, IO, Resource}
 import doobie.hikari.HikariTransactor
 import org.flywaydb.core.Flyway
+import pureconfig.ConfigReader
+import pureconfig.generic.semiauto._
 
 import scala.concurrent.ExecutionContext
 
 case class DatabaseConnectionsConfig(poolSize: Int)
+object DatabaseConnectionsConfig {
+  implicit val configReader: ConfigReader[DatabaseConnectionsConfig] = deriveReader
+}
 case class DatabaseConfig(
     url: String,
     driver: String,
@@ -17,19 +21,21 @@ case class DatabaseConfig(
 )
 
 object DatabaseConfig {
-  def dbTransactor[F[_]: Async: ContextShift](
+  implicit val configReader: ConfigReader[DatabaseConfig] = deriveReader
+
+  def dbTransactor(
       dbc: DatabaseConfig,
       connEc: ExecutionContext,
       blocker: Blocker,
-  ): Resource[F, HikariTransactor[F]] =
+  )(implicit cs: ContextShift[IO]): Resource[IO, HikariTransactor[IO]] =
     HikariTransactor
-      .newHikariTransactor[F](dbc.driver, dbc.url, dbc.user, dbc.password, connEc, blocker)
+      .newHikariTransactor[IO](dbc.driver, dbc.url, dbc.user, dbc.password, connEc, blocker)
 
   /**
     * Runs the flyway migrations against the target database
     */
-  def initializeDb[F[_]](cfg: DatabaseConfig)(implicit S: Sync[F]): F[Unit] =
-    S.delay {
+  def initializeDb(cfg: DatabaseConfig): IO[Unit] =
+    IO.delay {
       val fw: Flyway =
         Flyway
           .configure()

@@ -7,7 +7,7 @@ import doobie._
 import doobie.implicits._
 import domain.pets.{Pet, PetRepositoryAlgebra, PetStatus}
 import SQLPagination._
-import cats.effect.Bracket
+import cats.effect.{Bracket, IO}
 
 private object PetSQL {
   /* We require type StatusMeta to handle our ADT Status */
@@ -72,39 +72,39 @@ private object PetSQL {
   }
 }
 
-class DoobiePetRepositoryInterpreter[F[_]: Bracket[*[_], Throwable]](val xa: Transactor[F])
-    extends PetRepositoryAlgebra[F] {
+class DoobiePetRepositoryInterpreter(val xa: Transactor[IO])
+    extends PetRepositoryAlgebra {
   import PetSQL._
 
-  def create(pet: Pet): F[Pet] =
+  def create(pet: Pet): IO[Pet] =
     insert(pet).withUniqueGeneratedKeys[Long]("ID").map(id => pet.copy(id = id.some)).transact(xa)
 
-  def update(pet: Pet): F[Option[Pet]] =
+  def update(pet: Pet): IO[Option[Pet]] =
     OptionT
       .fromOption[ConnectionIO](pet.id)
       .semiflatMap(id => PetSQL.update(pet, id).run.as(pet))
       .value
       .transact(xa)
 
-  def get(id: Long): F[Option[Pet]] = select(id).option.transact(xa)
+  def get(id: Long): IO[Option[Pet]] = select(id).option.transact(xa)
 
-  def delete(id: Long): F[Option[Pet]] =
+  def delete(id: Long): IO[Option[Pet]] =
     OptionT(select(id).option).semiflatMap(pet => PetSQL.delete(id).run.as(pet)).value.transact(xa)
 
-  def findByNameAndCategory(name: String, category: String): F[Set[Pet]] =
+  def findByNameAndCategory(name: String, category: String): IO[Set[Pet]] =
     selectByNameAndCategory(name, category).to[List].transact(xa).map(_.toSet)
 
-  def list(pageSize: Int, offset: Int): F[List[Pet]] =
+  def list(pageSize: Int, offset: Int): IO[List[Pet]] =
     paginate(pageSize, offset)(selectAll).to[List].transact(xa)
 
-  def findByStatus(statuses: NonEmptyList[PetStatus]): F[List[Pet]] =
+  def findByStatus(statuses: NonEmptyList[PetStatus]): IO[List[Pet]] =
     selectByStatus(statuses).to[List].transact(xa)
 
-  def findByTag(tags: NonEmptyList[String]): F[List[Pet]] =
+  def findByTag(tags: NonEmptyList[String]): IO[List[Pet]] =
     selectTagLikeString(tags).to[List].transact(xa)
 }
 
 object DoobiePetRepositoryInterpreter {
-  def apply[F[_]: Bracket[*[_], Throwable]](xa: Transactor[F]): DoobiePetRepositoryInterpreter[F] =
+  def apply(xa: Transactor[IO]): DoobiePetRepositoryInterpreter =
     new DoobiePetRepositoryInterpreter(xa)
 }

@@ -2,7 +2,7 @@ package io.github.pauljamescleary.petstore
 package infrastructure.repository.doobie
 
 import cats.data.OptionT
-import cats.effect.Bracket
+import cats.effect.{Bracket, IO}
 import cats.syntax.all._
 import doobie._
 import doobie.implicits._
@@ -31,28 +31,28 @@ private object OrderSQL {
   """.update
 }
 
-class DoobieOrderRepositoryInterpreter[F[_]: Bracket[*[_], Throwable]](val xa: Transactor[F])
-    extends OrderRepositoryAlgebra[F] {
+class DoobieOrderRepositoryInterpreter(val xa: Transactor[IO])
+    extends OrderRepositoryAlgebra {
   import OrderSQL._
 
-  def create(order: Order): F[Order] =
+  def create(order: Order): IO[Order] =
     insert(order)
       .withUniqueGeneratedKeys[Long]("ID")
       .map(id => order.copy(id = id.some))
       .transact(xa)
 
-  def get(orderId: Long): F[Option[Order]] =
+  def get(orderId: Long): IO[Option[Order]] =
     OrderSQL.select(orderId).option.transact(xa)
 
-  def delete(orderId: Long): F[Option[Order]] =
+  def delete(orderId: Long): IO[Option[Order]] =
     OptionT(get(orderId))
       .semiflatMap(order => OrderSQL.delete(orderId).run.transact(xa).as(order))
       .value
 }
 
 object DoobieOrderRepositoryInterpreter {
-  def apply[F[_]: Bracket[*[_], Throwable]](
-      xa: Transactor[F],
-  ): DoobieOrderRepositoryInterpreter[F] =
+  def apply(
+      xa: Transactor[IO],
+  ): DoobieOrderRepositoryInterpreter =
     new DoobieOrderRepositoryInterpreter(xa)
 }

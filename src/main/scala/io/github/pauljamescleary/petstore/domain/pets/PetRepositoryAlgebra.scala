@@ -1,21 +1,22 @@
 package io.github.pauljamescleary.petstore.domain.pets
 
 import cats.data.NonEmptyList
+import cats.effect.IO
 
-trait PetRepositoryAlgebra[F[_]] {
-  def create(pet: Pet): F[Pet]
+trait PetRepositoryAlgebra {
+  def create(pet: Pet): IO[Pet]
 
-  def update(pet: Pet): F[Option[Pet]]
+  def update(pet: Pet): IO[Option[Pet]]
 
-  def get(id: Long): F[Option[Pet]]
+  def get(id: Long): IO[Option[Pet]]
 
-  def delete(id: Long): F[Option[Pet]]
+  def delete(id: Long): IO[Option[Pet]]
 
-  def findByNameAndCategory(name: String, category: String): F[Set[Pet]]
+  def findByNameAndCategory(name: String, category: String): IO[Set[Pet]]
 
-  def list(pageSize: Int, offset: Int): F[List[Pet]]
+  def list(pageSize: Int, offset: Int): IO[List[Pet]]
 
-  def findByStatus(status: NonEmptyList[PetStatus]): F[List[Pet]]
+  def findByStatus(status: NonEmptyList[PetStatus]): IO[List[Pet]]
 
-  def findByTag(tags: NonEmptyList[String]): F[List[Pet]]
+  def findByTag(tags: NonEmptyList[String]): IO[List[Pet]]
 }

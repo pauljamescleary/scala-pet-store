@@ -1,12 +1,12 @@
 package io.github.pauljamescleary.petstore.domain
 package pets
 
-import cats.data.EitherT
+import cats.effect.IO
 
-trait PetValidationAlgebra[F[_]] {
+trait PetValidationAlgebra {
   /* Fails with a PetAlreadyExistsError */
-  def doesNotExist(pet: Pet): EitherT[F, PetAlreadyExistsError, Unit]
+  def doesNotExist(pet: Pet): IO[Either[PetAlreadyExistsError, Unit]]
 
   /* Fails with a PetNotFoundError if the pet id does not exist or if it is none */
-  def exists(petId: Option[Long]): EitherT[F, PetNotFoundError.type, Unit]
+  def exists(petId: Option[Long]): IO[Either[PetNotFoundError.type, Unit]]
 }

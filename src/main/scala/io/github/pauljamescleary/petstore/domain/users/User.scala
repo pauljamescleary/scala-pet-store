@@ -1,6 +1,7 @@
 package io.github.pauljamescleary.petstore.domain.users
 
-import cats.Applicative
+import cats.syntax.applicative._
+import cats.effect.IO
 import tsec.authorization.AuthorizationInfo
 
 case class User(
@@ -15,8 +16,8 @@ case class User(
 )
 
 object User {
-  implicit def authRole[F[_]](implicit F: Applicative[F]): AuthorizationInfo[F, Role, User] =
-    new AuthorizationInfo[F, Role, User] {
-      def fetchInfo(u: User): F[Role] = F.pure(u.role)
+  implicit val authRole: AuthorizationInfo[IO, Role, User] =
+    new AuthorizationInfo[IO, Role, User] {
+      def fetchInfo(u: User): IO[Role] = u.role.pure[IO]
     }
 }

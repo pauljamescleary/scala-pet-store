@@ -9,6 +9,7 @@ val CatsVersion = "2.6.1"
 val CirceVersion = "0.14.1"
 val CirceGenericExVersion = "0.14.1"
 val CirceConfigVersion = "0.8.0"
+val PureConfigVersion = "0.17.0"
 val DoobieVersion = "0.13.4"
 val EnumeratumCirceVersion = "1.7.0"
 val H2Version = "1.4.200"
@@ -52,6 +53,7 @@ libraryDependencies ++= Seq(
   "io.github.jmcardon" %% "tsec-jwt-mac" % TsecVersion,
   "io.github.jmcardon" %% "tsec-jwt-sig" % TsecVersion,
   "io.github.jmcardon" %% "tsec-http4s" % TsecVersion,
+  "com.github.pureconfig" %% "pureconfig" % PureConfigVersion
 )
 
 dependencyOverrides += "org.slf4j" % "slf4j-api" % Slf4jVersion

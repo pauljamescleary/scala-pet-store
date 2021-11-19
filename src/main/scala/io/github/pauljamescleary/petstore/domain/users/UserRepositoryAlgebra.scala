@@ -1,19 +1,20 @@
 package io.github.pauljamescleary.petstore.domain.users
 
 import cats.data.OptionT
+import cats.effect.IO
 
-trait UserRepositoryAlgebra[F[_]] {
-  def create(user: User): F[User]
+trait UserRepositoryAlgebra {
+  def create(user: User): IO[User]
 
-  def update(user: User): OptionT[F, User]
+  def update(user: User): IO[Option[User]]
 
-  def get(userId: Long): OptionT[F, User]
+  def get(userId: Long): OptionT[IO, User]
 
-  def delete(userId: Long): OptionT[F, User]
+  def delete(userId: Long): IO[Option[User]]
 
-  def findByUserName(userName: String): OptionT[F, User]
+  def findByUserName(userName: String): IO[Option[User]]
 
-  def deleteByUserName(userName: String): OptionT[F, User]
+  def deleteByUserName(userName: String): IO[Option[User]]
 
-  def list(pageSize: Int, offset: Int): F[List[User]]
+  def list(pageSize: Int, offset: Int): IO[List[User]]
 }

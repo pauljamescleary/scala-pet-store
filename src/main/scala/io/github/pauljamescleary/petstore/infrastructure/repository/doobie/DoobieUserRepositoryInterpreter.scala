@@ -2,7 +2,7 @@ package io.github.pauljamescleary.petstore
 package infrastructure.repository.doobie
 
 import cats.data.OptionT
-import cats.effect.Bracket
+import cats.effect.{Bracket, IO}
 import cats.syntax.all._
 import doobie._
 import doobie.implicits._
@@ -51,35 +51,41 @@ private object UserSQL {
   """.query
 }
 
-class DoobieUserRepositoryInterpreter[F[_]: Bracket[*[_], Throwable]](val xa: Transactor[F])
-    extends UserRepositoryAlgebra[F]
-    with IdentityStore[F, Long, User] { self =>
+class DoobieUserRepositoryInterpreter(val xa: Transactor[IO])
+    extends UserRepositoryAlgebra with IdentityStore[IO, Long, User] { self =>
   import UserSQL._
 
-  def create(user: User): F[User] =
+  def create(user: User): IO[User] =
     insert(user).withUniqueGeneratedKeys[Long]("ID").map(id => user.copy(id = id.some)).transact(xa)
 
-  def update(user: User): OptionT[F, User] =
-    OptionT.fromOption[F](user.id).semiflatMap { id =>
+  def update(user: User): IO[Option[User]] =
+    OptionT.fromOption[IO](user.id).semiflatMap { id =>
       UserSQL.update(user, id).run.transact(xa).as(user)
+    }.value
+
+  def get(userId: Long): OptionT[IO, User] = OptionT(select(userId).option.transact(xa))
+
+  def findByUserName(userName: String): IO[Option[User]] =
+    OptionT(byUserName(userName).option.transact(xa)).value
+
+  def delete(userId: Long): IO[Option[User]] =
+    get(userId).semiflatMap(user => UserSQL.delete(userId).run.transact(xa).as(user)).value
+
+  def deleteByUserName(userName: String): IO[Option[User]] =
+    findByUserName(userName).flatMap {
+      case Some(value) =>
+        value.id match {
+          case Some(value) => delete(value)
+          case None => IO.none
+        }
+      case None => IO.none
     }
 
-  def get(userId: Long): OptionT[F, User] = OptionT(select(userId).option.transact(xa))
-
-  def findByUserName(userName: String): OptionT[F, User] =
-    OptionT(byUserName(userName).option.transact(xa))
-
-  def delete(userId: Long): OptionT[F, User] =
-    get(userId).semiflatMap(user => UserSQL.delete(userId).run.transact(xa).as(user))
-
-  def deleteByUserName(userName: String): OptionT[F, User] =
-    findByUserName(userName).mapFilter(_.id).flatMap(delete)
-
-  def list(pageSize: Int, offset: Int): F[List[User]] =
+  def list(pageSize: Int, offset: Int): IO[List[User]] =
     paginate(pageSize, offset)(selectAll).to[List].transact(xa)
 }
 
 object DoobieUserRepositoryInterpreter {
-  def apply[F[_]: Bracket[*[_], Throwable]](xa: Transactor[F]): DoobieUserRepositoryInterpreter[F] =
+  def apply(xa: Transactor[IO]): DoobieUserRepositoryInterpreter =
     new DoobieUserRepositoryInterpreter(xa)
 }

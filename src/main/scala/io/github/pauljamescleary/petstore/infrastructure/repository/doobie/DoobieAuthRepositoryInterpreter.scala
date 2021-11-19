@@ -1,10 +1,9 @@
 package io.github.pauljamescleary.petstore.infrastructure.repository.doobie
 
 import java.time.Instant
-
 import cats._
 import cats.data._
-import cats.effect.Bracket
+import cats.effect.{Bracket, IO}
 import cats.syntax.all._
 import doobie._
 import doobie.implicits._
@@ -37,36 +36,36 @@ private object AuthSQL {
       .query[(String, Long, Instant, Option[Instant])]
 }
 
-class DoobieAuthRepositoryInterpreter[F[_]: Bracket[*[_], Throwable], A](
+class DoobieAuthRepositoryInterpreter[A](
     val key: MacSigningKey[A],
-    val xa: Transactor[F],
+    val xa: Transactor[IO],
 )(implicit
     hs: JWSSerializer[JWSMacHeader[A]],
     s: JWSMacCV[MacErrorM, A],
-) extends BackingStore[F, SecureRandomId, AugmentedJWT[A, Long]] {
-  override def put(jwt: AugmentedJWT[A, Long]): F[AugmentedJWT[A, Long]] =
+) extends BackingStore[IO, SecureRandomId, AugmentedJWT[A, Long]] {
+  override def put(jwt: AugmentedJWT[A, Long]): IO[AugmentedJWT[A, Long]] =
     AuthSQL.insert(jwt).run.transact(xa).as(jwt)
 
-  override def update(jwt: AugmentedJWT[A, Long]): F[AugmentedJWT[A, Long]] =
+  override def update(jwt: AugmentedJWT[A, Long]): IO[AugmentedJWT[A, Long]] =
     AuthSQL.update(jwt).run.transact(xa).as(jwt)
 
-  override def delete(id: SecureRandomId): F[Unit] =
+  override def delete(id: SecureRandomId): IO[Unit] =
     AuthSQL.delete(id).run.transact(xa).void
 
-  override def get(id: SecureRandomId): OptionT[F, AugmentedJWT[A, Long]] =
+  override def get(id: SecureRandomId): OptionT[IO, AugmentedJWT[A, Long]] =
     OptionT(AuthSQL.select(id).option.transact(xa)).semiflatMap {
       case (jwtStringify, identity, expiry, lastTouched) =>
         JWTMacImpure.verifyAndParse(jwtStringify, key) match {
-          case Left(err) => err.raiseError[F, AugmentedJWT[A, Long]]
-          case Right(jwt) => AugmentedJWT(id, jwt, identity, expiry, lastTouched).pure[F]
+          case Left(err) => err.raiseError[IO, AugmentedJWT[A, Long]]
+          case Right(jwt) => AugmentedJWT(id, jwt, identity, expiry, lastTouched).pure[IO]
         }
     }
 }
 
 object DoobieAuthRepositoryInterpreter {
-  def apply[F[_]: Bracket[*[_], Throwable], A](key: MacSigningKey[A], xa: Transactor[F])(implicit
+  def apply[A](key: MacSigningKey[A], xa: Transactor[IO])(implicit
       hs: JWSSerializer[JWSMacHeader[A]],
       s: JWSMacCV[MacErrorM, A],
-  ): DoobieAuthRepositoryInterpreter[F, A] =
+  ): DoobieAuthRepositoryInterpreter[A] =
     new DoobieAuthRepositoryInterpreter(key, xa)
 }

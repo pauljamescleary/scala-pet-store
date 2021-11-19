@@ -1,9 +1,11 @@
 package io.github.pauljamescleary.petstore.domain.orders
 
-trait OrderRepositoryAlgebra[F[_]] {
-  def create(order: Order): F[Order]
+import cats.effect.IO
 
-  def get(orderId: Long): F[Option[Order]]
+trait OrderRepositoryAlgebra {
+  def create(order: Order): IO[Order]
 
-  def delete(orderId: Long): F[Option[Order]]
+  def get(orderId: Long): IO[Option[Order]]
+
+  def delete(orderId: Long): IO[Option[Order]]
 }

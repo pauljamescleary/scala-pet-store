@@ -23,33 +23,33 @@ import tsec.authentication.SecuredRequestHandler
 import tsec.mac.jca.HMACSHA256
 
 object Server extends IOApp {
-  def createServer[F[_]: ContextShift: ConcurrentEffect: Timer]: Resource[F, H4Server[F]] =
+  val createServer: Resource[IO, H4Server[IO]] =
     for {
-      conf <- Resource.eval(parser.decodePathF[F, PetStoreConfig]("petstore"))
-      serverEc <- ExecutionContexts.cachedThreadPool[F]
-      connEc <- ExecutionContexts.fixedThreadPool[F](conf.db.connections.poolSize)
-      txnEc <- ExecutionContexts.cachedThreadPool[F]
+      conf <- Resource.eval(PetStoreConfig.load)
+      serverEc <- ExecutionContexts.cachedThreadPool[IO]
+      connEc <- ExecutionContexts.fixedThreadPool[IO](conf.db.connections.poolSize)
+      txnEc <- ExecutionContexts.cachedThreadPool[IO]
       xa <- DatabaseConfig.dbTransactor(conf.db, connEc, Blocker.liftExecutionContext(txnEc))
-      key <- Resource.eval(HMACSHA256.generateKey[F])
-      authRepo = DoobieAuthRepositoryInterpreter[F, HMACSHA256](key, xa)
-      petRepo = DoobiePetRepositoryInterpreter[F](xa)
-      orderRepo = DoobieOrderRepositoryInterpreter[F](xa)
-      userRepo = DoobieUserRepositoryInterpreter[F](xa)
-      petValidation = PetValidationInterpreter[F](petRepo)
-      petService = PetService[F](petRepo, petValidation)
-      userValidation = UserValidationInterpreter[F](userRepo)
-      orderService = OrderService[F](orderRepo)
-      userService = UserService[F](userRepo, userValidation)
-      authenticator = Auth.jwtAuthenticator[F, HMACSHA256](key, authRepo, userRepo)
+      key <- Resource.eval(HMACSHA256.generateKey[IO])
+      authRepo = DoobieAuthRepositoryInterpreter[HMACSHA256](key, xa)
+      petRepo = DoobiePetRepositoryInterpreter(xa)
+      orderRepo = DoobieOrderRepositoryInterpreter(xa)
+      userRepo = DoobieUserRepositoryInterpreter(xa)
+      petValidation = PetValidationInterpreter(petRepo)
+      petService = PetService(petRepo, petValidation)
+      userValidation = UserValidationInterpreter(userRepo)
+      orderService = OrderService(orderRepo)
+      userService = UserService(userRepo, userValidation)
+      authenticator = Auth.jwtAuthenticator[HMACSHA256](key, authRepo, userRepo)
       routeAuth = SecuredRequestHandler(authenticator)
       httpApp = Router(
         "/users" -> UserEndpoints
-          .endpoints[F, BCrypt, HMACSHA256](userService, BCrypt.syncPasswordHasher[F], routeAuth),
-        "/pets" -> PetEndpoints.endpoints[F, HMACSHA256](petService, routeAuth),
-        "/orders" -> OrderEndpoints.endpoints[F, HMACSHA256](orderService, routeAuth),
+          .endpoints[BCrypt, HMACSHA256](userService, BCrypt.syncPasswordHasher[IO], routeAuth),
+        "/pets" -> PetEndpoints.endpoints[HMACSHA256](petService, routeAuth),
+        "/orders" -> OrderEndpoints.endpoints[HMACSHA256](orderService, routeAuth),
       ).orNotFound
       _ <- Resource.eval(DatabaseConfig.initializeDb(conf.db))
-      server <- BlazeServerBuilder[F](serverEc)
+      server <- BlazeServerBuilder[IO](serverEc)
         .bindHttp(conf.server.port, conf.server.host)
         .withHttpApp(httpApp)
         .resource

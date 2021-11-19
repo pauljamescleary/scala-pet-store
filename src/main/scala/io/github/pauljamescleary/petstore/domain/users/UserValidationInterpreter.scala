@@ -2,30 +2,31 @@ package io.github.pauljamescleary.petstore.domain
 package users
 
 import cats.Applicative
-import cats.data.EitherT
+import cats.data.OptionT
+import cats.effect.IO
 import cats.syntax.all._
 
-class UserValidationInterpreter[F[_]: Applicative](userRepo: UserRepositoryAlgebra[F])
-    extends UserValidationAlgebra[F] {
-  def doesNotExist(user: User): EitherT[F, UserAlreadyExistsError, Unit] =
-    userRepo
-      .findByUserName(user.userName)
+class UserValidationInterpreter(userRepo: UserRepositoryAlgebra)
+    extends UserValidationAlgebra {
+  def doesNotExist(user: User): IO[Either[UserAlreadyExistsError, Unit]] =
+    OptionT(userRepo.findByUserName(user.userName))
       .map(UserAlreadyExistsError)
       .toLeft(())
+      .value
 
-  def exists(userId: Option[Long]): EitherT[F, UserNotFoundError.type, Unit] =
+  def exists(userId: Option[Long]): IO[Either[UserNotFoundError.type, Unit]] =
     userId match {
       case Some(id) =>
-        userRepo
-          .get(id)
+        userRepo.get(id)
           .toRight(UserNotFoundError)
           .void
+          .value
       case None =>
-        EitherT.left[Unit](UserNotFoundError.pure[F])
+        Left(UserNotFoundError).pure[IO]
     }
 }
 
 object UserValidationInterpreter {
-  def apply[F[_]: Applicative](repo: UserRepositoryAlgebra[F]): UserValidationAlgebra[F] =
-    new UserValidationInterpreter[F](repo)
+  def apply(repo: UserRepositoryAlgebra): UserValidationAlgebra =
+    new UserValidationInterpreter(repo)
 }
