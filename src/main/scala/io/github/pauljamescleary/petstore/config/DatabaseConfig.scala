@@ -36,5 +36,5 @@ object DatabaseConfig {
           .dataSource(cfg.url, cfg.user, cfg.password)
           .load()
       fw.migrate()
-    }.as(())
+    }.void
 }
