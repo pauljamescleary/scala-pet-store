@@ -23,7 +23,7 @@ final case class SignupRequest(
     firstName,
     lastName,
     email,
-    hashedPassword.toString,
+    hashedPassword,
     phone,
     role = role,
   )
