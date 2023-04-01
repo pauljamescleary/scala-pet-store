@@ -37,7 +37,7 @@ class PetEndpoints[F[_]: Sync, Auth: JWTMacAlgo] extends Http4sDsl[F] {
     case req @ POST -> Root asAuthed _ =>
       val action = for {
         pet <- req.request.as[Pet]
-        result <- petService.create(pet).value
+        result <- petService.create(pet)
       } yield result
 
       action.flatMap {
@@ -52,7 +52,7 @@ class PetEndpoints[F[_]: Sync, Auth: JWTMacAlgo] extends Http4sDsl[F] {
     case req @ PUT -> Root / LongVar(_) asAuthed _ =>
       val action = for {
         pet <- req.request.as[Pet]
-        result <- petService.update(pet).value
+        result <- petService.update(pet)
       } yield result
 
       action.flatMap {

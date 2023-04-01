@@ -17,17 +17,17 @@ class PetService[F[_]](
     repository: PetRepositoryAlgebra[F],
     validation: PetValidationAlgebra[F],
 ) {
-  def create(pet: Pet)(implicit M: Monad[F]): EitherT[F, PetAlreadyExistsError, Pet] =
+  def create(pet: Pet)(implicit M: Monad[F]): F[Either[PetAlreadyExistsError, Pet]] =
     for {
-      _ <- validation.doesNotExist(pet)
-      saved <- EitherT.liftF(repository.create(pet))
+      _     <- validation.doesNotExist(pet)
+      saved <- repository.create(pet).map(Right.apply)
     } yield saved
 
   /* Could argue that we could make this idempotent on put and not check if the pet exists */
-  def update(pet: Pet)(implicit M: Monad[F]): EitherT[F, PetNotFoundError.type, Pet] =
+  def update(pet: Pet)(implicit M: Monad[F]): F[Either[PetNotFoundError.type, Pet]] =
     for {
-      _ <- validation.exists(pet.id)
-      saved <- EitherT.fromOptionF(repository.update(pet), PetNotFoundError)
+      _     <- validation.exists(pet.id)
+      saved <- repository.update(pet).map(_.toRight(PetNotFoundError))
     } yield saved
 
   def get(id: Long)(implicit F: Functor[F]): EitherT[F, PetNotFoundError.type, Pet] =
