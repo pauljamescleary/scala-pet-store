@@ -20,7 +20,7 @@ class PetService[F[_]](
   def create(pet: Pet)(implicit M: Monad[F]): F[Either[PetAlreadyExistsError, Pet]] =
     for {
       _     <- validation.doesNotExist(pet)
-      saved <- repository.create(pet).map(Right.apply)
+      saved <- repository.create(pet).map(_.asRight)
     } yield saved
 
   /* Could argue that we could make this idempotent on put and not check if the pet exists */
@@ -35,7 +35,7 @@ class PetService[F[_]](
 
   /* In some circumstances we may care if we actually delete the pet; here we are idempotent and do not care */
   def delete(id: Long)(implicit F: Functor[F]): F[Unit] =
-    repository.delete(id).as(())
+    repository.delete(id).void
 
   def list(pageSize: Int, offset: Int): F[List[Pet]] =
     repository.list(pageSize, offset)
