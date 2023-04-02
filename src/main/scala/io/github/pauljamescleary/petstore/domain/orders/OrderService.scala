@@ -13,7 +13,7 @@ class OrderService[F[_]](orderRepo: OrderRepositoryAlgebra[F]) {
     EitherT.fromOptionF(orderRepo.get(id), OrderNotFoundError)
 
   def delete(id: Long)(implicit F: Functor[F]): F[Unit] =
-    orderRepo.delete(id).as(())
+    orderRepo.delete(id).void
 }
 
 object OrderService {
