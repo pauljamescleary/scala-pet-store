@@ -11,9 +11,9 @@ class PetValidationInterpreter[F[_]: Applicative](repository: PetRepositoryAlgeb
 
   override def doesNotExist(pet: Pet): F[Either[PetAlreadyExistsError, Unit]] =
     repository.findByNameAndCategory(pet.name, pet.category).map { pets =>
-      val petNames = pets.map(_.bio)
+      val petBios = pets.map(_.bio)
 
-      Either.cond(!petNames.contains(pet.name), (), PetAlreadyExistsError(pet))
+      Either.cond(!petNames.contains(pet.bio), (), PetAlreadyExistsError(pet))
     }
 
   override def exists(petId: Option[Long]): F[Either[PetNotFoundError.type, Unit]] = {
