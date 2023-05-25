@@ -18,7 +18,7 @@ val LogbackVersion = "1.2.6"
 val Slf4jVersion = "1.7.30"
 val ScalaCheckVersion = "1.15.4"
 val ScalaTestVersion = "3.2.9"
-val ScalaTestPlusVersion = "3.2.2.0"
+val ScalaTestPlusVersion = "3.2.11.0"
 val FlywayVersion = "7.15.0"
 val TsecVersion = "0.2.1"
 
@@ -43,7 +43,7 @@ libraryDependencies ++= Seq(
   "org.http4s" %% "http4s-blaze-client" % Http4sVersion % Test,
   "org.scalacheck" %% "scalacheck" % ScalaCheckVersion % Test,
   "org.scalatest" %% "scalatest" % ScalaTestVersion % Test,
-  "org.scalatestplus" %% "scalacheck-1-14" % ScalaTestPlusVersion % Test,
+  "org.scalatestplus" %% "scalacheck-1-15" % ScalaTestPlusVersion % Test,
   // Authentication dependencies
   "io.github.jmcardon" %% "tsec-common" % TsecVersion,
   "io.github.jmcardon" %% "tsec-password" % TsecVersion,
