@@ -5,7 +5,7 @@
 
 pyhamcrest==1.8.0
 pytz>=2014
-pytest==3.0.6
+pytest==9.0.3
 mock==3.0.5
 pyformance==0.3.2
 requests
